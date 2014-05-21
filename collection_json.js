@@ -4,11 +4,17 @@
 (function () {
   "use strict";
   var FoxxGenerator = require('./foxx_generator'),
-    repository;
+    Todo;
+
+  Todo = FoxxGenerator.State.generate({
+    attributes: {
+      title: { type: 'string', required: true }
+    }
+  });
 
   FoxxGenerator.Repository.generate({
     applicationContext: applicationContext,
-    // TODO: contains
+    contains: Todo,
     collection: 'todos',
     per_page: 10
   });
