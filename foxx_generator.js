@@ -46,11 +46,7 @@
       return result;
     }, {});
 
-    GeneratedModel = Foxx.Model.extend({
-    },
-    {
-      attributes: attributes
-    });
+    GeneratedModel = Foxx.Model.extend({}, { attributes: attributes });
 
     return GeneratedModel;
   };
