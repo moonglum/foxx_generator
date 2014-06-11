@@ -25,7 +25,16 @@
     var controller = new Foxx.Controller(options.applicationContext),
       model = options.contains,
       repository = new MyRepository(controller.collection('todos'), { model: model }),
-      per_page = options.per_page;
+      per_page = options.per_page,
+      BodyParam;
+
+    BodyParam = Foxx.Model.extend({
+    },
+    {
+      attributes: {
+        'title': 'string'
+      }
+    });
 
     controller.get('/', function (req, res) {
       var data = _.map(repository.all({per_page: per_page}), function (datum) {
@@ -35,6 +44,16 @@
         todos: data
       });
     });
+
+    controller.post('/', function(req, res) {
+      var data = _.map(req.params('todos'), function(model) {
+        return repository.save(model).forClient();
+      });
+      res.status(201);
+      res.json({
+        todos: data
+      });
+    }).bodyParam('todos', 'TODO', [BodyParam]);
   };
 
   State.generate = function(options) {

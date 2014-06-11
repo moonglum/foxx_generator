@@ -27,6 +27,8 @@
   "setup": "scripts/setup.js",
   "teardown": "scripts/teardown.js",
 
+  "rootElement": true,
+
   "assets": {},
   "files": {},
   "lib": "."
