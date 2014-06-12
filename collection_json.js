@@ -15,7 +15,7 @@
   FoxxGenerator.Repository.generate({
     applicationContext: applicationContext,
     contains: Todo,
-    collection: 'todos',
+    name: 'todos',
     per_page: 10
   });
 }());

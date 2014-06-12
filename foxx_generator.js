@@ -8,6 +8,7 @@
     _ = require("underscore"),
     Repository = {},
     MyRepository,
+    attribute_translator,
     State = {};
 
     MyRepository = Foxx.Repository.extend({
@@ -21,49 +22,45 @@
       }
     });
 
-  Repository.generate = function(options) {
-    var controller = new Foxx.Controller(options.applicationContext),
-      model = options.contains,
-      repository = new MyRepository(controller.collection('todos'), { model: model }),
-      per_page = options.per_page,
-      BodyParam;
-
-    BodyParam = Foxx.Model.extend({
-    },
-    {
-      attributes: {
-        'title': 'string'
-      }
-    });
-
-    controller.get('/', function (req, res) {
-      var data = _.map(repository.all({per_page: per_page}), function (datum) {
-        return datum.forClient();
-      });
-      res.json({
-        todos: data
-      });
-    }).summary('Get all entries').notes('Some fancy documentation');
-
-    controller.post('/', function(req, res) {
-      var data = _.map(req.params('todos'), function(model) {
-        return repository.save(model).forClient();
-      });
-      res.status(201);
-      res.json({
-        todos: data
-      });
-    }).bodyParam('todos', 'TODO', [BodyParam]).summary('Post new entries').notes('Some fancy documentation');
-  };
-
-  State.generate = function(options) {
-    var attributes,
-      GeneratedModel;
-
-    attributes = _.reduce(options.attributes, function (result, info, attribute_name) {
+  attribute_translator = function(attributes) {
+    return _.reduce(attributes, function (result, info, attribute_name) {
       result[attribute_name] = info.type;
       return result;
     }, {});
+  };
+
+  Repository.generate = function(options) {
+    var controller = new Foxx.Controller(options.applicationContext),
+      model = options.contains,
+      name = options.name,
+      repository = new MyRepository(controller.collection(name), { model: model }),
+      per_page = options.per_page,
+      BodyParam,
+      attributes = model.attributes;
+
+    BodyParam = Foxx.Model.extend({}, { attributes: attributes });
+
+    controller.get('/', function (req, res) {
+      var data = {};
+      data[name] = _.map(repository.all({per_page: per_page}), function (datum) {
+        return datum.forClient();
+      });
+      res.json(data);
+    }).summary('Get all entries').notes('Some fancy documentation');
+
+    controller.post('/', function(req, res) {
+      var data = {};
+      data[name] = _.map(req.params(name), function(model) {
+        return repository.save(model).forClient();
+      });
+      res.status(201);
+      res.json(data);
+    }).bodyParam(name, 'TODO', [BodyParam]).summary('Post new entries').notes('Some fancy documentation');
+  };
+
+  State.generate = function(options) {
+    var attributes = attribute_translator(options.attributes),
+      GeneratedModel;
 
     GeneratedModel = Foxx.Model.extend({}, { attributes: attributes });
 
