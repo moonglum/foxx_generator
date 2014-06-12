@@ -43,7 +43,7 @@
       res.json({
         todos: data
       });
-    });
+    }).summary('Get all entries').notes('Some fancy documentation');
 
     controller.post('/', function(req, res) {
       var data = _.map(req.params('todos'), function(model) {
@@ -53,7 +53,7 @@
       res.json({
         todos: data
       });
-    }).bodyParam('todos', 'TODO', [BodyParam]);
+    }).bodyParam('todos', 'TODO', [BodyParam]).summary('Post new entries').notes('Some fancy documentation');
   };
 
   State.generate = function(options) {
