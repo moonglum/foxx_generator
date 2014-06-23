@@ -6,19 +6,49 @@
   var Foxx = require("org/arangodb/foxx"),
     _ = require("underscore"),
     Repository = {},
-    State = {};
+    State = {},
+    FGRepository;
+
+  FGRepository = Foxx.Repository.extend({
+    updateByIdWithOperations: function (id, operations) {
+      var model = this.byId(id);
+      _.each(operations, function (operation) {
+        operation.execute(model);
+      });
+      return this.replace(model);
+    }
+  });
 
   Repository.generate = function (options) {
     var appContext = options.applicationContext,
       controller = new Foxx.Controller(appContext),
       model = options.contains,
       name = options.name,
-      repository = new Foxx.Repository(appContext.collection(name), { model: model }),
+      repository = new FGRepository(appContext.collection(name), { model: model }),
       per_page = options.per_page || 10,
       BodyParam,
+      ReplaceOperation,
       attributes = model.attributes;
 
     BodyParam = Foxx.Model.extend({}, { attributes: attributes });
+    ReplaceOperation = Foxx.Model.extend({
+      isValid: function () {
+        return (this.get('op') === 'replace');
+      },
+
+      execute: function (model) {
+        model.set(this.getAttributeName(), this.get('value'));
+      },
+
+      // Fake implementation
+      getAttributeName: function () {
+        return this.get('path').split('/').pop();
+      }
+    }, {
+      op: { type: 'string', required: true },
+      path: { type: 'string', required: true },
+      value: { type: 'string', required: true }
+    });
 
     controller.get('/', function (req, res) {
       var data = {},
@@ -47,6 +77,27 @@
       description: 'ID of the document',
       type: 'string'
     }).summary('Get a specific entry')
+      .notes('Some fancy documentation');
+
+    // This works a little different from the standard:
+    // It expects a root element, the standard does not
+    controller.patch('/:id', function (req, res) {
+      var operations = req.params('operations'),
+        id = req.params('id'),
+        data = {};
+
+      if (_.all(operations, function (x) { return x.isValid(); })) {
+        data[name] = repository.updateByIdWithOperations(id, operations).forClient();
+        res.json(data);
+      } else {
+        res.json({ error: 'Only replace is supported right now' });
+        res.status(405);
+      }
+    }).pathParam('id', {
+      description: 'ID of the document',
+      type: 'string'
+    }).bodyParam('operations', 'The operations to be executed on the document', [ReplaceOperation])
+      .summary('Update an entry')
       .notes('Some fancy documentation');
 
     controller.post('/', function (req, res) {
