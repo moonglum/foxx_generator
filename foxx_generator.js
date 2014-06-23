@@ -49,7 +49,11 @@
 
   State.generate = function (options) {
     var attributes = options.attributes;
-    return Foxx.Model.extend({}, { attributes: attributes });
+    return Foxx.Model.extend({
+      forClient: function () {
+        return _.extend({ id: this.get('_key') }, this.whitelistedAttributes);
+      }
+    }, { attributes: attributes });
   };
 
   exports.Repository = Repository;
