@@ -35,6 +35,20 @@
     }).summary('Get all entries')
       .notes('Some fancy documentation');
 
+    controller.get('/:id', function (req, res) {
+      var id = req.params('id'),
+        entry = repository.byId(id),
+        data = {};
+
+      data[name] = [entry.forClient()];
+
+      res.json(data);
+    }).pathParam('id', {
+      description: 'ID of the document',
+      type: 'string'
+    }).summary('Get a specific entry')
+      .notes('Some fancy documentation');
+
     controller.post('/', function (req, res) {
       var data = {};
       data[name] = _.map(req.params(name), function (model) {
