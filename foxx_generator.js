@@ -7,7 +7,8 @@
     _ = require("underscore"),
     Repository = {},
     State = {},
-    FGRepository;
+    FGRepository,
+    ArangoError = require('internal').ArangoError;
 
   FGRepository = Foxx.Repository.extend({
     updateByIdWithOperations: function (id, operations) {
@@ -99,6 +100,15 @@
     }).bodyParam('operations', 'The operations to be executed on the document', [ReplaceOperation])
       .summary('Update an entry')
       .notes('Some fancy documentation');
+
+    controller.del('/:id', function (req, res) {
+      var id = req.params('id');
+      repository.removeById(id);
+      res.status(204);
+    }).pathParam('id', {
+      description: 'ID of the document',
+      type: 'string'
+    }).errorResponse(ArangoError, 404, 'An entry with this ID could not be found');
 
     controller.post('/', function (req, res) {
       var data = {};
