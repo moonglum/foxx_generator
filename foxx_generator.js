@@ -1,5 +1,5 @@
 /*jslint indent: 2, nomen: true, maxlen: 100 */
-/*global require, applicationContext */
+/*global require */
 
 (function () {
   "use strict";
@@ -9,10 +9,11 @@
     State = {};
 
   Repository.generate = function (options) {
-    var controller = new Foxx.Controller(options.applicationContext),
+    var appContext = options.applicationContext,
+      controller = new Foxx.Controller(appContext),
       model = options.contains,
       name = options.name,
-      repository = new Foxx.Repository(controller.collection(name), { model: model }),
+      repository = new Foxx.Repository(appContext.collection(name), { model: model }),
       per_page = options.per_page || 10,
       BodyParam,
       attributes = model.attributes;
