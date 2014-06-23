@@ -8,26 +8,19 @@
     _ = require("underscore"),
     Repository = {},
     MyRepository,
-    attribute_translator,
     State = {};
 
+    // TODO: Paginate by options.per_page
+    // TODO: Add this to the default repository when it features pagination
     MyRepository = Foxx.Repository.extend({
       // Display all elements in the collection
       all: function (options) {
-        // TODO: Paginate by options.per_page
         return _.map(this.collection.toArray(), function (rawTodo) {
           var todo = new this.modelPrototype(rawTodo);
           return todo;
         }, this);
       }
     });
-
-  attribute_translator = function(attributes) {
-    return _.reduce(attributes, function (result, info, attribute_name) {
-      result[attribute_name] = info.type;
-      return result;
-    }, {});
-  };
 
   Repository.generate = function(options) {
     var controller = new Foxx.Controller(options.applicationContext),
@@ -59,12 +52,8 @@
   };
 
   State.generate = function(options) {
-    var attributes = attribute_translator(options.attributes),
-      GeneratedModel;
-
-    GeneratedModel = Foxx.Model.extend({}, { attributes: attributes });
-
-    return GeneratedModel;
+    var attributes = options.attributes;
+    return Foxx.Model.extend({}, { attributes: attributes });
   };
 
   exports.Repository = Repository;
