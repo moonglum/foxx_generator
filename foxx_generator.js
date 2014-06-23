@@ -20,12 +20,19 @@
     BodyParam = Foxx.Model.extend({}, { attributes: attributes });
 
     controller.get('/', function (req, res) {
-      var data = {};
-      data[name] = _.map(repository.all({skip: 0, limit: per_page}), function (datum) {
+      var data = {},
+        page = req.params('page') || 0,
+        skip = page * per_page;
+
+      data[name] = _.map(repository.all({skip: skip, limit: per_page}), function (datum) {
         return datum.forClient();
       });
       res.json(data);
-    }).summary('Get all entries').notes('Some fancy documentation');
+    }).queryParam('page', {
+      description: 'Page of the results',
+      type: 'int'
+    }).summary('Get all entries')
+      .notes('Some fancy documentation');
 
     controller.post('/', function (req, res) {
       var data = {};
