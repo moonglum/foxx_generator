@@ -10,6 +10,8 @@
     RepositoryWithOperations,
     ReplaceOperation,
     Generator,
+    createCollection,
+    createRepository,
     ArangoError = require('internal').ArangoError;
 
   RepositoryWithOperations = Foxx.Repository.extend({
@@ -41,13 +43,37 @@
     value: { type: 'string', required: true }
   });
 
+  createCollection = function (appContext, collectionName) {
+    var console = require("console"),
+      db = require("org/arangodb").db,
+      prefixedCollectionName = appContext.collectionName(collectionName);
+
+    if (db._collection(prefixedCollectionName) === null) {
+      db._create(prefixedCollectionName);
+    } else if (appContext.isProduction) {
+      console.warn("collection '%s' already exists. Leaving it untouched.", prefixedCollectionName);
+    }
+
+    return db._collection(prefixedCollectionName);
+  };
+
+  createRepository = function (appContext, collectionName, state) {
+    var repository,
+      collection = createCollection(appContext, collectionName);
+
+    repository = new RepositoryWithOperations(collection, {
+      model: state
+    });
+
+    return repository;
+  };
+
   generateRepositoryState = function (controller, appContext, options) {
     var state = options.state,
       path = options.path,
       targetPath = options.targetPath,
       nameOfRootElement = options.nameOfRootElement,
-      collectionName = options.collectionName,
-      repository = new RepositoryWithOperations(appContext.collection(collectionName), { model: state }),
+      repository = createRepository(appContext, options.collectionName, options.state),
       perPage = options.perPage || 10,
       attributes = state.attributes,
       BodyParam = Foxx.Model.extend({}, { attributes: attributes });
