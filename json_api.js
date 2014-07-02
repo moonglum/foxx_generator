@@ -55,4 +55,15 @@
       { to: 'todos/:id', via: 'contains' }
     ]
   });
+
+  generator.addState('people', {
+    type: 'repository',
+
+    collectionName: 'people',
+    perPage: 10,
+
+    transitions: [
+      { to: 'people/:id', via: 'contains' }
+    ]
+  });
 }());
