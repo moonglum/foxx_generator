@@ -33,7 +33,7 @@
     },
 
     transitions: [
-      { to: 'people', via: 'asignee' }
+      { to: 'people/:id', via: 'asignee' }
     ]
   });
 
