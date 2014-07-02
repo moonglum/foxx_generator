@@ -17,7 +17,7 @@
     },
 
     transitions: [
-      { to: 'people', via: 'AssignedTo' }
+      { to: 'people', via: 'assignedTo' }
     ]
   });
 
@@ -27,8 +27,7 @@
     }
   });
 
-  generator.addTransition('AssignedTo', {
-    relation: 'assignedTo',
+  generator.addTransition('assignedTo', {
     description: 'Get the person this object is assigned to',
     // parameters: {},
 
@@ -44,7 +43,7 @@
 
   generator.addRepository('todos', {
     transitions: [
-      { to: 'todos/:id', via: 'Contains' }
+      { to: 'todos/:id', via: 'contains' }
     ],
 
     collectionName: 'todos',

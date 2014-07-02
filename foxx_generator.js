@@ -147,14 +147,14 @@
 
     addTransition: function (name, options) {
       this.transitions[name] = {
-        relation: options.relation,
+        relation: name,
         method: options.method
       };
     },
 
     addRepository: function (name, options) {
       var containsRelation = _.find(options.transitions, function (transition) {
-        return transition.via === 'Contains';
+        return transition.via === 'contains';
       });
       options.state = this.states[containsRelation.to];
       options.nameOfRootElement = name;
