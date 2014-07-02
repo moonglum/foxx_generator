@@ -4,9 +4,6 @@
 (function () {
   "use strict";
   var FoxxGenerator = require('./foxx_generator').Generator,
-    Todo,
-    Person,
-    AssignedTo,
     generator;
 
   // Add options on which generator to use here (JSON+API etc.)
@@ -14,23 +11,23 @@
     applicationContext: applicationContext,
   });
 
-  Todo = generator.addState({
+  generator.addState('Todo', {
     attributes: {
       title: { type: 'string', required: true }
     },
 
     transitions: [
-      { to: Person, via: AssignedTo }
+      { to: 'Person', via: 'AssignedTo' }
     ]
   });
 
-  Person = generator.addState({
+  generator.addState('Person', {
     attributes: {
       name: { type: 'string', required: true }
     }
   });
 
-  AssignedTo = generator.addTransition({
+  generator.addTransition('AssignedTo', {
     relation: 'assignedTo',
     description: 'Get the person this object is assigned to',
     // parameters: {},
@@ -45,8 +42,8 @@
     method: 'GET'
   });
 
-  generator.addRepository({
-    contains: Todo,
+  generator.addRepository('TodoRepository', {
+    contains: 'Todo',
     name: 'todos',
     per_page: 10
   });

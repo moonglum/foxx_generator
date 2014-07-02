@@ -139,19 +139,23 @@
   Generator = function (options) {
     this.appContext = options.applicationContext;
     this.controller = new Foxx.Controller(this.appContext, options);
+    this.states = {};
+    this.transitions = {};
+    this.repositories = {};
   };
 
   _.extend(Generator.prototype, {
-    addState: function (options) {
-      return State.generate(options);
+    addState: function (name, options) {
+      this.states[name] = State.generate(options);
     },
 
-    addTransition: function (options) {
-      return Transition.generate(options);
+    addTransition: function (name, options) {
+      this.transitions[name] = Transition.generate(options);
     },
 
-    addRepository: function (options) {
-      return Repository.generate(this.controller, this.appContext, options);
+    addRepository: function (name, options) {
+      options.contains = this.states[options.contains];
+      this.repositories[name] = Repository.generate(this.controller, this.appContext, options);
     }
   });
 
