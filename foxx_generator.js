@@ -144,7 +144,6 @@
     this.controller = new Foxx.Controller(this.appContext, options);
     this.states = {};
     this.transitions = {};
-    this.repositories = {};
   };
 
   _.extend(Generator.prototype, {
@@ -158,7 +157,7 @@
 
     addRepository: function (name, options) {
       options.state = this.states[options.contains];
-      this.repositories[name] = Repository.generate(this.controller, this.appContext, options);
+      this.states[name] = Repository.generate(this.controller, this.appContext, options);
     }
   });
 
