@@ -22,10 +22,8 @@
     }
   });
 
-  Repository.generate = function (options) {
-    var appContext = options.applicationContext,
-      controller = new Foxx.Controller(appContext),
-      model = options.contains,
+  Repository.generate = function (controller, appContext, options) {
+    var model = options.contains,
       name = options.name,
       repository = new FGRepository(appContext.collection(name), { model: model }),
       per_page = options.per_page || 10,
@@ -138,7 +136,9 @@
   Transition.generate = function (options) {
   };
 
-  Generator = function () {
+  Generator = function (options) {
+    this.appContext = options.applicationContext;
+    this.controller = new Foxx.Controller(this.appContext, options);
   };
 
   _.extend(Generator.prototype, {
@@ -151,7 +151,7 @@
     },
 
     addRepository: function (options) {
-      return Repository.generate(options);
+      return Repository.generate(this.controller, this.appContext, options);
     }
   });
 

@@ -10,7 +10,9 @@
     generator;
 
   // Add options on which generator to use here (JSON+API etc.)
-  generator = new FoxxGenerator();
+  generator = new FoxxGenerator({
+    applicationContext: applicationContext,
+  });
 
   Todo = generator.addState({
     attributes: {
@@ -44,7 +46,6 @@
   });
 
   generator.addRepository({
-    applicationContext: applicationContext,
     contains: Todo,
     name: 'todos',
     per_page: 10
