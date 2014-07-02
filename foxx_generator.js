@@ -12,6 +12,7 @@
     Generator,
     createCollection,
     createRepository,
+    ContainsTransition,
     ArangoError = require('internal').ArangoError;
 
   RepositoryWithOperations = Foxx.Repository.extend({
@@ -71,7 +72,6 @@
   generateRepositoryState = function (controller, appContext, options) {
     var state = options.state,
       path = options.path,
-      targetPath = options.targetPath,
       nameOfRootElement = options.nameOfRootElement,
       repository = createRepository(appContext, options.collectionName, options.state),
       perPage = options.perPage || 10,
@@ -93,52 +93,6 @@
     }).summary('Get all entries')
       .notes('Some fancy documentation');
 
-    controller.get(targetPath, function (req, res) {
-      var id = req.params('id'),
-        entry = repository.byId(id),
-        data = {};
-
-      data[nameOfRootElement] = [entry.forClient()];
-
-      res.json(data);
-    }).pathParam('id', {
-      description: 'ID of the document',
-      type: 'string'
-    }).summary('Get a specific entry')
-      .notes('Some fancy documentation');
-
-    // This works a little different from the standard:
-    // It expects a root element, the standard does not
-    controller.patch(targetPath, function (req, res) {
-      var operations = req.params('operations'),
-        id = req.params('id'),
-        data = {};
-
-      if (_.all(operations, function (x) { return x.isValid(); })) {
-        data[nameOfRootElement] = repository.updateByIdWithOperations(id, operations).forClient();
-        res.json(data);
-      } else {
-        res.json({ error: 'Only replace is supported right now' });
-        res.status(405);
-      }
-    }).pathParam(path, {
-      description: 'ID of the document',
-      type: 'string'
-    }).bodyParam('operations', 'The operations to be executed on the document', [ReplaceOperation])
-      .summary('Update an entry')
-      .notes('Some fancy documentation');
-
-    controller.del(targetPath, function (req, res) {
-      var id = req.params('id');
-      repository.removeById(id);
-      res.status(204);
-    }).pathParam('id', {
-      description: 'ID of the document',
-      type: 'string'
-    }).errorResponse(ArangoError, 404, 'An entry with this ID could not be found')
-      .summary('Remove an entry')
-      .notes('Some fancy documentation');
-
     controller.post(path, function (req, res) {
       var data = {};
       data[nameOfRootElement] = _.map(req.params(nameOfRootElement), function (model) {
@@ -149,47 +103,129 @@
     }).bodyParam(nameOfRootElement, 'TODO', [BodyParam])
       .summary('Post new entries')
       .notes('Some fancy documentation');
+
+    return {
+      repository: repository
+    };
   };
 
-  generateEntityState = function (options) {
+  generateEntityState = function (name, options) {
     var attributes = options.attributes;
     return Foxx.Model.extend({
       forClient: function () {
         return _.extend({ id: this.get('_key') }, this.whitelistedAttributes);
       }
-    }, { attributes: attributes });
+    }, {
+      attributes: attributes,
+      path: '/' + name
+    });
   };
+
+  // This should later inherit from Transition
+  ContainsTransition = function (controller) {
+    this.controller = controller;
+  };
+
+  _.extend(ContainsTransition.prototype, {
+    apply: function (from, to) {
+      var targetPath = to.path,
+        repository = from.repository,
+        nameOfRootElement = 'todos';
+
+      this.controller.get(targetPath, function (req, res) {
+        var id = req.params('id'),
+          entry = repository.byId(id),
+          data = {};
+
+        data[nameOfRootElement] = [entry.forClient()];
+
+        res.json(data);
+      }).pathParam('id', {
+        description: 'ID of the document',
+        type: 'string'
+      }).summary('Get a specific entry')
+        .notes('Some fancy documentation');
+
+      // This works a little different from the standard:
+      // It expects a root element, the standard does not
+      this.controller.patch(targetPath, function (req, res) {
+        var operations = req.params('operations'),
+          id = req.params('id'),
+          data = {};
+
+        if (_.all(operations, function (x) { return x.isValid(); })) {
+          data[nameOfRootElement] = repository.updateByIdWithOperations(id, operations).forClient();
+          res.json(data);
+        } else {
+          res.json({ error: 'Only replace is supported right now' });
+          res.status(405);
+        }
+      }).pathParam('id', {
+        description: 'ID of the document',
+        type: 'string'
+      }).bodyParam('operations', 'The operations to be executed on the document', [ReplaceOperation])
+        .summary('Update an entry')
+        .notes('Some fancy documentation');
+
+      this.controller.del(targetPath, function (req, res) {
+        var id = req.params('id');
+        repository.removeById(id);
+        res.status(204);
+      }).pathParam('id', {
+        description: 'ID of the document',
+        type: 'string'
+      }).errorResponse(ArangoError, 404, 'An entry with this ID could not be found')
+        .summary('Remove an entry')
+        .notes('Some fancy documentation');
+    }
+  });
 
   Generator = function (options) {
     this.appContext = options.applicationContext;
     this.controller = new Foxx.Controller(this.appContext, options);
     this.states = {};
-    this.transitions = {};
+    this.transitions = {
+      contains: new ContainsTransition(this.controller)
+    };
   };
 
   _.extend(Generator.prototype, {
     addState: function (name, options) {
+      var newState, containsRelation;
+
       if (options.type === 'entity') {
         // Check if it has attributes and transitions
-        this.states[name] = generateEntityState(options);
+        newState = generateEntityState(name, options);
       } else if (options.type === 'repository') {
         // Check if it has collectionName, perPage, transitions and a `contains` transition
-        var containsRelation = _.find(options.transitions, function (transition) {
+        containsRelation = _.find(options.transitions, function (transition) {
           return transition.via === 'contains';
         });
         options.state = this.states[containsRelation.to];
         options.path = '/' + name;
-        options.targetPath = '/' + containsRelation.to;
         options.nameOfRootElement = name;
-        this.states[name] = generateRepositoryState(this.controller, this.appContext, options);
+        newState = generateRepositoryState(this.controller, this.appContext, options);
       }
+
+      this.states[name] = newState;
+
+      _.each(options.transitions, function (transitionDescription) {
+        var transition = this.transitions[transitionDescription.via],
+          from = newState,
+          to = this.states[transitionDescription.to];
+
+        transition.apply(from, to);
+      }, this);
     },
 
+    // This has to be adapted
     defineTransition: function (name, options) {
-      this.transitions[name] = {
-        relation: name,
-        method: options.method
+      var transition = {
+        apply: function () {
+          require('console').log('"%s" (with "%s") has to be adapted', name, options);
+        }
       };
+      this.transitions[name] = transition;
     }
   });
 
