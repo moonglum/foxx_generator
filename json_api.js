@@ -43,12 +43,9 @@
   });
 
   generator.addRepository('todos', {
-    contains: 'todos/:id',
-
-    // Should be:
-    // transitions: [
-    //   { to: 'todos/:id', via: 'Contains' }
-    // ],
+    transitions: [
+      { to: 'todos/:id', via: 'Contains' }
+    ],
 
     collectionName: 'todos',
     per_page: 10

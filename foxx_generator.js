@@ -153,7 +153,10 @@
     },
 
     addRepository: function (name, options) {
-      options.state = this.states[options.contains];
+      var containsRelation = _.find(options.transitions, function (transition) {
+        return transition.via === 'Contains';
+      });
+      options.state = this.states[containsRelation.to];
       options.nameOfRootElement = name;
       this.states[name] = generateRepositoryState(this.controller, this.appContext, options);
     }
