@@ -47,16 +47,16 @@
       nameOfRootElement = options.nameOfRootElement,
       collectionName = options.collectionName,
       repository = new RepositoryWithOperations(appContext.collection(collectionName), { model: state }),
-      per_page = options.per_page || 10,
+      perPage = options.perPage || 10,
       attributes = state.attributes,
       BodyParam = Foxx.Model.extend({}, { attributes: attributes });
 
     controller.get('/', function (req, res) {
       var data = {},
         page = req.params('page') || 0,
-        skip = page * per_page;
+        skip = page * perPage;
 
-      data[nameOfRootElement] = _.map(repository.all({skip: skip, limit: per_page}), function (datum) {
+      data[nameOfRootElement] = _.map(repository.all({skip: skip, limit: perPage}), function (datum) {
         return datum.forClient();
       });
       res.json(data);

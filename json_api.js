@@ -49,7 +49,7 @@
     type: 'repository',
 
     collectionName: 'todos',
-    per_page: 10,
+    perPage: 10,
 
     transitions: [
       { to: 'todos/:id', via: 'contains' }
