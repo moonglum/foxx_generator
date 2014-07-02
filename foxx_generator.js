@@ -9,6 +9,7 @@
     Transition = {},
     State = {},
     FGRepository,
+    ReplaceOperation,
     Generator,
     ArangoError = require('internal').ArangoError;
 
@@ -22,34 +23,33 @@
     }
   });
 
+  ReplaceOperation = Foxx.Model.extend({
+    isValid: function () {
+      return (this.get('op') === 'replace');
+    },
+
+    execute: function (model) {
+      model.set(this.getAttributeName(), this.get('value'));
+    },
+
+    // Fake implementation
+    getAttributeName: function () {
+      return this.get('path').split('/').pop();
+    }
+  }, {
+    op: { type: 'string', required: true },
+    path: { type: 'string', required: true },
+    value: { type: 'string', required: true }
+  });
+
+
   Repository.generate = function (controller, appContext, options) {
     var model = options.contains,
       name = options.name,
       repository = new FGRepository(appContext.collection(name), { model: model }),
       per_page = options.per_page || 10,
-      BodyParam,
-      ReplaceOperation,
-      attributes = model.attributes;
-
-    BodyParam = Foxx.Model.extend({}, { attributes: attributes });
-    ReplaceOperation = Foxx.Model.extend({
-      isValid: function () {
-        return (this.get('op') === 'replace');
-      },
-
-      execute: function (model) {
-        model.set(this.getAttributeName(), this.get('value'));
-      },
-
-      // Fake implementation
-      getAttributeName: function () {
-        return this.get('path').split('/').pop();
-      }
-    }, {
-      op: { type: 'string', required: true },
-      path: { type: 'string', required: true },
-      value: { type: 'string', required: true }
-    });
+      attributes = model.attributes,
+      BodyParam = Foxx.Model.extend({}, { attributes: attributes });
 
     controller.get('/', function (req, res) {
       var data = {},
@@ -134,6 +134,8 @@
   };
 
   Transition.generate = function (options) {
+    this.relation = options.relation;
+    this.method = options.method;
   };
 
   Generator = function (options) {
