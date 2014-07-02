@@ -11,17 +11,17 @@
     applicationContext: applicationContext,
   });
 
-  generator.addState('Todo', {
+  generator.addState('todos', {
     attributes: {
       title: { type: 'string', required: true }
     },
 
     transitions: [
-      { to: 'Person', via: 'AssignedTo' }
+      { to: 'people', via: 'AssignedTo' }
     ]
   });
 
-  generator.addState('Person', {
+  generator.addState('people', {
     attributes: {
       name: { type: 'string', required: true }
     }
@@ -43,7 +43,9 @@
   });
 
   generator.addRepository('TodoRepository', {
-    contains: 'Todo',
+    // This should probably be `transitions: [ { via: contains } ]
+    contains: 'todos',
+
     name: 'todos',
     per_page: 10
   });
