@@ -1,5 +1,5 @@
 {
-  "name": "collection_json",
+  "name": "json_api",
   "version": "0.0.1",
   "description": "Experimental Phase of FoxxGenerator",
   "author": "Lucas Dohmen",
@@ -21,7 +21,7 @@
   },
 
   "controllers": {
-    "/test": "collection_json.js"
+    "/json_api": "json_api.js"
   },
 
   "setup": "scripts/setup.js",
