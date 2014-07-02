@@ -44,7 +44,7 @@
 
   generateRepositoryState = function (controller, appContext, options) {
     var state = options.state,
-      contains = options.contains,
+      nameOfRootElement = options.nameOfRootElement,
       collectionName = options.collectionName,
       repository = new RepositoryWithOperations(appContext.collection(collectionName), { model: state }),
       per_page = options.per_page || 10,
@@ -56,7 +56,7 @@
         page = req.params('page') || 0,
         skip = page * per_page;
 
-      data[contains] = _.map(repository.all({skip: skip, limit: per_page}), function (datum) {
+      data[nameOfRootElement] = _.map(repository.all({skip: skip, limit: per_page}), function (datum) {
         return datum.forClient();
       });
       res.json(data);
@@ -71,7 +71,7 @@
         entry = repository.byId(id),
         data = {};
 
-      data[contains] = [entry.forClient()];
+      data[nameOfRootElement] = [entry.forClient()];
 
       res.json(data);
     }).pathParam('id', {
@@ -88,7 +88,7 @@
         data = {};
 
       if (_.all(operations, function (x) { return x.isValid(); })) {
-        data[contains] = repository.updateByIdWithOperations(id, operations).forClient();
+        data[nameOfRootElement] = repository.updateByIdWithOperations(id, operations).forClient();
         res.json(data);
       } else {
         res.json({ error: 'Only replace is supported right now' });
@@ -114,12 +114,12 @@
 
     controller.post('/', function (req, res) {
       var data = {};
-      data[contains] = _.map(req.params(contains), function (model) {
+      data[nameOfRootElement] = _.map(req.params(nameOfRootElement), function (model) {
         return repository.save(model).forClient();
       });
       res.status(201);
       res.json(data);
-    }).bodyParam(contains, 'TODO', [BodyParam])
+    }).bodyParam(nameOfRootElement, 'TODO', [BodyParam])
       .summary('Post new entries')
       .notes('Some fancy documentation');
   };
@@ -154,6 +154,7 @@
 
     addRepository: function (name, options) {
       options.state = this.states[options.contains];
+      options.nameOfRootElement = name;
       this.states[name] = generateRepositoryState(this.controller, this.appContext, options);
     }
   });
