@@ -6,7 +6,7 @@
   var Foxx = require("org/arangodb/foxx"),
     _ = require("underscore"),
     generateRepositoryState,
-    generateState,
+    generateEntityState,
     RepositoryWithOperations,
     ReplaceOperation,
     Generator,
@@ -124,7 +124,7 @@
       .notes('Some fancy documentation');
   };
 
-  generateState = function (options) {
+  generateEntityState = function (options) {
     var attributes = options.attributes;
     return Foxx.Model.extend({
       forClient: function () {
@@ -142,7 +142,18 @@
 
   _.extend(Generator.prototype, {
     addState: function (name, options) {
-      this.states[name] = generateState(options);
+      if (options.type === 'entity') {
+        // Check if it has attributes and transitions
+        this.states[name] = generateEntityState(options);
+      } else if (options.type === 'repository') {
+        // Check if it has collectionName, perPage, transitions and a `contains` transition
+        var containsRelation = _.find(options.transitions, function (transition) {
+          return transition.via === 'contains';
+        });
+        options.state = this.states[containsRelation.to];
+        options.nameOfRootElement = name;
+        this.states[name] = generateRepositoryState(this.controller, this.appContext, options);
+      }
     },
 
     defineTransition: function (name, options) {
@@ -150,15 +161,6 @@
         relation: name,
         method: options.method
       };
-    },
-
-    addRepository: function (name, options) {
-      var containsRelation = _.find(options.transitions, function (transition) {
-        return transition.via === 'contains';
-      });
-      options.state = this.states[containsRelation.to];
-      options.nameOfRootElement = name;
-      this.states[name] = generateRepositoryState(this.controller, this.appContext, options);
     }
   });
 

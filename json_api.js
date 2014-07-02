@@ -22,6 +22,8 @@
   });
 
   generator.addState('todos/:id', {
+    type: 'entity',
+
     attributes: {
       // Title of the state
       title: { type: 'string', required: true },
@@ -36,17 +38,21 @@
   });
 
   generator.addState('people/:id', {
+    type: 'entity',
+
     attributes: {
       name: { type: 'string', required: true }
     }
   });
 
-  generator.addRepository('todos', {
-    transitions: [
-      { to: 'todos/:id', via: 'contains' }
-    ],
+  generator.addState('todos', {
+    type: 'repository',
 
     collectionName: 'todos',
-    per_page: 10
+    per_page: 10,
+
+    transitions: [
+      { to: 'todos/:id', via: 'contains' }
+    ]
   });
 }());
