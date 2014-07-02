@@ -11,7 +11,7 @@
     applicationContext: applicationContext,
   });
 
-  generator.addState('todos', {
+  generator.addState('todos/:id', {
     attributes: {
       title: { type: 'string', required: true }
     },
@@ -21,7 +21,7 @@
     ]
   });
 
-  generator.addState('people', {
+  generator.addState('people/:id', {
     attributes: {
       name: { type: 'string', required: true }
     }
@@ -42,13 +42,13 @@
     method: 'GET'
   });
 
-  generator.addRepository('TodoRepository', {
-    contains: 'todos',
+  generator.addRepository('todos', {
+    contains: 'todos/:id',
 
     // Should be:
     // transitions: [
-    //   { to: 'todos', via 'Contains' }
-    // ]
+    //   { to: 'todos/:id', via: 'Contains' }
+    // ],
 
     collectionName: 'todos',
     per_page: 10
