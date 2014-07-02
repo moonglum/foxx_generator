@@ -44,11 +44,12 @@
 
 
   Repository.generate = function (controller, appContext, options) {
-    var model = options.contains,
-      name = options.name,
-      repository = new FGRepository(appContext.collection(name), { model: model }),
+    var state = options.state,
+      contains = options.contains,
+      collectionName = options.collectionName,
+      repository = new FGRepository(appContext.collection(collectionName), { model: state }),
       per_page = options.per_page || 10,
-      attributes = model.attributes,
+      attributes = state.attributes,
       BodyParam = Foxx.Model.extend({}, { attributes: attributes });
 
     controller.get('/', function (req, res) {
@@ -56,7 +57,7 @@
         page = req.params('page') || 0,
         skip = page * per_page;
 
-      data[name] = _.map(repository.all({skip: skip, limit: per_page}), function (datum) {
+      data[contains] = _.map(repository.all({skip: skip, limit: per_page}), function (datum) {
         return datum.forClient();
       });
       res.json(data);
@@ -71,7 +72,7 @@
         entry = repository.byId(id),
         data = {};
 
-      data[name] = [entry.forClient()];
+      data[contains] = [entry.forClient()];
 
       res.json(data);
     }).pathParam('id', {
@@ -88,7 +89,7 @@
         data = {};
 
       if (_.all(operations, function (x) { return x.isValid(); })) {
-        data[name] = repository.updateByIdWithOperations(id, operations).forClient();
+        data[contains] = repository.updateByIdWithOperations(id, operations).forClient();
         res.json(data);
       } else {
         res.json({ error: 'Only replace is supported right now' });
@@ -114,12 +115,12 @@
 
     controller.post('/', function (req, res) {
       var data = {};
-      data[name] = _.map(req.params(name), function (model) {
+      data[contains] = _.map(req.params(contains), function (model) {
         return repository.save(model).forClient();
       });
       res.status(201);
       res.json(data);
-    }).bodyParam(name, 'TODO', [BodyParam])
+    }).bodyParam(contains, 'TODO', [BodyParam])
       .summary('Post new entries')
       .notes('Some fancy documentation');
   };
@@ -156,7 +157,7 @@
     },
 
     addRepository: function (name, options) {
-      options.contains = this.states[options.contains];
+      options.state = this.states[options.contains];
       this.repositories[name] = Repository.generate(this.controller, this.appContext, options);
     }
   });

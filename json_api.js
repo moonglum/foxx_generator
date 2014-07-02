@@ -43,10 +43,14 @@
   });
 
   generator.addRepository('TodoRepository', {
-    // This should probably be `transitions: [ { via: contains } ]
     contains: 'todos',
 
-    name: 'todos',
+    // Should be:
+    // transitions: [
+    //   { to: 'todos', via 'Contains' }
+    // ]
+
+    collectionName: 'todos',
     per_page: 10
   });
 }());
