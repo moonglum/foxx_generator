@@ -5,9 +5,8 @@
   "use strict";
   var Foxx = require("org/arangodb/foxx"),
     _ = require("underscore"),
-    Repository = {},
-    Transition = {},
-    State = {},
+    generateRepositoryState,
+    generateState,
     RepositoryWithOperations,
     ReplaceOperation,
     Generator,
@@ -43,7 +42,7 @@
   });
 
 
-  Repository.generate = function (controller, appContext, options) {
+  generateRepositoryState = function (controller, appContext, options) {
     var state = options.state,
       contains = options.contains,
       collectionName = options.collectionName,
@@ -125,18 +124,13 @@
       .notes('Some fancy documentation');
   };
 
-  State.generate = function (options) {
+  generateState = function (options) {
     var attributes = options.attributes;
     return Foxx.Model.extend({
       forClient: function () {
         return _.extend({ id: this.get('_key') }, this.whitelistedAttributes);
       }
     }, { attributes: attributes });
-  };
-
-  Transition.generate = function (options) {
-    this.relation = options.relation;
-    this.method = options.method;
   };
 
   Generator = function (options) {
@@ -148,16 +142,19 @@
 
   _.extend(Generator.prototype, {
     addState: function (name, options) {
-      this.states[name] = State.generate(options);
+      this.states[name] = generateState(options);
     },
 
     addTransition: function (name, options) {
-      this.transitions[name] = Transition.generate(options);
+      this.transitions[name] = {
+        relation: options.relation,
+        method: options.method
+      };
     },
 
     addRepository: function (name, options) {
       options.state = this.states[options.contains];
-      this.states[name] = Repository.generate(this.controller, this.appContext, options);
+      this.states[name] = generateRepositoryState(this.controller, this.appContext, options);
     }
   });
 
