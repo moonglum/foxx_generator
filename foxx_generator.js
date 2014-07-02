@@ -145,7 +145,7 @@
       this.states[name] = generateState(options);
     },
 
-    addTransition: function (name, options) {
+    defineTransition: function (name, options) {
       this.transitions[name] = {
         relation: name,
         method: options.method

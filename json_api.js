@@ -11,13 +11,27 @@
     applicationContext: applicationContext,
   });
 
+  generator.defineTransition('asignee', {
+    description: 'Get the person this object is assigned to',
+
+    // action: function() {
+    //   Find the person in its repository
+    // },
+
+    method: 'GET'
+  });
+
   generator.addState('todos/:id', {
     attributes: {
-      title: { type: 'string', required: true }
+      // Title of the state
+      title: { type: 'string', required: true },
+
+      // User ID of the person this is assigned to
+      asignee: { type: 'string' }
     },
 
     transitions: [
-      { to: 'people', via: 'assignedTo' }
+      { to: 'people', via: 'asignee' }
     ]
   });
 
@@ -25,20 +39,6 @@
     attributes: {
       name: { type: 'string', required: true }
     }
-  });
-
-  generator.addTransition('assignedTo', {
-    description: 'Get the person this object is assigned to',
-    // parameters: {},
-
-    // condition: function(environment) {
-    //   return environment.currentUser === this.to.owner;
-    // },
-
-    // action: function() { this.to.destroy();
-    // },
-
-    method: 'GET'
   });
 
   generator.addRepository('todos', {
