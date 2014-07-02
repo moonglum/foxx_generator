@@ -41,9 +41,10 @@
     value: { type: 'string', required: true }
   });
 
-
   generateRepositoryState = function (controller, appContext, options) {
     var state = options.state,
+      path = options.path,
+      targetPath = options.targetPath,
       nameOfRootElement = options.nameOfRootElement,
       collectionName = options.collectionName,
       repository = new RepositoryWithOperations(appContext.collection(collectionName), { model: state }),
@@ -51,7 +52,7 @@
       attributes = state.attributes,
       BodyParam = Foxx.Model.extend({}, { attributes: attributes });
 
-    controller.get('/', function (req, res) {
+    controller.get(path, function (req, res) {
       var data = {},
         page = req.params('page') || 0,
         skip = page * perPage;
@@ -66,7 +67,7 @@
     }).summary('Get all entries')
       .notes('Some fancy documentation');
 
-    controller.get('/:id', function (req, res) {
+    controller.get(targetPath, function (req, res) {
       var id = req.params('id'),
         entry = repository.byId(id),
         data = {};
@@ -82,7 +83,7 @@
 
     // This works a little different from the standard:
     // It expects a root element, the standard does not
-    controller.patch('/:id', function (req, res) {
+    controller.patch(targetPath, function (req, res) {
       var operations = req.params('operations'),
         id = req.params('id'),
         data = {};
@@ -94,14 +95,14 @@
         res.json({ error: 'Only replace is supported right now' });
         res.status(405);
       }
-    }).pathParam('id', {
+    }).pathParam(path, {
       description: 'ID of the document',
       type: 'string'
     }).bodyParam('operations', 'The operations to be executed on the document', [ReplaceOperation])
       .summary('Update an entry')
       .notes('Some fancy documentation');
 
-    controller.del('/:id', function (req, res) {
+    controller.del(targetPath, function (req, res) {
       var id = req.params('id');
       repository.removeById(id);
       res.status(204);
@@ -112,7 +113,7 @@
       .summary('Remove an entry')
       .notes('Some fancy documentation');
 
-    controller.post('/', function (req, res) {
+    controller.post(path, function (req, res) {
       var data = {};
       data[nameOfRootElement] = _.map(req.params(nameOfRootElement), function (model) {
         return repository.save(model).forClient();
@@ -151,6 +152,8 @@
           return transition.via === 'contains';
         });
         options.state = this.states[containsRelation.to];
+        options.path = '/' + name;
+        options.targetPath = '/' + containsRelation.to;
         options.nameOfRootElement = name;
         this.states[name] = generateRepositoryState(this.controller, this.appContext, options);
       }
