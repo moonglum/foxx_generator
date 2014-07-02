@@ -6,6 +6,7 @@
   var Foxx = require("org/arangodb/foxx"),
     _ = require("underscore"),
     Repository = {},
+    Transition = {},
     State = {},
     FGRepository,
     ArangoError = require('internal').ArangoError;
@@ -108,7 +109,9 @@
     }).pathParam('id', {
       description: 'ID of the document',
       type: 'string'
-    }).errorResponse(ArangoError, 404, 'An entry with this ID could not be found');
+    }).errorResponse(ArangoError, 404, 'An entry with this ID could not be found')
+      .summary('Remove an entry')
+      .notes('Some fancy documentation');
 
     controller.post('/', function (req, res) {
       var data = {};
@@ -131,6 +134,10 @@
     }, { attributes: attributes });
   };
 
+  Transition.generate = function (options) {
+  };
+
   exports.Repository = Repository;
   exports.State = State;
+  exports.Transition = Transition;
 }());
