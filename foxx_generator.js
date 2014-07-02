@@ -1,4 +1,4 @@
-/*jslint indent: 2, nomen: true, maxlen: 100 */
+/*jslint indent: 2, nomen: true, maxlen: 120 */
 /*global require */
 
 (function () {
@@ -8,12 +8,12 @@
     Repository = {},
     Transition = {},
     State = {},
-    FGRepository,
+    RepositoryWithOperations,
     ReplaceOperation,
     Generator,
     ArangoError = require('internal').ArangoError;
 
-  FGRepository = Foxx.Repository.extend({
+  RepositoryWithOperations = Foxx.Repository.extend({
     updateByIdWithOperations: function (id, operations) {
       var model = this.byId(id);
       _.each(operations, function (operation) {
@@ -47,7 +47,7 @@
     var state = options.state,
       contains = options.contains,
       collectionName = options.collectionName,
-      repository = new FGRepository(appContext.collection(collectionName), { model: state }),
+      repository = new RepositoryWithOperations(appContext.collection(collectionName), { model: state }),
       per_page = options.per_page || 10,
       attributes = state.attributes,
       BodyParam = Foxx.Model.extend({}, { attributes: attributes });
