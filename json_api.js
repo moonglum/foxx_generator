@@ -3,12 +3,16 @@
 
 (function () {
   "use strict";
-  var FoxxGenerator = require('./foxx_generator'),
+  var FoxxGenerator = require('./foxx_generator').Generator,
     Todo,
     Person,
-    AssignedTo;
+    AssignedTo,
+    generator;
 
-  Todo = FoxxGenerator.State.generate({
+  // Add options on which generator to use here (JSON+API etc.)
+  generator = new FoxxGenerator();
+
+  Todo = generator.addState({
     attributes: {
       title: { type: 'string', required: true }
     },
@@ -18,13 +22,13 @@
     ]
   });
 
-  Person = FoxxGenerator.State.generate({
+  Person = generator.addState({
     attributes: {
       name: { type: 'string', required: true }
     }
   });
 
-  AssignedTo = FoxxGenerator.Transition.generate({
+  AssignedTo = generator.addTransition({
     relation: 'assignedTo',
     description: 'Get the person this object is assigned to',
     // parameters: {},
@@ -39,7 +43,7 @@
     method: 'GET'
   });
 
-  FoxxGenerator.Repository.generate({
+  generator.addRepository({
     applicationContext: applicationContext,
     contains: Todo,
     name: 'todos',

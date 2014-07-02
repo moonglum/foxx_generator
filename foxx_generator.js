@@ -9,6 +9,7 @@
     Transition = {},
     State = {},
     FGRepository,
+    Generator,
     ArangoError = require('internal').ArangoError;
 
   FGRepository = Foxx.Repository.extend({
@@ -137,7 +138,22 @@
   Transition.generate = function (options) {
   };
 
-  exports.Repository = Repository;
-  exports.State = State;
-  exports.Transition = Transition;
+  Generator = function () {
+  };
+
+  _.extend(Generator.prototype, {
+    addState: function (options) {
+      return State.generate(options);
+    },
+
+    addTransition: function (options) {
+      return Transition.generate(options);
+    },
+
+    addRepository: function (options) {
+      return Repository.generate(options);
+    }
+  });
+
+  exports.Generator = Generator;
 }());
