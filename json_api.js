@@ -52,7 +52,7 @@
     perPage: 10,
 
     transitions: [
-      { to: 'todo', via: 'contains' }
+      { to: 'todo', via: 'element' }
     ]
   });
 
@@ -63,7 +63,7 @@
     perPage: 10,
 
     transitions: [
-      { to: 'person', via: 'contains' }
+      { to: 'person', via: 'element' }
     ]
   });
 }());

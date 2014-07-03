@@ -192,23 +192,23 @@
     this.controller = new Foxx.Controller(this.appContext, options);
     this.states = {};
     this.transitions = {
-      contains: new ContainsTransition(this.controller)
+      element: new ContainsTransition(this.controller)
     };
   };
 
   _.extend(Generator.prototype, {
     addState: function (name, options) {
-      var newState, containsRelation;
+      var newState, elementRelation;
 
       if (options.type === 'entity') {
         // Check if it has attributes and transitions
         newState = generateEntityState(options);
       } else if (options.type === 'repository') {
-        // Check if it has collectionName, perPage, transitions and a `contains` transition
-        containsRelation = _.find(options.transitions, function (transition) {
-          return transition.via === 'contains';
+        // Check if it has collectionName, perPage, transitions and a `element` transition
+        elementRelation = _.find(options.transitions, function (transition) {
+          return transition.via === 'element';
         });
-        options.model = this.states[containsRelation.to].model;
+        options.model = this.states[elementRelation.to].model;
         options.entryPath = '/' + name + '/:id';
         options.collectionPath = '/' + name;
         options.nameOfRootElement = name;
