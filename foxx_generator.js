@@ -104,8 +104,8 @@
 
   _.extend(ContainsTransition.prototype, {
     apply: function (from, to) {
-      var toPath = from.entryPath,
-        fromPath = from.collectionPath,
+      var entryPath = from.entryPath,
+        collectionPath = from.collectionPath,
         perPage = from.perPage,
         repository = from.repository,
         nameOfRootElement = from.nameOfRootElement,
@@ -113,7 +113,7 @@
         attributes = Model.attributes,
         BodyParam = Foxx.Model.extend({}, { attributes: attributes });
 
-      this.controller.get(fromPath, function (req, res) {
+      this.controller.get(collectionPath, function (req, res) {
         var data = {},
           page = req.params('page') || 0,
           skip = page * perPage;
@@ -128,7 +128,7 @@
       }).summary('Get all entries')
         .notes('Some fancy documentation');
 
-      this.controller.post(fromPath, function (req, res) {
+      this.controller.post(collectionPath, function (req, res) {
         var data = {};
         data[nameOfRootElement] = _.map(req.params(nameOfRootElement), function (model) {
           return repository.save(model).forClient();
@@ -139,7 +139,7 @@
         .summary('Post new entries')
         .notes('Some fancy documentation');
 
-      this.controller.get(toPath, function (req, res) {
+      this.controller.get(entryPath, function (req, res) {
         var id = req.params('id'),
           entry = repository.byId(id),
           data = {};
@@ -155,7 +155,7 @@
 
       // This works a little different from the standard:
       // It expects a root element, the standard does not
-      this.controller.patch(toPath, function (req, res) {
+      this.controller.patch(entryPath, function (req, res) {
         var operations = req.params('operations'),
           id = req.params('id'),
           data = {};
@@ -174,7 +174,7 @@
         .summary('Update an entry')
         .notes('Some fancy documentation');
 
-      this.controller.del(toPath, function (req, res) {
+      this.controller.del(entryPath, function (req, res) {
         var id = req.params('id');
         repository.removeById(id);
         res.status(204);
