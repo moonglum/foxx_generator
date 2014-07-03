@@ -5,14 +5,11 @@
   "use strict";
   var Foxx = require("org/arangodb/foxx"),
     _ = require("underscore"),
-    generateRepositoryState,
-    generateEntityState,
     RepositoryWithOperations,
     ReplaceOperation,
     Generator,
+    State,
     createCollection,
-    createRepository,
-    createModelPrototype,
     ContainsTransition,
     ArangoError = require('internal').ArangoError;
 
@@ -59,56 +56,69 @@
     return db._collection(prefixedCollectionName);
   };
 
-  createModelPrototype = function (attributes) {
-    var Model = Foxx.Model.extend({
-      forClient: function () {
-        return _.extend({ id: this.get('_key') }, this.whitelistedAttributes);
-      }
-    }, {
-      attributes: attributes,
-    });
-    return Model;
+  State = function (name, appContext) {
+    this.name = name;
+    this.appContext = appContext;
   };
 
-  createRepository = function (appContext, collectionName, state) {
-    var repository,
-      collection = createCollection(appContext, collectionName);
+  _.extend(State.prototype, {
+    addTransitions: function (transitions, definitions, states) {
+      this.transitions = _.map(transitions, function (transitionDescription) {
+        var result = {};
+        result.type = transitionDescription.via;
+        result.transition = definitions[transitionDescription.via];
+        result.to = states[transitionDescription.to];
+        return result;
+      });
+    },
 
-    repository = new RepositoryWithOperations(collection, {
-      model: state
-    });
+    findTransition: function (type) {
+      return _.find(this.transitions, function (transition) {
+        return transition.type === type;
+      });
+    },
 
-    return repository;
-  };
+    addRepository: function (collectionName) {
+      var collection = createCollection(this.appContext, collectionName),
+        elementRelation = this.findTransition('element');
 
-  generateRepositoryState = function (options) {
-    return {
-      entryPath: options.entryPath,
-      collectionPath: options.collectionPath,
-      repository: createRepository(options.appContext, options.collectionName, options.model),
-      perPage: options.perPage || 10,
-      nameOfRootElement: options.nameOfRootElement
-    };
-  };
+      this.repository = new RepositoryWithOperations(collection, {
+        model: elementRelation.to.model
+      });
+    },
 
-  generateEntityState = function (options) {
-    return {
-      model: createModelPrototype(options.attributes)
-    };
-  };
+    addModel: function (attributes) {
+      this.model = Foxx.Model.extend({
+        forClient: function () {
+          return _.extend({ id: this.get('_key') }, this.whitelistedAttributes);
+        }
+      }, {
+        attributes: attributes,
+      });
+    },
+
+
+    applyTransitions: function () {
+      _.each(this.transitions, function (transitionDescription) {
+        transitionDescription.transition.apply(this, transitionDescription.to);
+      }, this);
+    }
+  });
 
   // This should later inherit from Transition
-  ContainsTransition = function (controller) {
+  ContainsTransition = function (appContext, controller, states) {
+    this.appContext = appContext;
     this.controller = controller;
+    this.states = states;
   };
 
   _.extend(ContainsTransition.prototype, {
     apply: function (from, to) {
-      var entryPath = from.entryPath,
-        collectionPath = from.collectionPath,
-        perPage = from.perPage,
+      var entryPath = '/' + from.name + '/:id',
+        collectionPath = '/' + from.name,
+        perPage = 10,
         repository = from.repository,
-        nameOfRootElement = from.nameOfRootElement,
+        nameOfRootElement = from.name,
         Model = to.model,
         attributes = Model.attributes,
         BodyParam = Foxx.Model.extend({}, { attributes: attributes });
@@ -192,39 +202,29 @@
     this.controller = new Foxx.Controller(this.appContext, options);
     this.states = {};
     this.transitions = {
-      element: new ContainsTransition(this.controller)
+      element: new ContainsTransition(this.appContext, this.controller, this.states)
     };
   };
 
   _.extend(Generator.prototype, {
     addState: function (name, options) {
-      var newState, elementRelation;
+      var state = new State(name, this.appContext);
 
-      if (options.type === 'entity') {
-        // Check if it has attributes and transitions
-        newState = generateEntityState(options);
-      } else if (options.type === 'repository') {
-        // Check if it has collectionName, perPage, transitions and a `element` transition
-        elementRelation = _.find(options.transitions, function (transition) {
-          return transition.via === 'element';
-        });
-        options.model = this.states[elementRelation.to].model;
-        options.entryPath = '/' + name + '/:id';
-        options.collectionPath = '/' + name;
-        options.nameOfRootElement = name;
-        options.appContext = this.appContext;
-        newState = generateRepositoryState(options);
+      state.addTransitions(options.transitions, this.transitions, this.states);
+
+      switch (options.type) {
+        case 'entity':
+          state.addModel(options.attributes);
+          break;
+        case 'repository':
+          state.addRepository(options.collectionName);
+          break;
+        default:
+          require('console').log('Unknown state type "' + options.type + '"');
       }
 
-      this.states[name] = newState;
-
-      _.each(options.transitions, function (transitionDescription) {
-        var transition = this.transitions[transitionDescription.via],
-          from = newState,
-          to = this.states[transitionDescription.to];
-
-        transition.apply(from, to);
-      }, this);
+      state.applyTransitions();
+      this.states[name] = state;
     },
 
     // This has to be adapted
