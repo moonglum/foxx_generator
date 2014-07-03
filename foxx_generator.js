@@ -12,6 +12,7 @@
     Generator,
     createCollection,
     createRepository,
+    createModelPrototype,
     ContainsTransition,
     ArangoError = require('internal').ArangoError;
 
@@ -58,6 +59,17 @@
     return db._collection(prefixedCollectionName);
   };
 
+  createModelPrototype = function (attributes) {
+    var Model = Foxx.Model.extend({
+      forClient: function () {
+        return _.extend({ id: this.get('_key') }, this.whitelistedAttributes);
+      }
+    }, {
+      attributes: attributes,
+    });
+    return Model;
+  };
+
   createRepository = function (appContext, collectionName, state) {
     var repository,
       collection = createCollection(appContext, collectionName);
@@ -69,29 +81,20 @@
     return repository;
   };
 
-  generateRepositoryState = function (appContext, options) {
-    var path = options.path,
-      repository = createRepository(appContext, options.collectionName, options.state),
-      perPage = options.perPage || 10;
-
+  generateRepositoryState = function (options) {
     return {
-      repository: repository,
-      path: path,
-      perPage: perPage
+      path: options.path,
+      repository: createRepository(options.appContext, options.collectionName, options.model),
+      perPage: options.perPage || 10,
+      nameOfRootElement: 'todos'
     };
   };
 
-  generateEntityState = function (name, options) {
-    var attributes = options.attributes;
-    return Foxx.Model.extend({
-      forClient: function () {
-        return _.extend({ id: this.get('_key') }, this.whitelistedAttributes);
-      }
-    }, {
-      attributes: attributes,
-      path: '/' + name,
-      nameOfRootElement: 'todos'
-    });
+  generateEntityState = function (options) {
+    return {
+      path: '/' + options.name,
+      model: createModelPrototype(options.attributes)
+    };
   };
 
   // This should later inherit from Transition
@@ -105,8 +108,9 @@
         fromPath = from.path,
         perPage = from.perPage,
         repository = from.repository,
-        nameOfRootElement = to.nameOfRootElement,
-        attributes = to.attributes,
+        nameOfRootElement = from.nameOfRootElement,
+        Model = to.model,
+        attributes = Model.attributes,
         BodyParam = Foxx.Model.extend({}, { attributes: attributes });
 
       this.controller.get(fromPath, function (req, res) {
@@ -198,16 +202,18 @@
 
       if (options.type === 'entity') {
         // Check if it has attributes and transitions
-        newState = generateEntityState(name, options);
+        options.name = name;
+        newState = generateEntityState(options);
       } else if (options.type === 'repository') {
         // Check if it has collectionName, perPage, transitions and a `contains` transition
         containsRelation = _.find(options.transitions, function (transition) {
           return transition.via === 'contains';
         });
-        options.state = this.states[containsRelation.to];
+        options.model = this.states[containsRelation.to].model;
         options.path = '/' + name;
         options.nameOfRootElement = name;
-        newState = generateRepositoryState(this.appContext, options);
+        options.appContext = this.appContext;
+        newState = generateRepositoryState(options);
       }
 
       this.states[name] = newState;
