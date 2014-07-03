@@ -21,7 +21,7 @@
     method: 'GET'
   });
 
-  generator.addState('todos/:id', {
+  generator.addState('todo', {
     type: 'entity',
 
     attributes: {
@@ -33,11 +33,11 @@
     },
 
     transitions: [
-      { to: 'people/:id', via: 'asignee' }
+      { to: 'person', via: 'asignee' }
     ]
   });
 
-  generator.addState('people/:id', {
+  generator.addState('person', {
     type: 'entity',
 
     attributes: {
@@ -52,7 +52,7 @@
     perPage: 10,
 
     transitions: [
-      { to: 'todos/:id', via: 'contains' }
+      { to: 'todo', via: 'contains' }
     ]
   });
 
@@ -63,7 +63,7 @@
     perPage: 10,
 
     transitions: [
-      { to: 'people/:id', via: 'contains' }
+      { to: 'person', via: 'contains' }
     ]
   });
 }());

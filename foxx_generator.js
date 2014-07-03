@@ -83,16 +83,16 @@
 
   generateRepositoryState = function (options) {
     return {
-      path: options.path,
+      entryPath: options.entryPath,
+      collectionPath: options.collectionPath,
       repository: createRepository(options.appContext, options.collectionName, options.model),
       perPage: options.perPage || 10,
-      nameOfRootElement: 'todos'
+      nameOfRootElement: options.nameOfRootElement
     };
   };
 
   generateEntityState = function (options) {
     return {
-      path: '/' + options.name,
       model: createModelPrototype(options.attributes)
     };
   };
@@ -104,8 +104,8 @@
 
   _.extend(ContainsTransition.prototype, {
     apply: function (from, to) {
-      var toPath = to.path,
-        fromPath = from.path,
+      var toPath = from.entryPath,
+        fromPath = from.collectionPath,
         perPage = from.perPage,
         repository = from.repository,
         nameOfRootElement = from.nameOfRootElement,
@@ -202,7 +202,6 @@
 
       if (options.type === 'entity') {
         // Check if it has attributes and transitions
-        options.name = name;
         newState = generateEntityState(options);
       } else if (options.type === 'repository') {
         // Check if it has collectionName, perPage, transitions and a `contains` transition
@@ -210,7 +209,8 @@
           return transition.via === 'contains';
         });
         options.model = this.states[containsRelation.to].model;
-        options.path = '/' + name;
+        options.entryPath = '/' + name + '/:id';
+        options.collectionPath = '/' + name;
         options.nameOfRootElement = name;
         options.appContext = this.appContext;
         newState = generateRepositoryState(options);
