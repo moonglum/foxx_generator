@@ -69,43 +69,15 @@
     return repository;
   };
 
-  generateRepositoryState = function (controller, appContext, options) {
-    var state = options.state,
-      path = options.path,
-      nameOfRootElement = options.nameOfRootElement,
+  generateRepositoryState = function (appContext, options) {
+    var path = options.path,
       repository = createRepository(appContext, options.collectionName, options.state),
-      perPage = options.perPage || 10,
-      attributes = state.attributes,
-      BodyParam = Foxx.Model.extend({}, { attributes: attributes });
-
-    controller.get(path, function (req, res) {
-      var data = {},
-        page = req.params('page') || 0,
-        skip = page * perPage;
-
-      data[nameOfRootElement] = _.map(repository.all({skip: skip, limit: perPage}), function (datum) {
-        return datum.forClient();
-      });
-      res.json(data);
-    }).queryParam('page', {
-      description: 'Page of the results',
-      type: 'int'
-    }).summary('Get all entries')
-      .notes('Some fancy documentation');
-
-    controller.post(path, function (req, res) {
-      var data = {};
-      data[nameOfRootElement] = _.map(req.params(nameOfRootElement), function (model) {
-        return repository.save(model).forClient();
-      });
-      res.status(201);
-      res.json(data);
-    }).bodyParam(nameOfRootElement, 'TODO', [BodyParam])
-      .summary('Post new entries')
-      .notes('Some fancy documentation');
+      perPage = options.perPage || 10;
 
     return {
-      repository: repository
+      repository: repository,
+      path: path,
+      perPage: perPage
     };
   };
 
@@ -117,7 +89,8 @@
       }
     }, {
       attributes: attributes,
-      path: '/' + name
+      path: '/' + name,
+      nameOfRootElement: 'todos'
     });
   };
 
@@ -128,11 +101,41 @@
 
   _.extend(ContainsTransition.prototype, {
     apply: function (from, to) {
-      var targetPath = to.path,
+      var toPath = to.path,
+        fromPath = from.path,
+        perPage = from.perPage,
         repository = from.repository,
-        nameOfRootElement = 'todos';
+        nameOfRootElement = to.nameOfRootElement,
+        attributes = to.attributes,
+        BodyParam = Foxx.Model.extend({}, { attributes: attributes });
 
-      this.controller.get(targetPath, function (req, res) {
+      this.controller.get(fromPath, function (req, res) {
+        var data = {},
+          page = req.params('page') || 0,
+          skip = page * perPage;
+
+        data[nameOfRootElement] = _.map(repository.all({skip: skip, limit: perPage}), function (datum) {
+          return datum.forClient();
+        });
+        res.json(data);
+      }).queryParam('page', {
+        description: 'Page of the results',
+        type: 'int'
+      }).summary('Get all entries')
+        .notes('Some fancy documentation');
+
+      this.controller.post(fromPath, function (req, res) {
+        var data = {};
+        data[nameOfRootElement] = _.map(req.params(nameOfRootElement), function (model) {
+          return repository.save(model).forClient();
+        });
+        res.status(201);
+        res.json(data);
+      }).bodyParam(nameOfRootElement, 'TODO', [BodyParam])
+        .summary('Post new entries')
+        .notes('Some fancy documentation');
+
+      this.controller.get(toPath, function (req, res) {
         var id = req.params('id'),
           entry = repository.byId(id),
           data = {};
@@ -148,7 +151,7 @@
 
       // This works a little different from the standard:
       // It expects a root element, the standard does not
-      this.controller.patch(targetPath, function (req, res) {
+      this.controller.patch(toPath, function (req, res) {
         var operations = req.params('operations'),
           id = req.params('id'),
           data = {};
@@ -167,7 +170,7 @@
         .summary('Update an entry')
         .notes('Some fancy documentation');
 
-      this.controller.del(targetPath, function (req, res) {
+      this.controller.del(toPath, function (req, res) {
         var id = req.params('id');
         repository.removeById(id);
         res.status(204);
@@ -204,7 +207,7 @@
         options.state = this.states[containsRelation.to];
         options.path = '/' + name;
         options.nameOfRootElement = name;
-        newState = generateRepositoryState(this.controller, this.appContext, options);
+        newState = generateRepositoryState(this.appContext, options);
       }
 
       this.states[name] = newState;
