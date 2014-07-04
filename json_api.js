@@ -48,8 +48,6 @@
   generator.addState('todos', {
     type: 'repository',
 
-    collectionName: 'todos',
-
     transitions: [
       { to: 'todo', via: 'element' }
     ]
@@ -57,8 +55,6 @@
 
   generator.addState('people', {
     type: 'repository',
-
-    collectionName: 'people',
 
     transitions: [
       { to: 'person', via: 'element' }

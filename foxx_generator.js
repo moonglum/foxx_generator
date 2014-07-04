@@ -217,7 +217,7 @@
           state.addModel(options.attributes);
           break;
         case 'repository':
-          state.addRepository(options.collectionName);
+          state.addRepository(name);
           break;
         default:
           require('console').log('Unknown state type "' + options.type + '"');
