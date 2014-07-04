@@ -49,7 +49,6 @@
     type: 'repository',
 
     collectionName: 'todos',
-    perPage: 10,
 
     transitions: [
       { to: 'todo', via: 'element' }
@@ -60,7 +59,6 @@
     type: 'repository',
 
     collectionName: 'people',
-    perPage: 10,
 
     transitions: [
       { to: 'person', via: 'element' }
