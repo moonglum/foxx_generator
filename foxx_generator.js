@@ -5,16 +5,36 @@
   'use strict';
   var Foxx = require('org/arangodb/foxx'),
     _ = require('underscore'),
+    graph_module = require('org/arangodb/general-graph'),
+    ArangoError = require('internal').ArangoError,
     Generator,
     State,
-    mediaTypes;
+    mediaTypes,
+    findOrCreateGraph;
+
+  findOrCreateGraph = function (name) {
+    var graph;
+
+    try {
+      graph = graph_module._graph(name);
+    } catch (e) {
+      if (e instanceof ArangoError) {
+        graph = graph_module._create(name);
+      } else {
+        throw e;
+      }
+    }
+
+    return graph;
+  };
 
   mediaTypes = {
     'application/vnd.api+json': require('./foxx_generator/json_api').mediaType
   };
 
-  State = function (name, appContext) {
+  State = function (name, graph, appContext) {
     this.name = name;
+    this.graph = graph;
     this.appContext = appContext;
   };
 
@@ -60,20 +80,24 @@
 
     createCollection: function (collectionName) {
       var console = require('console'),
-        db = require('org/arangodb').db,
         prefixedCollectionName = this.appContext.collectionName(collectionName);
 
-      if (db._collection(prefixedCollectionName) === null) {
-        db._create(prefixedCollectionName);
-      } else if (this.appContext.isProduction) {
-        console.warn('collection "%s" already exists. Leaving it untouched.', prefixedCollectionName);
+      try {
+        this.graph._addVertexCollection(prefixedCollectionName, true);
+      } catch (e) {
+        if (e instanceof ArangoError) {
+          console.log('collection "%s" already exists. Leaving it untouched.', prefixedCollectionName);
+        } else {
+          throw e;
+        }
       }
 
-      this.collection = db._collection(prefixedCollectionName);
+      this.collection = this.graph[prefixedCollectionName];
     }
   });
 
-  Generator = function (options) {
+  Generator = function (name, options) {
+    this.graph = findOrCreateGraph(name);
     this.mediaType = mediaTypes[options.mediaType];
     this.appContext = options.applicationContext;
     this.controller = new Foxx.Controller(this.appContext, options);
@@ -86,7 +110,7 @@
 
   _.extend(Generator.prototype, {
     addState: function (name, options) {
-      var state = new State(name, this.appContext);
+      var state = new State(name, this.graph, this.appContext);
 
       state.addTransitions(options.transitions, this.transitions, this.states);
 
