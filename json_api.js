@@ -14,11 +14,12 @@
   generator.defineTransition('asignee', {
     description: 'Get the person this object is assigned to',
 
+    to: 'one',
+    // to: 'many',
+
     // action: function() {
     //   Find the person in its repository
     // },
-
-    method: 'GET'
   });
 
   generator.addState('todo', {
