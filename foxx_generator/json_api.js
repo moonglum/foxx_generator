@@ -19,6 +19,21 @@
         operation.execute(model);
       });
       return this.replace(model);
+    },
+
+    withNeighborsById: function (id, relations) {
+      var result = this.byId(id),
+        graph = this.graph,
+        links = {};
+
+      _.each(relations, function (relation) {
+        links[relation] = graph._neighbors(id, {
+          edgeCollectionRestriction: [relation]
+        });
+      });
+
+      result.set('links', links);
+      return result;
     }
   });
 
@@ -63,6 +78,7 @@
         nameOfRootElement = from.name,
         Model = to.model,
         attributes = Model.attributes,
+        relationNames = to.relationNames,
         BodyParam = Foxx.Model.extend({}, { attributes: attributes });
 
       this.controller.get(collectionPath, function (req, res) {
@@ -93,7 +109,7 @@
 
       this.controller.get(entryPath, function (req, res) {
         var id = req.params('id'),
-          entry = repository.byId(id),
+          entry = repository.withNeighborsById(id, relationNames),
           data = {};
 
         data[nameOfRootElement] = [entry.forClient()];

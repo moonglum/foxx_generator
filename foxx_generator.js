@@ -9,6 +9,7 @@
     ArangoError = require('internal').ArangoError,
     Generator,
     State,
+    generateTransition,
     mediaTypes,
     findOrCreateGraph;
 
@@ -32,9 +33,30 @@
     'application/vnd.api+json': require('./foxx_generator/json_api').mediaType
   };
 
+  // relation is either `one` or `many`
+  generateTransition = function (name, relation) {
+    var Transition = function (appContext, controller, states) {
+      this.appContext = appContext;
+      this.controller = controller;
+      this.states = states;
+    };
+
+    _.extend(Transition.prototype, {
+      apply: function (from, to) {
+        // 1. Create Edge Collection + Definition
+        // 2. Add Routes to the Controller
+        // 3. Add outgoing links to from's representation
+        from.relationNames.push('hihihi');
+      }
+    });
+
+    return Transition;
+  };
+
   State = function (name, graph, appContext) {
     this.name = name;
     this.graph = graph;
+    this.relationNames = [];
     this.appContext = appContext;
   };
 
@@ -62,13 +84,14 @@
       this.createCollection(collectionName);
 
       this.repository = new Repository(this.collection, {
-        model: elementRelation.to.model
+        model: elementRelation.to.model,
+        graph: this.graph
       });
     },
 
     addModel: function (Model, attributes) {
       this.model = Model.extend({}, {
-        attributes: attributes,
+        attributes: _.extend(attributes, { links: { type: 'object' }})
       });
     },
 
@@ -125,18 +148,20 @@
         require('console').log('Unknown state type "' + options.type + '"');
       }
 
-      state.applyTransitions();
       this.states[name] = state;
     },
 
-    // This has to be adapted
     defineTransition: function (name, options) {
-      var transition = {
-        apply: function () {
-          require('console').log('"%s" (with "%s") has to be adapted', name, options);
-        }
-      };
-      this.transitions[name] = transition;
+      var Transition = generateTransition(name, options.to);
+      this.transitions[name] = new Transition(this.appContext, this.controller, this.states);
+    },
+
+    generate: function () {
+      _.each(this.states, function(state) {
+        require('console').log('State Name: %s', state.name);
+        state.applyTransitions();
+        require('console').log('relation names: %s', state.relationnames);
+      });
     }
   });
 

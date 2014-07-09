@@ -19,6 +19,18 @@
     // to: 'many'
   });
 
+  generator.addState('person', {
+    type: 'entity',
+
+    attributes: {
+      name: { type: 'string', required: true }
+    },
+
+    transitions: [
+      // { to: 'todo', via: 'assigned' }
+    ]
+  });
+
   generator.addState('todo', {
     type: 'entity',
 
@@ -32,18 +44,6 @@
 
     transitions: [
       { to: 'person', via: 'asignee' }
-    ]
-  });
-
-  generator.addState('person', {
-    type: 'entity',
-
-    attributes: {
-      name: { type: 'string', required: true }
-    },
-
-    transitions: [
-      // { to: 'todo', via: 'assigned' }
     ]
   });
 
@@ -62,4 +62,6 @@
       { to: 'person', via: 'element' }
     ]
   });
+
+  generator.generate();
 }());
