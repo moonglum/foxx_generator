@@ -13,13 +13,10 @@
 
   generator.defineTransition('asignee', {
     description: 'Get the person this object is assigned to',
-
     to: 'one',
-    // to: 'many',
-
-    // action: function() {
-    //   Find the person in its repository
-    // },
+  // }).inverseTranstion('assigned', {
+    // description: 'Get all objects that are assigned to this person',
+    // to: 'many'
   });
 
   generator.addState('todo', {
@@ -43,7 +40,11 @@
 
     attributes: {
       name: { type: 'string', required: true }
-    }
+    },
+
+    transitions: [
+      // { to: 'todo', via: 'assigned' }
+    ]
   });
 
   generator.addState('todos', {
