@@ -35,8 +35,9 @@
 
   // relation is either `one` or `many`
   generateTransition = function (name, relation) {
-    var Transition = function (appContext, controller, states) {
+    var Transition = function (appContext, graph, controller, states) {
       this.appContext = appContext;
+      this.graph = graph;
       this.controller = controller;
       this.states = states;
     };
@@ -126,7 +127,7 @@
     this.controller = new Foxx.Controller(this.appContext, options);
     this.states = {};
     this.transitions = _.reduce(this.mediaType.transitions, function (transitions, tuple) {
-      transitions[tuple.name] = new tuple.Transition(this.appContext, this.controller, this.states);
+      transitions[tuple.name] = new tuple.Transition(this.appContext, this.graph, this.controller, this.states);
       return transitions;
     }, {}, this);
   };
@@ -153,7 +154,7 @@
 
     defineTransition: function (name, options) {
       var Transition = generateTransition(name, options.to);
-      this.transitions[name] = new Transition(this.appContext, this.controller, this.states);
+      this.transitions[name] = new Transition(this.appContext, this.graph, this.controller, this.states);
     },
 
     generate: function () {

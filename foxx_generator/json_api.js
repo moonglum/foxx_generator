@@ -63,8 +63,9 @@
   });
 
   // This should later inherit from Transition
-  ContainsTransition = function (appContext, controller, states) {
+  ContainsTransition = function (appContext, graph, controller, states) {
     this.appContext = appContext;
+    this.graph = graph;
     this.controller = controller;
     this.states = states;
   };
