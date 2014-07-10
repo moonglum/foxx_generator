@@ -79,12 +79,12 @@
   };
 
   _.extend(State.prototype, {
-    addTransitions: function (transitions, definitions, states) {
+    addTransitions: function (transitions, definitions) {
       this.transitions = _.map(transitions, function (transitionDescription) {
         var result = {};
         result.type = transitionDescription.via;
         result.transition = definitions[transitionDescription.via];
-        result.to = states[transitionDescription.to];
+        result.to = transitionDescription.to;
         return result;
       });
     },
@@ -113,9 +113,10 @@
       });
     },
 
-    applyTransitions: function () {
+    applyTransitions: function (states) {
       _.each(this.transitions, function (transitionDescription) {
-        transitionDescription.transition.apply(this, transitionDescription.to);
+        var to = states[transitionDescription.to];
+        transitionDescription.transition.apply(this, to);
       }, this);
     },
 
@@ -153,7 +154,7 @@
     addState: function (name, options) {
       var state = new State(name, this.graph, this.appContext);
 
-      state.addTransitions(options.transitions, this.transitions, this.states);
+      state.addTransitions(options.transitions, this.transitions);
 
       switch (options.type) {
       case 'entity':
@@ -176,8 +177,8 @@
 
     generate: function () {
       _.each(this.states, function(state) {
-        state.applyTransitions();
-      });
+        state.applyTransitions(this.states);
+      }, this);
     }
   });
 
