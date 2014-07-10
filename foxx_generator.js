@@ -33,8 +33,7 @@
     'application/vnd.api+json': require('./foxx_generator/json_api').mediaType
   };
 
-  // relation is either `one` or `many`
-  generateTransition = function (name, relation) {
+  generateTransition = function (name, type) {
     var Transition = function (appContext, graph, controller, states) {
       this.name = name;
       this.appContext = appContext;
@@ -64,7 +63,7 @@
 
         // TODO: Add Routes for manipulating the edges of the resource here
 
-        from.relationNames.push({ relationName: name, edgeCollectionName: edgeCollectionName });
+        from.relationNames.push({ relationName: name, edgeCollectionName: edgeCollectionName, type: type });
       }
     });
 

@@ -31,7 +31,12 @@
         var neighbors = graph._neighbors(id, {
           edgeCollectionRestriction: [relation.edgeCollectionName]
         });
-        links[relation.relationName] = _.pluck(neighbors, '_key');
+
+        if (relation.type === 'one') {
+          links[relation.relationName] = neighbors[0]._key;
+        } else if (relation.type === 'many') {
+          links[relation.relationName] = _.pluck(neighbors, '_key');
+        }
       });
 
       result.set('links', links);
