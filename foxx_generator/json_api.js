@@ -8,7 +8,7 @@
     ArangoError = require('internal').ArangoError,
     JsonApiModel,
     JsonApiRepository,
-    ContainsTransition,
+    ElementTransition,
     ReplaceOperation,
     transitions = [];
 
@@ -80,15 +80,14 @@
     value: { type: 'string', required: true }
   });
 
-  // This should later inherit from Transition
-  ContainsTransition = function (appContext, graph, controller, states) {
+  ElementTransition = function (appContext, graph, controller, states) {
     this.appContext = appContext;
     this.graph = graph;
     this.controller = controller;
     this.states = states;
   };
 
-  _.extend(ContainsTransition.prototype, {
+  _.extend(ElementTransition.prototype, {
     apply: function (from, to) {
       var entryPath = '/' + from.name + '/:id',
         collectionPath = '/' + from.name,
@@ -176,7 +175,7 @@
     }
   });
 
-  transitions.push({ name: 'element', Transition: ContainsTransition });
+  transitions.push({ name: 'element', Transition: ElementTransition });
 
   exports.mediaType = {
     Model: JsonApiModel,
