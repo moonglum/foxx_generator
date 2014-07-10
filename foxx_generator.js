@@ -36,6 +36,7 @@
   // relation is either `one` or `many`
   generateTransition = function (name, relation) {
     var Transition = function (appContext, graph, controller, states) {
+      this.name = name;
       this.appContext = appContext;
       this.graph = graph;
       this.controller = controller;
@@ -44,10 +45,26 @@
 
     _.extend(Transition.prototype, {
       apply: function (from, to) {
-        // 1. Create Edge Collection + Definition
-        // 2. Add Routes to the Controller
-        // 3. Add outgoing links to from's representation
-        from.relationNames.push('hihihi');
+        var edgeCollectionName = this.appContext.collectionName(name + '_' + from.name + '_' + to.name),
+          // TODO: This is cheating
+          fromCollectionName = this.appContext.collectionName('people'),
+          toCollectionName = this.appContext.collectionName('todos'),
+          vertexCollections = [ fromCollectionName, toCollectionName ],
+          edgeDefinition = graph_module._undirectedRelation(edgeCollectionName, vertexCollections);
+
+        try {
+          this.graph._extendEdgeDefinitions(edgeDefinition);
+        } catch (e) {
+          if (e instanceof ArangoError) {
+            require('console').log('Edge Definition "%s" already added', edgeCollectionName);
+          } else {
+            throw e;
+          }
+        }
+
+        // TODO: Add Routes for manipulating the edges of the resource here
+
+        from.relationNames.push(edgeCollectionName);
       }
     });
 
@@ -159,9 +176,7 @@
 
     generate: function () {
       _.each(this.states, function(state) {
-        require('console').log('State Name: %s', state.name);
         state.applyTransitions();
-        require('console').log('relation names: %s', state.relationnames);
       });
     }
   });

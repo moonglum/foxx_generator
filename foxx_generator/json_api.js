@@ -21,15 +21,17 @@
       return this.replace(model);
     },
 
-    withNeighborsById: function (id, relations) {
-      var result = this.byId(id),
+    withNeighborsById: function (key, relations) {
+      var result = this.byId(key),
+        id = this.collection.name() + '/' + key,
         graph = this.graph,
         links = {};
 
       _.each(relations, function (relation) {
-        links[relation] = graph._neighbors(id, {
+        var neighbors = graph._neighbors(id, {
           edgeCollectionRestriction: [relation]
         });
+        links[relation] = _.pluck(neighbors, '_key');
       });
 
       result.set('links', links);
@@ -39,7 +41,8 @@
 
   JsonApiModel = Foxx.Model.extend({
     forClient: function () {
-      return _.extend({ id: this.get('_key') }, this.whitelistedAttributes);
+      var attributes = Foxx.Model.prototype.forClient.call(this);
+      return _.extend({ id: this.get('_key') }, attributes);
     }
   });
 
