@@ -94,14 +94,12 @@
     },
 
     // This is still bound to the implementation of JSON+API
-    addRepository: function (Repository) {
-      var elementRelation = this.findTransition('element');
-
+    addRepository: function (Repository, Model) {
       this.createCollection(this.name);
       this.collectionName = this.collection.name();
 
       this.repository = new Repository(this.collection, {
-        model: elementRelation.to.model,
+        model: Model,
         graph: this.graph
       });
     },
@@ -160,7 +158,9 @@
         state.addModel(this.mediaType.Model, options.attributes);
         break;
       case 'repository':
-        state.addRepository(this.mediaType.Repository);
+        var elementRelation = state.findTransition('element'),
+          Model = this.states[elementRelation.to].model;
+        state.addRepository(this.mediaType.Repository, Model);
         break;
       default:
         require('console').log('Unknown state type "' + options.type + '"');

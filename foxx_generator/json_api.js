@@ -24,7 +24,9 @@
 
     allWithNeighbors: function (options) {
       var results = this.all(options);
-      _.each(results, this.addLinks);
+      _.each(results, function (result) {
+        this.addLinks(result);
+      }, this);
       return results;
     },
 
@@ -44,7 +46,7 @@
           edgeCollectionRestriction: [relation.edgeCollectionName]
         });
 
-        if (relation.type === 'one') {
+        if (relation.type === 'one' && neighbors.length > 0) {
           links[relation.relationName] = neighbors[0]._key;
         } else if (relation.type === 'many') {
           links[relation.relationName] = _.pluck(neighbors, '_key');
