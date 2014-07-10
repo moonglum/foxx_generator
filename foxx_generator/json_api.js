@@ -12,24 +12,6 @@
     ReplaceOperation,
     transitions = [];
 
-  var addLinks = function (model, graph, relationNames) {
-    var links = {};
-
-    _.each(relationNames, function (relation) {
-      var neighbors = graph._neighbors(model.id, {
-        edgeCollectionRestriction: [relation.edgeCollectionName]
-      });
-
-      if (relation.type === 'one') {
-        links[relation.relationName] = neighbors[0]._key;
-      } else if (relation.type === 'many') {
-        links[relation.relationName] = _.pluck(neighbors, '_key');
-      }
-    });
-
-    model.set('links', links);
-  };
-
   JsonApiRepository = Foxx.Repository.extend({
     updateByIdWithOperations: function (id, operations) {
       var model = this.byId(id);
@@ -41,18 +23,34 @@
 
     allWithNeighbors: function (options) {
       var results = this.all(options);
-
-      _.each(results, function (result) {
-        addLinks(result, this.graph, this.relationNames);
-      }, this);
-
+      _.each(results, this.addLinks);
       return results;
     },
 
     byIdWithNeighbors: function (key) {
       var result = this.byId(key);
-      addLinks(result, this.graph, this.relationNames);
+      this.addLinks(result);
       return result;
+    },
+
+    addLinks: function (model) {
+      var links = {},
+        graph = this.graph,
+        relationNames = this.relationNames;
+
+      _.each(relationNames, function (relation) {
+        var neighbors = graph._neighbors(model.id, {
+          edgeCollectionRestriction: [relation.edgeCollectionName]
+        });
+
+        if (relation.type === 'one') {
+          links[relation.relationName] = neighbors[0]._key;
+        } else if (relation.type === 'many') {
+          links[relation.relationName] = _.pluck(neighbors, '_key');
+        }
+      });
+
+      model.set('links', links);
     }
   });
 
