@@ -12,6 +12,24 @@
     ReplaceOperation,
     transitions = [];
 
+  var addLinks = function (model, graph, relationNames) {
+    var links = {};
+
+    _.each(relationNames, function (relation) {
+      var neighbors = graph._neighbors(model.id, {
+        edgeCollectionRestriction: [relation.edgeCollectionName]
+      });
+
+      if (relation.type === 'one') {
+        links[relation.relationName] = neighbors[0]._key;
+      } else if (relation.type === 'many') {
+        links[relation.relationName] = _.pluck(neighbors, '_key');
+      }
+    });
+
+    model.set('links', links);
+  };
+
   JsonApiRepository = Foxx.Repository.extend({
     updateByIdWithOperations: function (id, operations) {
       var model = this.byId(id);
@@ -21,25 +39,19 @@
       return this.replace(model);
     },
 
+    allWithNeighbors: function (options, relationNames) {
+      var results = this.all(options);
+
+      _.each(results, function (result) {
+        addLinks(result, this.graph, relationNames);
+      }, this);
+
+      return results;
+    },
+
     byIdWithNeighbors: function (key, relationNames) {
-      var result = this.byId(key),
-        id = this.collection.name() + '/' + key,
-        graph = this.graph,
-        links = {};
-
-      _.each(relationNames, function (relation) {
-        var neighbors = graph._neighbors(id, {
-          edgeCollectionRestriction: [relation.edgeCollectionName]
-        });
-
-        if (relation.type === 'one') {
-          links[relation.relationName] = neighbors[0]._key;
-        } else if (relation.type === 'many') {
-          links[relation.relationName] = _.pluck(neighbors, '_key');
-        }
-      });
-
-      result.set('links', links);
+      var result = this.byId(key);
+      addLinks(result, this.graph, relationNames);
       return result;
     }
   });
@@ -93,9 +105,10 @@
       this.controller.get(collectionPath, function (req, res) {
         var data = {},
           page = req.params('page') || 0,
-          skip = page * perPage;
+          skip = page * perPage,
+          options = { skip: skip, limit: perPage };
 
-        data[nameOfRootElement] = _.map(repository.all({skip: skip, limit: perPage}), function (datum) {
+        data[nameOfRootElement] = _.map(repository.allWithNeighbors(options, relationNames), function (datum) {
           return datum.forClient();
         });
         res.json(data);
