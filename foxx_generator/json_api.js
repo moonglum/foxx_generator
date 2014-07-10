@@ -187,7 +187,7 @@
 
   _.extend(ContainerTransition.prototype, {
     apply: function (from, to) {
-      require('console').log('From: %s, To: %s', from, to);
+      from.collectionName = to.collectionName;
     }
   });
 

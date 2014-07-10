@@ -99,6 +99,7 @@
       var elementRelation = this.findTransition('element');
 
       this.createCollection(this.name);
+      this.collectionName = this.collection.name();
 
       this.repository = new Repository(this.collection, {
         model: elementRelation.to.model,
