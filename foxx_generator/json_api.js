@@ -39,19 +39,19 @@
       return this.replace(model);
     },
 
-    allWithNeighbors: function (options, relationNames) {
+    allWithNeighbors: function (options) {
       var results = this.all(options);
 
       _.each(results, function (result) {
-        addLinks(result, this.graph, relationNames);
+        addLinks(result, this.graph, this.relationNames);
       }, this);
 
       return results;
     },
 
-    byIdWithNeighbors: function (key, relationNames) {
+    byIdWithNeighbors: function (key) {
       var result = this.byId(key);
-      addLinks(result, this.graph, relationNames);
+      addLinks(result, this.graph, this.relationNames);
       return result;
     }
   });
@@ -99,8 +99,9 @@
         nameOfRootElement = from.name,
         Model = to.model,
         attributes = Model.attributes,
-        relationNames = to.relationNames,
         BodyParam = Foxx.Model.extend({}, { attributes: attributes });
+
+      repository.relationNames = to.relationNames;
 
       this.controller.get(collectionPath, function (req, res) {
         var data = {},
@@ -108,7 +109,7 @@
           skip = page * perPage,
           options = { skip: skip, limit: perPage };
 
-        data[nameOfRootElement] = _.map(repository.allWithNeighbors(options, relationNames), function (datum) {
+        data[nameOfRootElement] = _.map(repository.allWithNeighbors(options), function (datum) {
           return datum.forClient();
         });
         res.json(data);
@@ -131,7 +132,7 @@
 
       this.controller.get(entryPath, function (req, res) {
         var id = req.params('id'),
-          entry = repository.byIdWithNeighbors(id, relationNames),
+          entry = repository.byIdWithNeighbors(id),
           data = {};
 
         data[nameOfRootElement] = [entry.forClient()];
