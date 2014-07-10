@@ -64,7 +64,7 @@
 
         // TODO: Add Routes for manipulating the edges of the resource here
 
-        from.relationNames.push(edgeCollectionName);
+        from.relationNames.push({ relationName: name, edgeCollectionName: edgeCollectionName });
       }
     });
 
@@ -81,11 +81,11 @@
   _.extend(State.prototype, {
     addTransitions: function (transitions, definitions) {
       this.transitions = _.map(transitions, function (transitionDescription) {
-        var result = {};
-        result.type = transitionDescription.via;
-        result.transition = definitions[transitionDescription.via];
-        result.to = transitionDescription.to;
-        return result;
+        return {
+          type: transitionDescription.via,
+          transition: definitions[transitionDescription.via],
+          to: transitionDescription.to
+        };
       });
     },
 
@@ -96,10 +96,10 @@
     },
 
     // This is still bound to the implementation of JSON+API
-    addRepository: function (Repository, collectionName) {
+    addRepository: function (Repository) {
       var elementRelation = this.findTransition('element');
 
-      this.createCollection(collectionName);
+      this.createCollection(this.name);
 
       this.repository = new Repository(this.collection, {
         model: elementRelation.to.model,
@@ -161,7 +161,7 @@
         state.addModel(this.mediaType.Model, options.attributes);
         break;
       case 'repository':
-        state.addRepository(this.mediaType.Repository, name);
+        state.addRepository(this.mediaType.Repository);
         break;
       default:
         require('console').log('Unknown state type "' + options.type + '"');

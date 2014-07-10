@@ -21,17 +21,17 @@
       return this.replace(model);
     },
 
-    withNeighborsById: function (key, relations) {
+    withNeighborsById: function (key, relationNames) {
       var result = this.byId(key),
         id = this.collection.name() + '/' + key,
         graph = this.graph,
         links = {};
 
-      _.each(relations, function (relation) {
+      _.each(relationNames, function (relation) {
         var neighbors = graph._neighbors(id, {
-          edgeCollectionRestriction: [relation]
+          edgeCollectionRestriction: [relation.edgeCollectionName]
         });
-        links[relation] = _.pluck(neighbors, '_key');
+        links[relation.relationName] = _.pluck(neighbors, '_key');
       });
 
       result.set('links', links);
