@@ -115,7 +115,7 @@
         description: 'Page of the results',
         type: 'int'
       }).summary('Get all entries')
-        .notes('Some fancy documentation');
+        .notes('TODO');
 
       this.controller.post(collectionPath, function (req, res) {
         var data = {};
@@ -126,7 +126,7 @@
         res.json(data);
       }).bodyParam(nameOfRootElement, 'TODO', [BodyParam])
         .summary('Post new entries')
-        .notes('Some fancy documentation');
+        .notes('TODO');
 
       this.controller.get(entryPath, function (req, res) {
         var id = req.params('id'),
@@ -140,7 +140,7 @@
         description: 'ID of the document',
         type: 'string'
       }).summary('Get a specific entry')
-        .notes('Some fancy documentation');
+        .notes('TODO');
 
       // This works a little different from the standard:
       // It expects a root element, the standard does not
@@ -161,7 +161,7 @@
         type: 'string'
       }).bodyParam('operations', 'The operations to be executed on the document', [ReplaceOperation])
         .summary('Update an entry')
-        .notes('Some fancy documentation');
+        .notes('TODO');
 
       this.controller.del(entryPath, function (req, res) {
         var id = req.params('id');
@@ -172,7 +172,7 @@
         type: 'string'
       }).errorResponse(ArangoError, 404, 'An entry with this ID could not be found')
         .summary('Remove an entry')
-        .notes('Some fancy documentation');
+        .notes('TODO');
     }
   });
 
