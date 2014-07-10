@@ -21,7 +21,7 @@
       return this.replace(model);
     },
 
-    withNeighborsById: function (key, relationNames) {
+    byIdWithNeighbors: function (key, relationNames) {
       var result = this.byId(key),
         id = this.collection.name() + '/' + key,
         graph = this.graph,
@@ -113,7 +113,7 @@
 
       this.controller.get(entryPath, function (req, res) {
         var id = req.params('id'),
-          entry = repository.withNeighborsById(id, relationNames),
+          entry = repository.byIdWithNeighbors(id, relationNames),
           data = {};
 
         data[nameOfRootElement] = [entry.forClient()];
