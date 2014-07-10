@@ -42,7 +42,7 @@
         relationNames = this.relationNames;
 
       _.each(relationNames, function (relation) {
-        var neighbors = graph._neighbors(model.id, {
+        var neighbors = graph._neighbors(model.get('_id'), {
           edgeCollectionRestriction: [relation.edgeCollectionName]
         });
 
