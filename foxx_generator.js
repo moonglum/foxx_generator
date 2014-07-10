@@ -45,9 +45,8 @@
     _.extend(Transition.prototype, {
       apply: function (from, to) {
         var edgeCollectionName = this.appContext.collectionName(name + '_' + from.name + '_' + to.name),
-          // TODO: This is cheating
-          fromCollectionName = this.appContext.collectionName('people'),
-          toCollectionName = this.appContext.collectionName('todos'),
+          fromCollectionName = from.collectionName,
+          toCollectionName = to.collectionName,
           vertexCollections = [ fromCollectionName, toCollectionName ],
           edgeDefinition = graph_module._undirectedRelation(edgeCollectionName, vertexCollections);
 
