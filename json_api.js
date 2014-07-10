@@ -27,6 +27,7 @@
     },
 
     transitions: [
+      { to: 'people', via: 'container' },
       // { to: 'todo', via: 'assigned' }
     ]
   });
@@ -43,6 +44,7 @@
     },
 
     transitions: [
+      { to: 'todos', via: 'container' },
       { to: 'person', via: 'asignee' }
     ]
   });

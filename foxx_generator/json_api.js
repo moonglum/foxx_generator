@@ -9,6 +9,7 @@
     JsonApiModel,
     JsonApiRepository,
     ElementTransition,
+    ContainerTransition,
     ReplaceOperation,
     transitions = [];
 
@@ -176,6 +177,21 @@
   });
 
   transitions.push({ name: 'element', Transition: ElementTransition });
+
+  ContainerTransition = function (appContext, graph, controller, states) {
+    this.appContext = appContext;
+    this.graph = graph;
+    this.controller = controller;
+    this.states = states;
+  };
+
+  _.extend(ContainerTransition.prototype, {
+    apply: function (from, to) {
+      require('console').log('From: %s, To: %s', from, to);
+    }
+  });
+
+  transitions.push({ name: 'container', Transition: ContainerTransition });
 
   exports.mediaType = {
     Model: JsonApiModel,
