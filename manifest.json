@@ -24,9 +24,6 @@
     "/json_api": "json_api.js"
   },
 
-  "setup": "scripts/setup.js",
-  "teardown": "scripts/teardown.js",
-
   "rootElement": true,
 
   "assets": {},
