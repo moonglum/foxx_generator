@@ -37,7 +37,10 @@
       }, this);
     },
 
-    addRepository: function (Repository, Model) {
+    addRepository: function (Repository, states) {
+      var elementRelation = this.findTransition('element'),
+        Model = states[elementRelation.to].model;
+
       this.collection = this.graph.addVertexCollection(this.name);
       this.collectionName = this.collection.name();
 
