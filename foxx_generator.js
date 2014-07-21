@@ -30,6 +30,33 @@
     return graph;
   };
 
+  var extendEdgeDefinitions = function (graph, edgeCollectionName, fromCollectionName, toCollectionName) {
+    var vertexCollections = [ fromCollectionName, toCollectionName ],
+      edgeDefinition = graph_module._undirectedRelation(edgeCollectionName, vertexCollections);
+
+    try {
+      graph._extendEdgeDefinitions(edgeDefinition);
+    } catch (e) {
+      if (e instanceof ArangoError) {
+        require('console').log('Edge Definition "%s" already added', edgeCollectionName);
+      } else {
+        throw e;
+      }
+    }
+  };
+
+  var addVertexCollection = function (graph, prefixedCollectionName) {
+    try {
+      graph._addVertexCollection(prefixedCollectionName, true);
+    } catch (e) {
+      if (e instanceof ArangoError) {
+        require('console').log('collection "%s" already exists. Leaving it untouched.', prefixedCollectionName);
+      } else {
+        throw e;
+      }
+    }
+  };
+
   mediaTypes = {
     'application/vnd.api+json': require('./foxx_generator/json_api').mediaType
   };
@@ -43,7 +70,7 @@
     };
 
     _.extend(Transition.prototype, {
-      type: function () {
+      relationType: function () {
         return type;
       },
 
@@ -52,33 +79,22 @@
       },
 
       apply: function (from, to) {
-        var edgeCollectionName = this.edgeCollectionName(from, to),
-          fromCollectionName = from.collectionName,
-          toCollectionName = to.collectionName,
-          vertexCollections = [ fromCollectionName, toCollectionName ],
-          edgeDefinition = graph_module._undirectedRelation(edgeCollectionName, vertexCollections);
+        var relationName = this.relationName(),
+          edgeCollectionName = this.edgeCollectionName(from, to),
+          relationType = this.relationType();
 
-        try {
-          this.graph._extendEdgeDefinitions(edgeDefinition);
-        } catch (e) {
-          if (e instanceof ArangoError) {
-            require('console').log('Edge Definition "%s" already added', edgeCollectionName);
-          } else {
-            throw e;
-          }
-        }
+        extendEdgeDefinitions(this.graph, edgeCollectionName, from.collectionName, to.collectionName);
 
         // TODO: Add Routes for manipulating the edges of the resource here
 
         from.relationNames.push({
-          relationName: this.relationName(),
+          relationName: relationName,
           edgeCollectionName: edgeCollectionName,
-          type: this.type()
+          type: relationType
         });
       },
 
       edgeCollectionName: function (from, to) {
-        require('console').log('Normal Transition: %s_%s_%s', name, from.name, to.name);
         return this.appContext.collectionName(name + '_' + from.name + '_' + to.name);
       }
     });
@@ -96,7 +112,7 @@
             return newName;
           },
 
-          type: function () {
+          relationType: function () {
             return type;
           }
         });
@@ -158,19 +174,8 @@
     },
 
     createCollection: function (collectionName) {
-      var console = require('console'),
-        prefixedCollectionName = this.appContext.collectionName(collectionName);
-
-      try {
-        this.graph._addVertexCollection(prefixedCollectionName, true);
-      } catch (e) {
-        if (e instanceof ArangoError) {
-          console.log('collection "%s" already exists. Leaving it untouched.', prefixedCollectionName);
-        } else {
-          throw e;
-        }
-      }
-
+      var prefixedCollectionName = this.appContext.collectionName(collectionName);
+      addVertexCollection(this.graph, prefixedCollectionName);
       this.collection = this.graph[prefixedCollectionName];
     }
   });
