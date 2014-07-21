@@ -34,23 +34,15 @@
       },
 
       apply: function (from, to) {
-        var relationName = this.relationName(),
-          edgeCollectionName = this.edgeCollectionName(from, to),
-          relationType = this.relationType();
-
-        this.graph.extendEdgeDefinitions(edgeCollectionName, from.collectionName, to.collectionName);
-
-        // TODO: Add Routes for manipulating the edges of the resource here
-
         from.relationNames.push({
-          relationName: relationName,
-          edgeCollectionName: edgeCollectionName,
-          type: relationType
+          relationName: this.relationName(),
+          edgeCollectionName: this.graph.extendEdgeDefinitions(this, from, to),
+          type: this.relationType()
         });
       },
 
       edgeCollectionName: function (from, to) {
-        return this.appContext.collectionName(name + '_' + from.name + '_' + to.name);
+        return name + '_' + from.name + '_' + to.name;
       }
     });
 
@@ -60,7 +52,7 @@
       reverse: function (newName, type) {
         var ReverseTransition = Transition.extend({
           edgeCollectionName: function (from, to) {
-            return this.appContext.collectionName(name + '_' + to.name + '_' + from.name);
+            return name + '_' + to.name + '_' + from.name;
           },
 
           relationName: function () {
@@ -129,8 +121,7 @@
     },
 
     createCollection: function (collectionName) {
-      var prefixedCollectionName = this.appContext.collectionName(collectionName);
-      this.collection = this.graph.addVertexCollection(prefixedCollectionName);
+      this.collection = this.graph.addVertexCollection(collectionName);
     }
   });
 
@@ -153,9 +144,9 @@
   });
 
   Generator = function (name, options) {
-    this.graph = new Graph(name);
-    this.mediaType = mediaTypes[options.mediaType];
     this.appContext = options.applicationContext;
+    this.graph = new Graph(name, this.appContext);
+    this.mediaType = mediaTypes[options.mediaType];
     this.controller = new Foxx.Controller(this.appContext, options);
     this.states = {};
     this.transitions = _.reduce(this.mediaType.transitions, function (transitions, tuple) {

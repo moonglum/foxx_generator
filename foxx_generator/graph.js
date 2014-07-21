@@ -8,7 +8,9 @@
     _ = require('underscore'),
     Graph;
 
-  Graph = function (name) {
+  Graph = function (name, appContext) {
+    this.appContext = appContext;
+
     try {
       this.graph = graph_module._graph(name);
     } catch (e) {
@@ -21,8 +23,10 @@
   };
 
   _.extend(Graph.prototype, {
-    extendEdgeDefinitions: function (edgeCollectionName, fromCollectionName, toCollectionName) {
-      var vertexCollections = [ fromCollectionName, toCollectionName ],
+    extendEdgeDefinitions: function (transition, from, to) {
+      var vertexCollections = [ from.collectionName, to.collectionName ],
+        rawEdgeCollectionName = transition.edgeCollectionName(from, to),
+        edgeCollectionName = this.appContext.collectionName(rawEdgeCollectionName),
         edgeDefinition = graph_module._undirectedRelation(edgeCollectionName, vertexCollections);
 
       try {
@@ -34,9 +38,13 @@
           throw e;
         }
       }
+
+      return edgeCollectionName;
     },
 
-    addVertexCollection: function (prefixedCollectionName) {
+    addVertexCollection: function (collectionName) {
+      var prefixedCollectionName = this.appContext.collectionName(collectionName);
+
       try {
         this.graph._addVertexCollection(prefixedCollectionName, true);
       } catch (e) {
