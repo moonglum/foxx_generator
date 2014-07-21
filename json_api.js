@@ -14,9 +14,9 @@
   generator.defineTransition('asignee', {
     description: 'Get the person this object is assigned to',
     to: 'one',
-  // }).inverseTranstion('assigned', {
-    // description: 'Get all objects that are assigned to this person',
-    // to: 'many'
+  }).inverseTransition('assigned', {
+    description: 'Get all objects that are assigned to this person',
+    to: 'many'
   });
 
   generator.addState('person', {
@@ -28,7 +28,7 @@
 
     transitions: [
       { to: 'people', via: 'container' },
-      // { to: 'todo', via: 'assigned' }
+      { to: 'todo', via: 'assigned' }
     ]
   });
 

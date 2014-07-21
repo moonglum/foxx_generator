@@ -6,6 +6,7 @@
   var Foxx = require('org/arangodb/foxx'),
     _ = require('underscore'),
     graph_module = require('org/arangodb/general-graph'),
+    extend = require('org/arangodb/extend').extend,
     ArangoError = require('internal').ArangoError,
     Generator,
     State,
@@ -35,7 +36,6 @@
 
   generateTransition = function (name, type) {
     var Transition = function (appContext, graph, controller, states) {
-      this.name = name;
       this.appContext = appContext;
       this.graph = graph;
       this.controller = controller;
@@ -44,7 +44,7 @@
 
     _.extend(Transition.prototype, {
       apply: function (from, to) {
-        var edgeCollectionName = this.appContext.collectionName(name + '_' + from.name + '_' + to.name),
+        var edgeCollectionName = this.edgeCollectionName(from, to),
           fromCollectionName = from.collectionName,
           toCollectionName = to.collectionName,
           vertexCollections = [ fromCollectionName, toCollectionName ],
@@ -63,8 +63,29 @@
         // TODO: Add Routes for manipulating the edges of the resource here
 
         from.relationNames.push({ relationName: name, edgeCollectionName: edgeCollectionName, type: type });
+      },
+
+      edgeCollectionName: function (from, to) {
+        require('console').log('Normal Transition: %s_%s_%s', name, from.name, to.name);
+        return this.appContext.collectionName(name + '_' + from.name + '_' + to.name);
       }
     });
+
+    Transition.extend = extend;
+
+    _.extend(Transition, {
+      reverse: function (newName, type) {
+        var ReverseTransition = Transition.extend({
+          edgeCollectionName: function (from, to) {
+            require('console').log('Reverse Transition: %s_%s_%s', name, to.name, from.name);
+            return this.appContext.collectionName(name + '_' + to.name + '_' + from.name);
+          }
+        });
+
+        return ReverseTransition;
+      }
+    });
+
 
     return Transition;
   };
@@ -135,6 +156,24 @@
     }
   });
 
+  var TransitionContext = function (Transition, options) {
+    this.Transition = Transition;
+    this.transitions = options.transitions;
+    this.appContext = options.appContext;
+    this.graph = options.graph;
+    this.controller = options.controller;
+    this.states = options.states;
+  };
+
+  _.extend(TransitionContext.prototype, {
+    inverseTransition: function (name, options) {
+      var Transition = this.Transition,
+        ReverseTransition = Transition.reverse(name, options.to);
+
+      this.transitions[name] = new ReverseTransition(this.appContext, this.graph, this.controller, this.states);
+    }
+  });
+
   Generator = function (name, options) {
     this.graph = findOrCreateGraph(name);
     this.mediaType = mediaTypes[options.mediaType];
@@ -170,8 +209,16 @@
     },
 
     defineTransition: function (name, options) {
-      var Transition = generateTransition(name, options.to);
+      var Transition = generateTransition(name, options.to),
+        context = new TransitionContext(Transition, {
+          transitions: this.transitions,
+          appContext: this.appContext,
+          graph: this.graph,
+          controller: this.controller,
+          states: this.states
+        });
       this.transitions[name] = new Transition(this.appContext, this.graph, this.controller, this.states);
+      return context;
     },
 
     generate: function () {
