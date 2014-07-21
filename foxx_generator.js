@@ -47,6 +47,10 @@
         return type;
       },
 
+      relationName: function () {
+        return name;
+      },
+
       apply: function (from, to) {
         var edgeCollectionName = this.edgeCollectionName(from, to),
           fromCollectionName = from.collectionName,
@@ -66,7 +70,11 @@
 
         // TODO: Add Routes for manipulating the edges of the resource here
 
-        from.relationNames.push({ relationName: name, edgeCollectionName: edgeCollectionName, type: this.type() });
+        from.relationNames.push({
+          relationName: this.relationName(),
+          edgeCollectionName: edgeCollectionName,
+          type: this.type()
+        });
       },
 
       edgeCollectionName: function (from, to) {
@@ -82,6 +90,10 @@
         var ReverseTransition = Transition.extend({
           edgeCollectionName: function (from, to) {
             return this.appContext.collectionName(name + '_' + to.name + '_' + from.name);
+          },
+
+          relationName: function () {
+            return newName;
           },
 
           type: function () {
