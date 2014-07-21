@@ -6,68 +6,13 @@
   var Foxx = require('org/arangodb/foxx'),
     _ = require('underscore'),
     Graph = require('./foxx_generator/graph').Graph,
-    extend = require('org/arangodb/extend').extend,
     Generator,
     State = require('./foxx_generator/state').State,
-    generateTransition,
+    generateTransition = require('./foxx_generator/generate_transition').generateTransition,
     mediaTypes;
 
   mediaTypes = {
     'application/vnd.api+json': require('./foxx_generator/json_api').mediaType
-  };
-
-  generateTransition = function (name, type) {
-    var Transition = function (graph, controller) {
-      this.graph = graph;
-      this.controller = controller;
-    };
-
-    _.extend(Transition.prototype, {
-      relationType: function () {
-        return type;
-      },
-
-      relationName: function () {
-        return name;
-      },
-
-      apply: function (from, to) {
-        from.relationNames.push({
-          relationName: this.relationName(),
-          edgeCollectionName: this.graph.extendEdgeDefinitions(this, from, to),
-          type: this.relationType()
-        });
-      },
-
-      edgeCollectionName: function (from, to) {
-        return name + '_' + from.name + '_' + to.name;
-      }
-    });
-
-    Transition.extend = extend;
-
-    _.extend(Transition, {
-      reverse: function (newName, type) {
-        var ReverseTransition = Transition.extend({
-          edgeCollectionName: function (from, to) {
-            return name + '_' + to.name + '_' + from.name;
-          },
-
-          relationName: function () {
-            return newName;
-          },
-
-          relationType: function () {
-            return type;
-          }
-        });
-
-        return ReverseTransition;
-      }
-    });
-
-
-    return Transition;
   };
 
   var TransitionContext = function (Transition, options) {
