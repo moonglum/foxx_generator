@@ -17,8 +17,7 @@
   };
 
   generateTransition = function (name, type) {
-    var Transition = function (appContext, graph, controller, states) {
-      this.appContext = appContext;
+    var Transition = function (graph, controller, states) {
       this.graph = graph;
       this.controller = controller;
       this.states = states;
@@ -72,11 +71,10 @@
     return Transition;
   };
 
-  State = function (name, graph, appContext) {
+  State = function (name, graph) {
     this.name = name;
     this.graph = graph;
     this.relationNames = [];
-    this.appContext = appContext;
   };
 
   _.extend(State.prototype, {
@@ -128,7 +126,6 @@
   var TransitionContext = function (Transition, options) {
     this.Transition = Transition;
     this.transitions = options.transitions;
-    this.appContext = options.appContext;
     this.graph = options.graph;
     this.controller = options.controller;
     this.states = options.states;
@@ -139,25 +136,24 @@
       var Transition = this.Transition,
         ReverseTransition = Transition.reverse(name, options.to);
 
-      this.transitions[name] = new ReverseTransition(this.appContext, this.graph, this.controller, this.states);
+      this.transitions[name] = new ReverseTransition(this.graph, this.controller, this.states);
     }
   });
 
   Generator = function (name, options) {
-    this.appContext = options.applicationContext;
-    this.graph = new Graph(name, this.appContext);
+    this.graph = new Graph(name, options.applicationContext);
     this.mediaType = mediaTypes[options.mediaType];
-    this.controller = new Foxx.Controller(this.appContext, options);
+    this.controller = new Foxx.Controller(options.applicationContext, options);
     this.states = {};
     this.transitions = _.reduce(this.mediaType.transitions, function (transitions, tuple) {
-      transitions[tuple.name] = new tuple.Transition(this.appContext, this.graph, this.controller, this.states);
+      transitions[tuple.name] = new tuple.Transition(this.graph, this.controller, this.states);
       return transitions;
     }, {}, this);
   };
 
   _.extend(Generator.prototype, {
     addState: function (name, options) {
-      var state = new State(name, this.graph, this.appContext);
+      var state = new State(name, this.graph);
 
       state.addTransitions(options.transitions, this.transitions);
 
@@ -181,12 +177,11 @@
       var Transition = generateTransition(name, options.to),
         context = new TransitionContext(Transition, {
           transitions: this.transitions,
-          appContext: this.appContext,
           graph: this.graph,
           controller: this.controller,
           states: this.states
         });
-      this.transitions[name] = new Transition(this.appContext, this.graph, this.controller, this.states);
+      this.transitions[name] = new Transition(this.graph, this.controller, this.states);
       return context;
     },
 

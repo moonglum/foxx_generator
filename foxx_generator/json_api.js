@@ -83,8 +83,7 @@
     value: { type: 'string', required: true }
   });
 
-  ElementTransition = function (appContext, graph, controller, states) {
-    this.appContext = appContext;
+  ElementTransition = function (graph, controller, states) {
     this.graph = graph;
     this.controller = controller;
     this.states = states;
@@ -180,8 +179,7 @@
 
   transitions.push({ name: 'element', Transition: ElementTransition });
 
-  ContainerTransition = function (appContext, graph, controller, states) {
-    this.appContext = appContext;
+  ContainerTransition = function (graph, controller, states) {
     this.graph = graph;
     this.controller = controller;
     this.states = states;
