@@ -83,10 +83,9 @@
     value: { type: 'string', required: true }
   });
 
-  ElementTransition = function (graph, controller, states) {
+  ElementTransition = function (graph, controller) {
     this.graph = graph;
     this.controller = controller;
-    this.states = states;
   };
 
   _.extend(ElementTransition.prototype, {
@@ -179,10 +178,9 @@
 
   transitions.push({ name: 'element', Transition: ElementTransition });
 
-  ContainerTransition = function (graph, controller, states) {
+  ContainerTransition = function (graph, controller) {
     this.graph = graph;
     this.controller = controller;
-    this.states = states;
   };
 
   _.extend(ContainerTransition.prototype, {

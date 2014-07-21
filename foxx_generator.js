@@ -17,10 +17,9 @@
   };
 
   generateTransition = function (name, type) {
-    var Transition = function (graph, controller, states) {
+    var Transition = function (graph, controller) {
       this.graph = graph;
       this.controller = controller;
-      this.states = states;
     };
 
     _.extend(Transition.prototype, {
@@ -128,7 +127,6 @@
     this.transitions = options.transitions;
     this.graph = options.graph;
     this.controller = options.controller;
-    this.states = options.states;
   };
 
   _.extend(TransitionContext.prototype, {
@@ -136,7 +134,7 @@
       var Transition = this.Transition,
         ReverseTransition = Transition.reverse(name, options.to);
 
-      this.transitions[name] = new ReverseTransition(this.graph, this.controller, this.states);
+      this.transitions[name] = new ReverseTransition(this.graph, this.controller);
     }
   });
 
@@ -146,7 +144,7 @@
     this.controller = new Foxx.Controller(options.applicationContext, options);
     this.states = {};
     this.transitions = _.reduce(this.mediaType.transitions, function (transitions, tuple) {
-      transitions[tuple.name] = new tuple.Transition(this.graph, this.controller, this.states);
+      transitions[tuple.name] = new tuple.Transition(this.graph, this.controller);
       return transitions;
     }, {}, this);
   };
@@ -178,10 +176,9 @@
         context = new TransitionContext(Transition, {
           transitions: this.transitions,
           graph: this.graph,
-          controller: this.controller,
-          states: this.states
+          controller: this.controller
         });
-      this.transitions[name] = new Transition(this.graph, this.controller, this.states);
+      this.transitions[name] = new Transition(this.graph, this.controller);
       return context;
     },
 
