@@ -16,11 +16,11 @@
     'application/vnd.api+json': require('./foxx_generator/json_api').mediaType
   };
 
-  TransitionContext = function (Transition, options) {
+  TransitionContext = function (Transition, transitions, graph, controller) {
     this.Transition = Transition;
-    this.transitions = options.transitions;
-    this.graph = options.graph;
-    this.controller = options.controller;
+    this.transitions = transitions;
+    this.graph = graph;
+    this.controller = controller;
   };
 
   _.extend(TransitionContext.prototype, {
@@ -63,11 +63,7 @@
 
     defineTransition: function (name, options) {
       var Transition = generateTransition(name, options.to),
-        context = new TransitionContext(Transition, {
-          transitions: this.transitions,
-          graph: this.graph,
-          controller: this.controller
-        });
+        context = new TransitionContext(Transition, this.transitions, this.graph, this.controller);
       this.transitions[name] = new Transition(this.graph, this.controller);
       return context;
     },
