@@ -18,7 +18,7 @@
     apply: function (from, to) {
       from.relationNames.push({
         relationName: this.relationName,
-        edgeCollectionName: this.graph.extendEdgeDefinitions(this, from, to),
+        edgeCollectionName: this.graph.extendEdgeDefinitions(this.edgeCollectionName(from, to), from, to),
         type: this.relationType
       });
     }

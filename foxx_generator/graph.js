@@ -23,9 +23,8 @@
   };
 
   _.extend(Graph.prototype, {
-    extendEdgeDefinitions: function (transition, from, to) {
+    extendEdgeDefinitions: function (rawEdgeCollectionName, from, to) {
       var vertexCollections = [ from.collectionName, to.collectionName ],
-        rawEdgeCollectionName = transition.edgeCollectionName(from, to),
         edgeCollectionName = this.appContext.collectionName(rawEdgeCollectionName),
         edgeDefinition = graph_module._undirectedRelation(edgeCollectionName, vertexCollections);
 
