@@ -1,58 +1,65 @@
-// Wrapper around the graph
-
+/*jslint indent: 2, nomen: true, maxlen: 120 */
+/*global require */
 
 (function () {
   'use strict';
   var graph_module = require('org/arangodb/general-graph'),
     ArangoError = require('internal').ArangoError,
     _ = require('underscore'),
-    Graph;
+    Graph,
+    tryAndHandleArangoError,
+    alreadyExists;
 
-  Graph = function (name, appContext) {
-    this.appContext = appContext;
-
+  tryAndHandleArangoError = function (func, errHandler) {
     try {
-      this.graph = graph_module._graph(name);
+      func();
     } catch (e) {
       if (e instanceof ArangoError) {
-        this.graph = graph_module._create(name);
+        errHandler();
       } else {
         throw e;
       }
     }
   };
 
+  alreadyExists = function (type, name) {
+    return function () {
+      require('console').log('%s "%s" already added. Leaving it untouched.', type, name);
+    };
+  };
+
+  Graph = function (name, appContext) {
+    var that = this;
+    this.appContext = appContext;
+
+    tryAndHandleArangoError(function () {
+      that.graph = graph_module._graph(name);
+    }, function () {
+      that.graph = graph_module._create(name);
+    });
+  };
+
   _.extend(Graph.prototype, {
     extendEdgeDefinitions: function (rawEdgeCollectionName, from, to) {
       var vertexCollections = [ from.collectionName, to.collectionName ],
         edgeCollectionName = this.appContext.collectionName(rawEdgeCollectionName),
-        edgeDefinition = graph_module._undirectedRelation(edgeCollectionName, vertexCollections);
+        edgeDefinition = graph_module._undirectedRelation(edgeCollectionName, vertexCollections),
+        graph = this.graph;
 
-      try {
-        this.graph._extendEdgeDefinitions(edgeDefinition);
-      } catch (e) {
-        if (e instanceof ArangoError) {
-          require('console').log('Edge Definition "%s" already added', edgeCollectionName);
-        } else {
-          throw e;
-        }
-      }
+      tryAndHandleArangoError(function () {
+        graph._extendEdgeDefinitions(edgeDefinition);
+      }, alreadyExists('EdgeDefinition', edgeCollectionName));
 
       return edgeCollectionName;
     },
 
     addVertexCollection: function (collectionName) {
-      var prefixedCollectionName = this.appContext.collectionName(collectionName);
+      var prefixedCollectionName = this.appContext.collectionName(collectionName),
+        graph = this.graph;
 
-      try {
-        this.graph._addVertexCollection(prefixedCollectionName, true);
-      } catch (e) {
-        if (e instanceof ArangoError) {
-          require('console').log('collection "%s" already exists. Leaving it untouched.', prefixedCollectionName);
-        } else {
-          throw e;
-        }
-      }
+      tryAndHandleArangoError(function () {
+        graph._addVertexCollection(prefixedCollectionName, true);
+      }, alreadyExists('Collection', prefixedCollectionName));
 
       return this.graph[prefixedCollectionName];
     },
