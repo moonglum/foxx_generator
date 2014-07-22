@@ -69,7 +69,10 @@
   JsonApiModel = Foxx.Model.extend({
     forClient: function () {
       var attributes = Foxx.Model.prototype.forClient.call(this);
-      return _.extend({ id: this.get('_key') }, attributes);
+      return _.extend({
+        id: this.get('_key'),
+        type: this.constructor.state.name
+      }, attributes);
     }
   });
 

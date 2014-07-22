@@ -60,7 +60,8 @@
 
     addModel: function (Model, attributes) {
       this.model = Model.extend({}, {
-        attributes: _.extend(attributes, { links: { type: 'object' }})
+        state: this,
+        attributes: _.extend(attributes, { links: { type: 'object' } })
       });
     },
 
