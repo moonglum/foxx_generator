@@ -19,7 +19,8 @@
       from.relationNames.push({
         relationName: this.relationName,
         edgeCollectionName: this.graph.extendEdgeDefinitions(this.edgeCollectionName(from, to), from, to),
-        type: this.relationType
+        type: this.relationType,
+        to: to
       });
     }
   });

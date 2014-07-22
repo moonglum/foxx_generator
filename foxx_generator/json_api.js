@@ -11,7 +11,16 @@
     ElementTransition,
     ContainerTransition,
     ReplaceOperation,
-    transitions = [];
+    transitions = [],
+    generateLinkTemplates;
+
+  generateLinkTemplates = function (state, root) {
+    return _.reduce(state.relationNames, function (result, relationName) {
+      var path = root + '.' + relationName.relationName;
+      result[path] = relationName.to.urlFor('{' + path + '}');
+      return result;
+    }, {});
+  };
 
   JsonApiRepository = Foxx.Repository.extend({
     updateByIdWithOperations: function (id, operations) {
@@ -109,6 +118,8 @@
         data[nameOfRootElement] = _.map(repository.allWithNeighbors(options), function (datum) {
           return datum.forClient();
         });
+        data.links = generateLinkTemplates(to, nameOfRootElement);
+
         res.json(data);
       }).queryParam('page', {
         description: 'Page of the results',
@@ -150,6 +161,7 @@
           data = {};
 
         data[nameOfRootElement] = [entry.forClient()];
+        data.links = generateLinkTemplates(from, nameOfRootElement);
 
         res.json(data);
       }).pathParam('id', {
