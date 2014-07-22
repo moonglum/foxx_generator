@@ -62,8 +62,12 @@
     },
 
     defineTransition: function (name, options) {
-      var Transition = generateTransition(name, options.to),
-        context = new TransitionContext(Transition, this.transitions, this.graph, this.controller);
+      var Transition,
+        context;
+
+      Transition = generateTransition(name, options.to);
+      context = new TransitionContext(Transition, this.transitions, this.graph, this.controller);
+
       this.transitions[name] = new Transition(this.graph, this.controller);
       return context;
     },
