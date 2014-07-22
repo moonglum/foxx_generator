@@ -21,6 +21,7 @@
 
   generator.addState('person', {
     type: 'entity',
+    parameterized: true,
 
     attributes: {
       name: { type: 'string', required: true }
@@ -34,6 +35,7 @@
 
   generator.addState('todo', {
     type: 'entity',
+    parameterized: true,
 
     attributes: {
       // Title of the state
