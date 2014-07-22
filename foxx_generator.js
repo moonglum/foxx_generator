@@ -9,7 +9,7 @@
     Generator,
     TransitionContext,
     State = require('./foxx_generator/state').State,
-    generateTransition = require('./foxx_generator/generate_transition').generateTransition,
+    BaseTransition = require('./foxx_generator/base_transition').BaseTransition,
     mediaTypes;
 
   mediaTypes = {
@@ -65,7 +65,12 @@
       var Transition,
         context;
 
-      Transition = generateTransition(name, options.to);
+      Transition = BaseTransition.extend({
+        collectionBaseName: name,
+        relationType: options.to,
+        relationName: name
+      });
+
       context = new TransitionContext(Transition, this.transitions, this.graph, this.controller);
 
       this.transitions[name] = new Transition(this.graph, this.controller);
