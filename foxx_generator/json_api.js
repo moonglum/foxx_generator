@@ -142,6 +142,10 @@
         repository = to.repository,
         nameOfRootElement = to.name;
 
+      from.urlFor = function (selector) {
+        return '/' + to.name + '/{' + selector + '}';
+      };
+
       from.collectionName = to.collectionName;
 
       this.controller.get(entryPath, function (req, res) {
