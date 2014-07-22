@@ -14,6 +14,8 @@
 
     if (this.parameterized) {
       this.urlTemplate = '/unknown/:id';
+    } else {
+      this.urlTemplate = '/unknown';
     }
 
     this.relationNames = [];
@@ -63,11 +65,15 @@
     },
 
     urlFor: function (selector) {
-      if (!this.parameterized) {
-        throw 'Called urlFor on an unparameterized state';
+      var url;
+
+      if (this.parameterized) {
+        url = this.urlTemplate.replace(':id', selector);
+      } else {
+        url = this.urlTemplate;
       }
 
-      return this.urlTemplate.replace(':id', selector);
+      return url;
     }
   });
 

@@ -90,17 +90,17 @@
 
   _.extend(ElementTransition.prototype, {
     apply: function (from, to) {
-      var collectionPath = '/' + from.name,
-        perPage = 10,
+      var perPage = 10,
         repository = from.repository,
         nameOfRootElement = from.name,
         Model = to.model,
         attributes = Model.attributes,
         BodyParam = Foxx.Model.extend({}, { attributes: attributes });
 
+      from.urlTemplate = '/' + from.name;
       repository.relationNames = to.relationNames;
 
-      this.controller.get(collectionPath, function (req, res) {
+      this.controller.get(from.urlTemplate, function (req, res) {
         var data = {},
           page = req.params('page') || 0,
           skip = page * perPage,
@@ -116,7 +116,7 @@
       }).summary('Get all entries')
         .notes('TODO');
 
-      this.controller.post(collectionPath, function (req, res) {
+      this.controller.post(from.urlTemplate, function (req, res) {
         var data = {};
         data[nameOfRootElement] = _.map(req.params(nameOfRootElement), function (model) {
           return repository.save(model).forClient();
