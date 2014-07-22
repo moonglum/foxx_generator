@@ -90,8 +90,7 @@
 
   _.extend(ElementTransition.prototype, {
     apply: function (from, to) {
-      var entryPath = '/' + from.name + '/:id',
-        collectionPath = '/' + from.name,
+      var collectionPath = '/' + from.name,
         perPage = 10,
         repository = from.repository,
         nameOfRootElement = from.name,
@@ -127,6 +126,23 @@
       }).bodyParam(nameOfRootElement, 'TODO', [BodyParam])
         .summary('Post new entries')
         .notes('TODO');
+    }
+  });
+
+  transitions.push({ name: 'element', Transition: ElementTransition });
+
+  ContainerTransition = function (graph, controller) {
+    this.graph = graph;
+    this.controller = controller;
+  };
+
+  _.extend(ContainerTransition.prototype, {
+    apply: function (from, to) {
+      var entryPath = '/' + to.name + '/:id',
+        repository = to.repository,
+        nameOfRootElement = to.name;
+
+      from.collectionName = to.collectionName;
 
       this.controller.get(entryPath, function (req, res) {
         var id = req.params('id'),
@@ -173,19 +189,6 @@
       }).errorResponse(ArangoError, 404, 'An entry with this ID could not be found')
         .summary('Remove an entry')
         .notes('TODO');
-    }
-  });
-
-  transitions.push({ name: 'element', Transition: ElementTransition });
-
-  ContainerTransition = function (graph, controller) {
-    this.graph = graph;
-    this.controller = controller;
-  };
-
-  _.extend(ContainerTransition.prototype, {
-    apply: function (from, to) {
-      from.collectionName = to.collectionName;
     }
   });
 
