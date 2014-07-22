@@ -18,7 +18,7 @@
       this.urlTemplate = '/unknown';
     }
 
-    this.relationNames = [];
+    this.relations = [];
   };
 
   _.extend(State.prototype, {

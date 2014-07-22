@@ -16,8 +16,8 @@
     edgeCollectionName: function (from, to) { return this.collectionBaseName + '_' + from.name + '_' + to.name; },
 
     apply: function (from, to) {
-      from.relationNames.push({
-        relationName: this.relationName,
+      from.relations.push({
+        name: this.relationName,
         edgeCollectionName: this.graph.extendEdgeDefinitions(this.edgeCollectionName(from, to), from, to),
         type: this.relationType,
         to: to

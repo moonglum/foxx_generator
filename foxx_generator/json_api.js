@@ -15,9 +15,9 @@
     generateLinkTemplates;
 
   generateLinkTemplates = function (state, root) {
-    return _.reduce(state.relationNames, function (result, relationName) {
-      var path = root + '.' + relationName.relationName;
-      result[path] = relationName.to.urlFor('{' + path + '}');
+    return _.reduce(state.relations, function (result, relation) {
+      var path = root + '.' + relation.name;
+      result[path] = relation.to.urlFor('{' + path + '}');
       return result;
     }, {});
   };
@@ -48,17 +48,17 @@
     addLinks: function (model) {
       var links = {},
         graph = this.graph,
-        relationNames = this.relationNames;
+        relations = this.relations;
 
-      _.each(relationNames, function (relation) {
+      _.each(relations, function (relation) {
         var neighbors = graph.neighbors(model.get('_id'), {
           edgeCollectionRestriction: [relation.edgeCollectionName]
         });
 
         if (relation.type === 'one' && neighbors.length > 0) {
-          links[relation.relationName] = neighbors[0]._key;
+          links[relation.name] = neighbors[0]._key;
         } else if (relation.type === 'many') {
-          links[relation.relationName] = _.pluck(neighbors, '_key');
+          links[relation.name] = _.pluck(neighbors, '_key');
         }
       });
 
@@ -107,7 +107,7 @@
         BodyParam = Foxx.Model.extend({}, { attributes: attributes });
 
       from.urlTemplate = '/' + from.name;
-      repository.relationNames = to.relationNames;
+      repository.relations = to.relations;
 
       this.controller.get(from.urlTemplate, function (req, res) {
         var data = {},
