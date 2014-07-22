@@ -4,9 +4,10 @@
 (function () {
   'use strict';
   var extend = require('org/arangodb/extend').extend,
-    _ = require('underscore');
+    _ = require('underscore'),
+    Transition;
 
-  var Transition = function (graph, controller) {
+  Transition = function (graph, controller) {
     this.graph = graph;
     this.controller = controller;
   };
@@ -23,8 +24,6 @@
     }
   });
 
-  Transition.extend = extend;
-
   _.extend(Transition, {
     reverse: function (newName, type) {
       var ReverseTransition = this.extend({
@@ -36,6 +35,8 @@
       return ReverseTransition;
     }
   });
+
+  Transition.extend = extend;
 
   exports.BaseTransition = Transition;
 }());
