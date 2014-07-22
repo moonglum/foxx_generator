@@ -7,9 +7,15 @@
   var State,
     _ = require('underscore');
 
-  State = function (name, graph) {
+  State = function (name, graph, paramaterized) {
     this.name = name;
     this.graph = graph;
+    this.parameterized = paramaterized;
+
+    if (this.parameterized) {
+      this.urlTemplate = '/unknown/:id';
+    }
+
     this.relationNames = [];
   };
 
@@ -54,6 +60,14 @@
       this.model = Model.extend({}, {
         attributes: _.extend(attributes, { links: { type: 'object' }})
       });
+    },
+
+    urlFor: function (selector) {
+      if (!this.parameterized) {
+        throw 'Called urlFor on an unparameterized state';
+      }
+
+      return this.urlTemplate.replace(':id', selector);
     }
   });
 

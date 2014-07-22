@@ -43,7 +43,8 @@
 
   _.extend(Generator.prototype, {
     addState: function (name, options) {
-      var state = new State(name, this.graph);
+      var parameterized = (options.parameterized === true),
+        state = new State(name, this.graph, parameterized);
 
       state.addTransitions(options.transitions, this.transitions);
 

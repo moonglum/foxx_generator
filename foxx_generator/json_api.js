@@ -138,17 +138,13 @@
 
   _.extend(ContainerTransition.prototype, {
     apply: function (from, to) {
-      var entryPath = '/' + to.name + '/:id',
-        repository = to.repository,
+      var repository = to.repository,
         nameOfRootElement = to.name;
 
-      from.urlFor = function (selector) {
-        return '/' + to.name + '/{' + selector + '}';
-      };
-
+      from.urlTemplate = '/' + to.name + '/:id';
       from.collectionName = to.collectionName;
 
-      this.controller.get(entryPath, function (req, res) {
+      this.controller.get(from.urlTemplate, function (req, res) {
         var id = req.params('id'),
           entry = repository.byIdWithNeighbors(id),
           data = {};
@@ -164,7 +160,7 @@
 
       // This works a little different from the standard:
       // It expects a root element, the standard does not
-      this.controller.patch(entryPath, function (req, res) {
+      this.controller.patch(from.urlTemplate, function (req, res) {
         var operations = req.params('operations'),
           id = req.params('id'),
           data = {};
@@ -183,7 +179,7 @@
         .summary('Update an entry')
         .notes('TODO');
 
-      this.controller.del(entryPath, function (req, res) {
+      this.controller.del(from.urlTemplate, function (req, res) {
         var id = req.params('id');
         repository.removeById(id);
         res.status(204);
