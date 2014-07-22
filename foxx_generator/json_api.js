@@ -160,7 +160,7 @@
           entry = repository.byIdWithNeighbors(id),
           data = {};
 
-        data[nameOfRootElement] = [entry.forClient()];
+        data[nameOfRootElement] = entry.forClient();
         data.links = generateLinkTemplates(from, nameOfRootElement);
 
         res.json(data);
