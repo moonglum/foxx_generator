@@ -6,6 +6,8 @@
   var Foxx = require('org/arangodb/foxx'),
     _ = require('underscore'),
     ArangoError = require('internal').ArangoError,
+    BaseTransition = require('./base_transition').BaseTransition,
+    Transition,
     JsonApiModel,
     JsonApiRepository,
     ElementTransition,
@@ -97,6 +99,9 @@
     op: { type: 'string', required: true },
     path: { type: 'string', required: true },
     value: { type: 'string', required: true }
+  });
+
+  Transition = BaseTransition.extend({
   });
 
   ElementTransition = function (graph, controller) {
@@ -216,6 +221,7 @@
   exports.mediaType = {
     Model: JsonApiModel,
     Repository: JsonApiRepository,
+    Transition: Transition,
     transitions: transitions
   };
 }());
