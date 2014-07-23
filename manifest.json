@@ -21,7 +21,7 @@
   },
 
   "controllers": {
-    "/json_api": "json_api.js"
+    "/json_api": "example.js"
   },
 
   "rootElement": true,
