@@ -102,6 +102,33 @@
   });
 
   Transition = BaseTransition.extend({
+    addRoutesForOneRelation: function (controller, graph, relation, from, to) {
+      var url = from.urlFor(':entityId') + '/links/' + relation.name;
+
+      controller.post(url, function (req, res) {
+        var body = req.body(),
+          sourceId = from.collectionName + '/' + req.params('entityId'),
+          destinationId = to.collectionName + '/' + body[relation.name],
+          edgeCollectionName = relation.edgeCollectionName;
+
+        graph.removeEdges({
+          vertexId: sourceId,
+          edgeCollectionName: edgeCollectionName
+        });
+
+        graph.createEdge({
+          edgeCollectionName: edgeCollectionName,
+          sourceId: sourceId,
+          destinationId: destinationId
+        });
+
+        res.status(200);
+      }).pathParam('entityId', {
+        description: 'ID of the document',
+        type: 'string'
+      }).summary('Set the relation')
+        .notes('TODO');
+    },
   });
 
   ElementTransition = function (graph, controller) {

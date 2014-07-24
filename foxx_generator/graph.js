@@ -66,6 +66,33 @@
 
     neighbors: function (id, options) {
       return this.graph._neighbors(id, options);
+    },
+
+    edges: function (id, options) {
+      return this.graph._vertices(id).edges().restrict(options.edgeCollectionRestriction).toArray();
+    },
+
+    removeEdges: function (options) {
+      var graph = this.graph,
+        vertexId = options.vertexId,
+        edgeCollectionName = options.edgeCollectionName;
+
+      var edges = this.edges(vertexId, {
+        edgeCollectionRestriction: [edgeCollectionName],
+      });
+
+      _.each(edges, function (edge) {
+        graph[edgeCollectionName].remove(edge._id);
+      });
+    },
+
+    createEdge: function (options) {
+      var sourceId = options.sourceId,
+        destinationId = options.destinationId,
+        edgeCollectionName = options.edgeCollectionName,
+        edgeCollection = this.graph[edgeCollectionName];
+
+      edgeCollection.save(sourceId, destinationId, {});
     }
   });
 

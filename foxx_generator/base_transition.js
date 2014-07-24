@@ -35,9 +35,9 @@
 
       _.each(from.relations, function (relation) {
         if (relation.type === 'many') {
-          this.addRoutesForManyRelation(this.controller, this.graph, relation);
+          this.addRoutesForManyRelation(this.controller, this.graph, relation, from, to);
         } else if (relation.type === 'one') {
-          this.addRoutesForOneRelation(this.controller, this.graph, relation);
+          this.addRoutesForOneRelation(this.controller, this.graph, relation, from, to);
         }
       }, this);
     }
