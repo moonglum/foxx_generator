@@ -86,6 +86,10 @@
       });
     },
 
+    hasVertex: function (id) {
+      return this.graph._vertices(id).count() > 0;
+    },
+
     createEdge: function (options) {
       var sourceId = options.sourceId,
         destinationId = options.destinationId,

@@ -111,18 +111,22 @@
           destinationId = to.collectionName + '/' + body[relation.name],
           edgeCollectionName = relation.edgeCollectionName;
 
-        graph.removeEdges({
-          vertexId: sourceId,
-          edgeCollectionName: edgeCollectionName
-        });
+        if (graph.hasVertex(destinationId) && graph.hasVertex(sourceId)) {
+          graph.removeEdges({
+            vertexId: sourceId,
+            edgeCollectionName: edgeCollectionName
+          });
 
-        graph.createEdge({
-          edgeCollectionName: edgeCollectionName,
-          sourceId: sourceId,
-          destinationId: destinationId
-        });
+          graph.createEdge({
+            edgeCollectionName: edgeCollectionName,
+            sourceId: sourceId,
+            destinationId: destinationId
+          });
 
-        res.status(200);
+          res.status(200);
+        } else {
+          res.status(404);
+        }
       }).pathParam('entityId', {
         description: 'ID of the document',
         type: 'string'
