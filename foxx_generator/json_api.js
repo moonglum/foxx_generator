@@ -123,7 +123,7 @@
             destinationId: destinationId
           });
 
-          res.status(200);
+          res.status(204);
         } else {
           res.status(404);
         }
