@@ -82,9 +82,10 @@
     removeEdges: function (options) {
       var graph = this.graph,
         vertexId = options.vertexId,
-        edgeCollectionName = options.edgeCollectionName;
+        edgeCollectionName = options.edgeCollectionName,
+        edges;
 
-      var edges = this.edges(vertexId, {
+      edges = this.edges(vertexId, {
         edgeCollectionRestriction: [edgeCollectionName],
       });
 

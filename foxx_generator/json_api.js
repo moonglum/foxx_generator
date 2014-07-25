@@ -105,13 +105,14 @@
 
   Transition = BaseTransition.extend({
     addRoutesForOneRelation: function (controller, graph, relation, from, to) {
-      var url = from.urlFor(':entityId') + '/links/' + relation.name;
+      var url = from.urlFor(':entityId') + '/links/' + relation.name,
+        edgeCollectionName = relation.edgeCollectionName,
+        fromId = function (key) { return from.collectionName + '/' + key; },
+        toId = function (key) { return to.collectionName + '/' + key; };
 
       controller.post(url, function (req, res) {
-        var body = req.body(),
-          sourceId = from.collectionName + '/' + req.params('entityId'),
-          destinationId = to.collectionName + '/' + body[relation.name],
-          edgeCollectionName = relation.edgeCollectionName;
+        var sourceId = fromId(req.params('entityId')),
+          destinationId = toId(req.body()[relation.name]);
 
         graph.checkIfVerticesExist([destinationId, sourceId]);
         graph.removeEdges({ vertexId: sourceId, edgeCollectionName: edgeCollectionName });
