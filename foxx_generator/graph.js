@@ -7,8 +7,15 @@
     ArangoError = require('internal').ArangoError,
     _ = require('underscore'),
     Graph,
+    VertexNotFound,
     tryAndHandleArangoError,
     alreadyExists;
+
+  VertexNotFound = function () {
+    this.name = 'VertexNotFound';
+    this.message = 'The vertex could not be found';
+  };
+  VertexNotFound.prototype = Error.prototype;
 
   tryAndHandleArangoError = function (func, errHandler) {
     try {
@@ -86,6 +93,12 @@
       });
     },
 
+    checkIfVerticesExist: function (ids) {
+      if (!_.every(ids, this.hasVertex, this)) {
+        throw new VertexNotFound();
+      }
+    },
+
     hasVertex: function (id) {
       return this.graph._vertices(id).count() > 0;
     },
@@ -101,4 +114,5 @@
   });
 
   exports.Graph = Graph;
+  exports.VertexNotFound = VertexNotFound;
 }());

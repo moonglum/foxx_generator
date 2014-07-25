@@ -7,6 +7,7 @@
     _ = require('underscore'),
     ArangoError = require('internal').ArangoError,
     BaseTransition = require('./base_transition').BaseTransition,
+    VertexNotFound = require('./graph').VertexNotFound,
     Transition,
     JsonApiModel,
     JsonApiRepository,
@@ -101,6 +102,7 @@
     value: { type: 'string', required: true }
   });
 
+
   Transition = BaseTransition.extend({
     addRoutesForOneRelation: function (controller, graph, relation, from, to) {
       var url = from.urlFor(':entityId') + '/links/' + relation.name;
@@ -111,26 +113,16 @@
           destinationId = to.collectionName + '/' + body[relation.name],
           edgeCollectionName = relation.edgeCollectionName;
 
-        if (graph.hasVertex(destinationId) && graph.hasVertex(sourceId)) {
-          graph.removeEdges({
-            vertexId: sourceId,
-            edgeCollectionName: edgeCollectionName
-          });
+        graph.checkIfVerticesExist([destinationId, sourceId]);
+        graph.removeEdges({ vertexId: sourceId, edgeCollectionName: edgeCollectionName });
+        graph.createEdge({ edgeCollectionName: edgeCollectionName, sourceId: sourceId, destinationId: destinationId });
 
-          graph.createEdge({
-            edgeCollectionName: edgeCollectionName,
-            sourceId: sourceId,
-            destinationId: destinationId
-          });
-
-          res.status(204);
-        } else {
-          res.status(404);
-        }
+        res.status(204);
       }).pathParam('entityId', {
         description: 'ID of the document',
         type: 'string'
-      }).summary('Set the relation')
+      }).errorResponse(VertexNotFound, 404, 'The vertex could not be found')
+        .summary('Set the relation')
         .notes('TODO');
     },
   });
