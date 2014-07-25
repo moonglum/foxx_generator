@@ -102,22 +102,54 @@
     value: { type: 'string', required: true }
   });
 
+  var RelationRepository = function (from, to, relation, graph) {
+    this.edgeCollectionName = relation.edgeCollectionName;
+    this.fromId = function (key) { return from.collectionName + '/' + key; };
+    this.toId = function (key) { return to.collectionName + '/' + key; };
+    this.graph = graph;
+  };
+
+  _.extend(RelationRepository.prototype, {
+    replaceRelation: function (sourceKey, destinationKey) {
+      var sourceId = this.fromId(sourceKey),
+        destinationId = this.toId(destinationKey),
+        edgeCollectionName = this.edgeCollectionName,
+        graph = this.graph;
+
+      graph.checkIfVerticesExist([destinationId, sourceId]);
+      graph.removeEdges({ vertexId: sourceId, edgeCollectionName: edgeCollectionName, throwError: false });
+      graph.createEdge({ edgeCollectionName: edgeCollectionName, sourceId: sourceId, destinationId: destinationId });
+    },
+
+    addRelations: function (sourceKey, destinationKeys) {
+      var sourceId = this.fromId(sourceKey),
+        destinationIds = _.map(destinationKeys, this.toId, this),
+        edgeCollectionName = this.edgeCollectionName,
+        graph = this.graph;
+
+      graph.checkIfVerticesExist(_.union(sourceId, destinationIds));
+      _.each(destinationIds, function (destinationId) {
+        graph.createEdge({ edgeCollectionName: edgeCollectionName, sourceId: sourceId, destinationId: destinationId });
+      });
+    },
+
+    deleteRelation: function (sourceKey) {
+      var sourceId = this.fromId(sourceKey),
+        edgeCollectionName = this.edgeCollectionName,
+        graph = this.graph;
+
+      graph.checkIfVerticesExist([sourceId]);
+      graph.removeEdges({ vertexId: sourceId, edgeCollectionName: edgeCollectionName });
+    }
+  });
 
   Transition = BaseTransition.extend({
     addRoutesForOneRelation: function (controller, graph, relation, from, to) {
       var url = from.urlFor(':entityId') + '/links/' + relation.name,
-        edgeCollectionName = relation.edgeCollectionName,
-        fromId = function (key) { return from.collectionName + '/' + key; },
-        toId = function (key) { return to.collectionName + '/' + key; };
+        relationRepository = new RelationRepository(from, to, relation, graph);
 
       controller.post(url, function (req, res) {
-        var sourceId = fromId(req.params('entityId')),
-          destinationId = toId(req.body()[relation.name]);
-
-        graph.checkIfVerticesExist([destinationId, sourceId]);
-        graph.removeEdges({ vertexId: sourceId, edgeCollectionName: edgeCollectionName });
-        graph.createEdge({ edgeCollectionName: edgeCollectionName, sourceId: sourceId, destinationId: destinationId });
-
+        relationRepository.replaceRelation(req.params('entityId'), req.body()[relation.name]);
         res.status(204);
       }).pathParam('entityId', {
         description: 'ID of the document',
@@ -127,17 +159,28 @@
         .notes('TODO');
 
       controller.delete(url, function (req, res) {
-        var sourceId = fromId(req.params('entityId'));
-
-        graph.checkIfVerticesExist([sourceId]);
-        graph.removeEdges({ vertexId: sourceId, edgeCollectionName: edgeCollectionName });
-
+        relationRepository.deleteRelation(req.params('entityId'));
         res.status(204);
       }).pathParam('entityId', {
         description: 'ID of the document',
         type: 'string'
       }).errorResponse(VertexNotFound, 404, 'The vertex could not be found')
         .summary('Remove the relation')
+        .notes('TODO');
+    },
+
+    addRoutesForManyRelation: function (controller, graph, relation, from, to) {
+      var url = from.urlFor(':entityId') + '/links/' + relation.name,
+        relationRepository = new RelationRepository(from, to, relation, graph);
+
+      controller.post(url, function (req, res) {
+        relationRepository.addRelations(req.params('entityId'), req.body()[relation.name]);
+        res.status(204);
+      }).pathParam('entityId', {
+        description: 'ID of the document',
+        type: 'string'
+      }).errorResponse(VertexNotFound, 404, 'The vertex could not be found')
+        .summary('Set the relation')
         .notes('TODO');
     },
   });

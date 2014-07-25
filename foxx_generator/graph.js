@@ -110,7 +110,9 @@
         edgeCollectionName = options.edgeCollectionName,
         edgeCollection = this.graph[edgeCollectionName];
 
-      edgeCollection.save(sourceId, destinationId, {});
+      if (this.graph._edges([ { _from: sourceId, _to: destinationId }, { _from: destinationId, _to: sourceId }]).count() === 0) {
+        edgeCollection.save(sourceId, destinationId, {});
+      }
     }
   });
 
