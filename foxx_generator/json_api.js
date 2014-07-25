@@ -125,6 +125,20 @@
       }).errorResponse(VertexNotFound, 404, 'The vertex could not be found')
         .summary('Set the relation')
         .notes('TODO');
+
+      controller.delete(url, function (req, res) {
+        var sourceId = fromId(req.params('entityId'));
+
+        graph.checkIfVerticesExist([sourceId]);
+        graph.removeEdges({ vertexId: sourceId, edgeCollectionName: edgeCollectionName });
+
+        res.status(204);
+      }).pathParam('entityId', {
+        description: 'ID of the document',
+        type: 'string'
+      }).errorResponse(VertexNotFound, 404, 'The vertex could not be found')
+        .summary('Remove the relation')
+        .notes('TODO');
     },
   });
 
