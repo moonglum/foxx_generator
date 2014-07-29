@@ -48,6 +48,11 @@
       return result;
     },
 
+    removeByKey: function (key) {
+      var id = [this.collection.name(), key].join('/');
+      this.collection.remove(id);
+    },
+
     addLinks: function (model) {
       var links = {},
         graph = this.graph,
@@ -286,7 +291,7 @@
 
       this.controller.del(from.urlTemplate, function (req, res) {
         var id = req.params('id');
-        repository.removeById(id);
+        repository.removeByKey(id);
         res.status(204);
       }).pathParam('id', {
         description: 'ID of the document',
