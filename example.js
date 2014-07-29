@@ -11,7 +11,7 @@
     applicationContext: applicationContext,
   });
 
-  generator.defineTransition('asignee', {
+  generator.defineTransition('assignee', {
     description: 'Get the person this object is assigned to',
     to: 'one',
   }).inverseTransition('assigned', {
@@ -42,12 +42,12 @@
       title: { type: 'string', required: true },
 
       // User ID of the person this is assigned to
-      asignee: { type: 'string' }
+      assignee: { type: 'string' }
     },
 
     transitions: [
       { to: 'todos', via: 'container' },
-      { to: 'person', via: 'asignee' }
+      { to: 'person', via: 'assignee' }
     ]
   });
 
