@@ -104,13 +104,17 @@
       return this.graph._vertices(id).count() > 0;
     },
 
+    areConnected: function (sourceId, destinationId) {
+      return this.graph._edges([ { _from: sourceId, _to: destinationId }, { _from: destinationId, _to: sourceId }]).count() > 0;
+    },
+
     createEdge: function (options) {
       var sourceId = options.sourceId,
         destinationId = options.destinationId,
         edgeCollectionName = options.edgeCollectionName,
         edgeCollection = this.graph[edgeCollectionName];
 
-      if (this.graph._edges([ { _from: sourceId, _to: destinationId }, { _from: destinationId, _to: sourceId }]).count() === 0) {
+      if (!this.areConnected(sourceId, destinationId)) {
         edgeCollection.save(sourceId, destinationId, {});
       }
     }
