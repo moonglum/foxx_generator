@@ -49,8 +49,7 @@
     },
 
     removeByKey: function (key) {
-      var id = [this.collection.name(), key].join('/');
-      this.collection.remove(id);
+      this.collection.remove(key);
     },
 
     addLinks: function (model) {
