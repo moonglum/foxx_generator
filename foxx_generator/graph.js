@@ -48,14 +48,20 @@
 
   _.extend(Graph.prototype, {
     extendEdgeDefinitions: function (rawEdgeCollectionName, from, to) {
-      var vertexCollections = [ from.collectionName, to.collectionName ],
-        edgeCollectionName = this.appContext.collectionName(rawEdgeCollectionName),
-        edgeDefinition = graph_module._undirectedRelation(edgeCollectionName, vertexCollections),
+      var vertexCollections, edgeCollectionName, edgeDefinition, graph;
+
+      if (from.collectionName && to.collectionName) {
+        vertexCollections = [ from.collectionName, to.collectionName ];
+        edgeCollectionName = this.appContext.collectionName(rawEdgeCollectionName);
+        edgeDefinition = graph_module._undirectedRelation(edgeCollectionName, vertexCollections);
         graph = this.graph;
 
-      tryAndHandleArangoError(function () {
-        graph._extendEdgeDefinitions(edgeDefinition);
-      }, alreadyExists('EdgeDefinition', edgeCollectionName));
+        tryAndHandleArangoError(function () {
+          graph._extendEdgeDefinitions(edgeDefinition);
+        }, alreadyExists('EdgeDefinition', edgeCollectionName));
+      } else {
+        require('console').log('Invalid edge definition for "%s" and "%s"', from.collectionName, to.collectionName);
+      }
 
       return edgeCollectionName;
     },
