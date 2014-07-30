@@ -111,7 +111,10 @@
     },
 
     areConnected: function (sourceId, destinationId) {
-      return this.graph._edges([ { _from: sourceId, _to: destinationId }, { _from: destinationId, _to: sourceId }]).count() > 0;
+      return this.graph._edges([
+        { _from: sourceId, _to: destinationId },
+        { _from: destinationId, _to: sourceId }
+      ]).count() > 0;
     },
 
     createEdge: function (options) {

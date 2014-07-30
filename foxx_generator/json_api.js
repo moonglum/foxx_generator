@@ -13,6 +13,7 @@
     JsonApiRepository,
     ElementTransition,
     ContainerTransition,
+    RelationRepository,
     ReplaceOperation,
     transitions = [],
     generateLinkTemplates;
@@ -106,7 +107,7 @@
     value: { type: 'string', required: true }
   });
 
-  var RelationRepository = function (from, to, relation, graph) {
+  RelationRepository = function (from, to, relation, graph) {
     this.edgeCollectionName = relation.edgeCollectionName;
     this.fromId = function (key) { return from.collectionName + '/' + key; };
     this.toId = function (key) { return to.collectionName + '/' + key; };
