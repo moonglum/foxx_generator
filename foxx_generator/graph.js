@@ -49,10 +49,10 @@
   _.extend(Graph.prototype, {
     extendEdgeDefinitions: function (rawEdgeCollectionName, from, to) {
       var vertexCollections, edgeCollectionName, edgeDefinition, graph;
+      edgeCollectionName = this.appContext.collectionName(rawEdgeCollectionName);
 
       if (from.collectionName && to.collectionName) {
         vertexCollections = [ from.collectionName, to.collectionName ];
-        edgeCollectionName = this.appContext.collectionName(rawEdgeCollectionName);
         edgeDefinition = graph_module._undirectedRelation(edgeCollectionName, vertexCollections);
         graph = this.graph;
 
