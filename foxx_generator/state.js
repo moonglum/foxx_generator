@@ -5,6 +5,7 @@
   'use strict';
 
   var State,
+    extend = require('org/arangodb/extend').extend,
     _ = require('underscore');
 
   State = function (name, graph, paramaterized) {
@@ -45,17 +46,8 @@
       }, this);
     },
 
-    addRepository: function (Repository, states) {
-      var elementRelation = this.findTransition('element'),
-        Model = states[elementRelation.to].model;
-
-      this.collection = this.graph.addVertexCollection(this.name);
-      this.collectionName = this.collection.name();
-
-      this.repository = new Repository(this.collection, {
-        model: Model,
-        graph: this.graph
-      });
+    addRepository: function () {
+      require('console').log('Not implemented');
     },
 
     addModel: function (Model, attributes) {
@@ -77,6 +69,8 @@
       return url;
     }
   });
+
+  State.extend = extend;
 
   exports.State = State;
 }());

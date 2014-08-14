@@ -8,11 +8,11 @@
     Graph = require('./foxx_generator/graph').Graph,
     Generator,
     TransitionContext,
-    State = require('./foxx_generator/state').State,
     mediaTypes;
 
   mediaTypes = {
-    'application/vnd.api+json': require('./foxx_generator/json_api').mediaType
+    'application/vnd.api+json': require('./foxx_generator/json_api').mediaType,
+    'application/vnd.siren+json': require('./foxx_generator/siren').mediaType
   };
 
   TransitionContext = function (Transition, transitions, graph, controller) {
@@ -43,7 +43,7 @@
   _.extend(Generator.prototype, {
     addState: function (name, options) {
       var parameterized = (options.parameterized === true),
-        state = new State(name, this.graph, parameterized);
+        state = new this.mediaType.State(name, this.graph, parameterized);
 
       state.addTransitions(options.transitions, this.transitions);
 
@@ -63,12 +63,14 @@
 
     defineTransition: function (name, options) {
       var Transition,
+        transitionType = options.type || 'follow',
         context;
 
       Transition = this.mediaType.Transition.extend({
         collectionBaseName: name,
         relationType: options.to,
-        relationName: name
+        relationName: name,
+        type: transitionType
       });
 
       context = new TransitionContext(Transition, this.transitions, this.graph, this.controller);

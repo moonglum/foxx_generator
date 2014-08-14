@@ -21,7 +21,8 @@
   },
 
   "controllers": {
-    "/json_api": "example.js"
+    "/json_api": "json_api_example.js",
+    "/siren": "siren_example.js"
   },
 
   "rootElement": true,

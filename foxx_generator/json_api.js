@@ -8,9 +8,11 @@
     ArangoError = require('internal').ArangoError,
     BaseTransition = require('./base_transition').BaseTransition,
     VertexNotFound = require('./graph').VertexNotFound,
+    State = require('./state').State,
     Transition,
     JsonApiModel,
     JsonApiRepository,
+    JsonApiState,
     ElementTransition,
     ContainerTransition,
     RelationRepository,
@@ -25,6 +27,21 @@
       return result;
     }, {});
   };
+
+  JsonApiState = State.extend({
+    addRepository: function (Repository, states) {
+      var elementRelation = this.findTransition('element'),
+        Model = states[elementRelation.to].model;
+
+      this.collection = this.graph.addVertexCollection(this.name);
+      this.collectionName = this.collection.name();
+
+      this.repository = new Repository(this.collection, {
+        model: Model,
+        graph: this.graph
+      });
+    }
+  });
 
   JsonApiRepository = Foxx.Repository.extend({
     updateByIdWithOperations: function (id, operations) {
@@ -308,6 +325,7 @@
     Model: JsonApiModel,
     Repository: JsonApiRepository,
     Transition: Transition,
+    State: JsonApiState,
     transitions: transitions
   };
 }());
