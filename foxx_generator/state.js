@@ -14,9 +14,9 @@
     this.parameterized = paramaterized;
 
     if (this.parameterized) {
-      this.urlTemplate = '/unknown/:id';
+      this.urlTemplate = '/' + this.name + '/:id';
     } else {
-      this.urlTemplate = '/unknown';
+      this.urlTemplate = '/' + this.name;
     }
 
     this.relations = [];
