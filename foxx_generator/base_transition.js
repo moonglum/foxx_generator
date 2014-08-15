@@ -30,6 +30,8 @@
         name: this.relationName,
         edgeCollectionName: this.graph.extendEdgeDefinitions(this.edgeCollectionName(from, to), from, to),
         type: this.relationType,
+        parameters: this.parameters,
+        description: this.description,
         to: to
       });
 

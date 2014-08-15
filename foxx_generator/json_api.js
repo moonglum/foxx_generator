@@ -9,6 +9,7 @@
     BaseTransition = require('./base_transition').BaseTransition,
     VertexNotFound = require('./graph').VertexNotFound,
     State = require('./state').State,
+    RepositoryWithGraph = require('./repository_with_graph').RepositoryWithGraph,
     Transition,
     JsonApiModel,
     JsonApiRepository,
@@ -30,7 +31,8 @@
 
   JsonApiState = State.extend({
     addRepository: function (Repository, states) {
-      var elementRelation = this.findTransition('element'),
+      this.type = 'repository';
+      var elementRelation = this.findTransitionByType('element'),
         Model = states[elementRelation.to].model;
 
       this.collection = this.graph.addVertexCollection(this.name);
@@ -43,51 +45,13 @@
     }
   });
 
-  JsonApiRepository = Foxx.Repository.extend({
+  JsonApiRepository = RepositoryWithGraph.extend({
     updateByIdWithOperations: function (id, operations) {
       var model = this.byId(id);
       _.each(operations, function (operation) {
         operation.execute(model);
       });
       return this.replace(model);
-    },
-
-    allWithNeighbors: function (options) {
-      var results = this.all(options);
-      _.each(results, function (result) {
-        this.addLinks(result);
-      }, this);
-      return results;
-    },
-
-    byIdWithNeighbors: function (key) {
-      var result = this.byId(key);
-      this.addLinks(result);
-      return result;
-    },
-
-    removeByKey: function (key) {
-      this.collection.remove(key);
-    },
-
-    addLinks: function (model) {
-      var links = {},
-        graph = this.graph,
-        relations = this.relations;
-
-      _.each(relations, function (relation) {
-        var neighbors = graph.neighbors(model.get('_id'), {
-          edgeCollectionRestriction: [relation.edgeCollectionName]
-        });
-
-        if (relation.type === 'one' && neighbors.length > 0) {
-          links[relation.name] = neighbors[0]._key;
-        } else if (relation.type === 'many') {
-          links[relation.name] = _.pluck(neighbors, '_key');
-        }
-      });
-
-      model.set('links', links);
     }
   });
 

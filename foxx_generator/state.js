@@ -13,6 +13,10 @@
     this.graph = graph;
     this.parameterized = paramaterized;
 
+    // TODO: Do this in the child class
+    this.links = [];
+    this.actions = [];
+
     if (this.parameterized) {
       this.urlTemplate = '/' + this.name + '/:id';
     } else {
@@ -33,9 +37,15 @@
       });
     },
 
-    findTransition: function (type) {
+    findTransitionByType: function (type) {
       return _.find(this.transitions, function (transition) {
         return transition.type === type;
+      });
+    },
+
+    findTransitionBySemantics: function (semantics) {
+      return _.find(this.transitions, function (transition) {
+        return transition.transition.semantics === semantics;
       });
     },
 
@@ -46,11 +56,18 @@
       }, this);
     },
 
+    setAsStart: function () {
+      this.type = 'start';
+      require('console').log('Not implemented');
+    },
+
     addRepository: function () {
+      this.type = 'repository';
       require('console').log('Not implemented');
     },
 
     addModel: function (Model, attributes) {
+      this.type = 'entity';
       this.model = Model.extend({}, {
         state: this,
         attributes: _.extend(attributes, { links: { type: 'object' } })

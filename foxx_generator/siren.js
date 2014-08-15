@@ -5,42 +5,160 @@
   'use strict';
   var Foxx = require('org/arangodb/foxx'),
     _ = require('underscore'),
+    extend = require('org/arangodb/extend').extend,
     // ArangoError = require('internal').ArangoError,
     BaseTransition = require('./base_transition').BaseTransition,
     BaseState = require('./state').State,
     // VertexNotFound = require('./graph').VertexNotFound,
+    RepositoryWithGraph = require('./repository_with_graph').RepositoryWithGraph,
     Transition,
     State,
     Model,
     Repository;
 
-  Repository = Foxx.Repository.extend({
+  var Strategy = function () {};
+
+  _.extend(Strategy.prototype, {
+    executable: function(semantics, from, to, relation) {
+      return semantics === this.semantics && from === this.from && to === this.to && relation === this.relation;
+    }
+  });
+
+  Strategy.extend = extend;
+
+  var AddEntityToRepository = Strategy.extend({
+    semantics: 'link',
+    from: 'repository',
+    to: 'entity',
+    relation: 'one-to-one',
+
+    execute: function(controller, graph, relation, repositoryState, entityState) {
+      var nameOfRootElement = entityState.name,
+        repository = repositoryState.repository,
+        BodyParam = Foxx.Model.extend({ schema: relation.parameters });
+
+      controller.post(repositoryState.urlTemplate, function (req, res) {
+        var data = {},
+          model = req.params(nameOfRootElement);
+
+        data[nameOfRootElement] = repository.save(model).forClient();
+        res.status(201);
+        res.json(data);
+      }).bodyParam(nameOfRootElement, 'TODO', BodyParam)
+        .summary(relation.description)
+        .notes('TODO');
+    }
+  });
+
+  //Couldn't find one-to-one strategy for semantic follow from start to repository
+
+  var Link = Strategy.extend({
+    semantics: 'follow',
+    from: 'start',
+    to: 'repository',
+    relation: 'one-to-one',
+
+    execute: function (controller, graph, relation, from, to) {
+      var rel = relation.name,
+        href = to.urlTemplate,
+        title = relation.description;
+
+      require('console').log('before. From links: %s', from.links.length);
+      require('console').log('before. To links: %s', to.links.length);
+
+      from.addLink([rel], href, title);
+
+      require('console').log('after. From links: %s', from.links.length);
+      require('console').log('after. To links: %s', to.links.length);
+
+      controller.get(href, function (req, res) {
+        res.json({
+          properties: {},
+          links: to.links,
+          actions: to.actions
+        });
+      });
+    }
+  });
+
+  var strategies = [
+    new AddEntityToRepository(),
+    new Link()
+  ];
+
+  var Context = function (semantics, from, to, relation) {
+    this.strategy = _.find(strategies, function (maybeStrategy) {
+      return maybeStrategy.executable(semantics, from, to, relation);
+    });
+
+    if (_.isUndefined(this.strategy)) {
+      require('console').log("Couldn't find %s strategy for semantic %s from %s to %s", relation, semantics, from, to);
+      throw 'Could not find strategy';
+    }
+  };
+
+  _.extend(Context.prototype, {
+    execute: function (controller, graph, relation, from, to) {
+      this.strategy.execute(controller, graph, relation, from, to);
+    }
+  });
+
+  Repository = RepositoryWithGraph.extend({
   });
 
   Model = Foxx.Model.extend({
   });
 
   State = BaseState.extend({
-    // addRepository: function (Repository, states) {
-    //   var elementRelation = this.findTransition('element'),
-    //     Model = states[elementRelation.to].model;
+    addRepository: function (Repository, states) {
+      this.type = 'repository';
+      var elementRelation = this.findTransitionBySemantics('link'),
+        ModelForRepo = states[elementRelation.to].model;
 
-    //   this.collection = this.graph.addVertexCollection(this.name);
-    //   this.collectionName = this.collection.name();
+      this.collection = this.graph.addVertexCollection(this.name);
+      this.collectionName = this.collection.name();
 
-    //   this.repository = new Repository(this.collection, {
-    //     model: Model,
-    //     graph: this.graph
-    //   });
-    // }
+      this.repository = new Repository(this.collection, {
+        model: ModelForRepo,
+        graph: this.graph
+      });
+    },
+
+    setAsStart: function (controller) {
+      var that = this;
+
+      controller.get('/', function (req, res) {
+        res.json({
+          properties: {},
+          links: that.links,
+          actions: that.actions
+        });
+      }).summary('Billboard URL')
+        .notes('TODO');
+      this.type = 'start';
+    },
+
+    addLink: function (rel, href, title) {
+      this.links.push({
+        rel: rel,
+        href: href,
+        title: title
+      });
+    }
+
+    // TODO: Same thing for actions
   });
 
   Transition = BaseTransition.extend({
-    // addRoutesForOneRelation: function (controller, graph, relation, from, to) {
-    // },
+    addRoutesForOneRelation: function (controller, graph, relation, from, to) {
+      var context = new Context(this.semantics, from.type, to.type, 'one-to-one');
+      context.execute(controller, graph, relation, from, to);
+    },
 
-    // addRoutesForManyRelation: function (controller, graph, relation, from, to) {
-    // }
+    addRoutesForManyRelation: function (controller, graph, relation, from, to) {
+      var context = new Context(this.semantics, from.type, to.type, 'one-to-many');
+      context.execute(controller, graph, relation, from, to);
+    }
   });
 
   exports.mediaType = {

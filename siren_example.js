@@ -20,13 +20,19 @@
 
   // This should result in an action
   generator.defineTransition('addIdea', {
-    type: 'link',
+    semantics: 'link',
     to: 'one',
     description: 'Add an idea',
 
-    parameters: Joi.object().keys({
+    parameters: {
       title: Joi.string().required()
-    })
+    }
+  });
+
+  generator.addStartState({
+    transitions: [
+      { to: 'ideas', via: 'listIdeas' }
+    ]
   });
 
   generator.addState('idea', {
@@ -48,4 +54,6 @@
       { to: 'idea', via: 'addIdea' }
     ]
   });
+
+  generator.generate();
 }());

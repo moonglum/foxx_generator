@@ -41,6 +41,14 @@
   };
 
   _.extend(Generator.prototype, {
+    addStartState: function (options) {
+      var name = '',
+        state = new this.mediaType.State(name, this.graph, false);
+      state.addTransitions(options.transitions, this.transitions);
+      state.setAsStart(this.controller);
+      this.states[name] = state;
+    },
+
     addState: function (name, options) {
       var parameterized = (options.parameterized === true),
         state = new this.mediaType.State(name, this.graph, parameterized);
@@ -63,14 +71,16 @@
 
     defineTransition: function (name, options) {
       var Transition,
-        transitionType = options.type || 'follow',
+        semantics = options.semantics || 'follow',
         context;
 
       Transition = this.mediaType.Transition.extend({
         collectionBaseName: name,
         relationType: options.to,
         relationName: name,
-        type: transitionType
+        parameters: options.parameters,
+        description: options.description,
+        semantics: semantics
       });
 
       context = new TransitionContext(Transition, this.transitions, this.graph, this.controller);
