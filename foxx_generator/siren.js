@@ -35,9 +35,30 @@
     execute: function(controller, graph, relation, repositoryState, entityState) {
       var nameOfRootElement = entityState.name,
         repository = repositoryState.repository,
-        BodyParam = Foxx.Model.extend({ schema: relation.parameters });
+        BodyParam = Foxx.Model.extend({ schema: relation.parameters }),
+        href = repositoryState.urlTemplate,
+        name = relation.name,
+        method = 'POST',
+        fields,
+        title = relation.description;
 
-      controller.post(repositoryState.urlTemplate, function (req, res) {
+      fields = _.map(relation.parameters, function (joi, name) {
+        var fieldDescription = { name: name, type: joi._type };
+
+        if (!_.isNull(joi._description)) {
+          fieldDescription.description = joi._description;
+        }
+
+        if (!_.isUndefined(joi._flags.default)) {
+          fieldDescription.value = joi._flags.default;
+        }
+
+        return fieldDescription;
+      });
+
+      repositoryState.addAction(name, method, href, title, fields);
+
+      controller.post(href, function (req, res) {
         var data = {},
           model = req.params(nameOfRootElement);
 
@@ -50,8 +71,6 @@
     }
   });
 
-  //Couldn't find one-to-one strategy for semantic follow from start to repository
-
   var Link = Strategy.extend({
     semantics: 'follow',
     from: 'start',
@@ -63,13 +82,7 @@
         href = to.urlTemplate,
         title = relation.description;
 
-      require('console').log('before. From links: %s', from.links.length);
-      require('console').log('before. To links: %s', to.links.length);
-
       from.addLink([rel], href, title);
-
-      require('console').log('after. From links: %s', from.links.length);
-      require('console').log('after. To links: %s', to.links.length);
 
       controller.get(href, function (req, res) {
         res.json({
@@ -144,9 +157,19 @@
         href: href,
         title: title
       });
-    }
+    },
 
-    // TODO: Same thing for actions
+    addAction: function (name, method, href, title, fields) {
+      this.actions.push({
+        name: name,
+        // class: ?,
+        method: method,
+        href: href,
+        title: title,
+        type: 'application/json',
+        fields: fields
+      });
+    }
   });
 
   Transition = BaseTransition.extend({

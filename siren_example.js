@@ -25,7 +25,9 @@
     description: 'Add an idea',
 
     parameters: {
-      title: Joi.string().required()
+      title: Joi.string()
+      // .required();
+      // .default('hello').description('roflcopter')
     }
   });
 
