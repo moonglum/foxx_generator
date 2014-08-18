@@ -16,6 +16,10 @@
     Model,
     Repository;
 
+  var forClient = function (model) {
+    return model.forClient();
+  };
+
   var Strategy = function () {};
 
   _.extend(Strategy.prototype, {
@@ -86,11 +90,13 @@
 
       controller.get(href, function (req, res) {
         res.json({
-          properties: {},
+          properties: to.properties(),
+          entities: to.entities(),
           links: to.links,
           actions: to.actions
         });
-      });
+      }).summary(relation.description)
+        .notes('TODO');
     }
   });
 
@@ -120,6 +126,13 @@
   });
 
   Model = Foxx.Model.extend({
+    forClient: function () {
+      var properties = Foxx.Model.prototype.forClient.call(this);
+
+      return {
+        properties: properties
+      };
+    }
   });
 
   State = BaseState.extend({
@@ -149,6 +162,20 @@
       }).summary('Billboard URL')
         .notes('TODO');
       this.type = 'start';
+    },
+
+    properties: function () {
+      return {};
+    },
+
+    entities: function () {
+      var entities = [];
+
+      if (this.type === 'repository') {
+        entities = _.map(this.repository.all(), forClient);
+      }
+
+      return entities;
     },
 
     addLink: function (rel, href, title) {
