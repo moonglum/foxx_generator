@@ -75,6 +75,21 @@
     }
   });
 
+  var LinkFromRepoToEntity = Strategy.extend({
+    semantics: 'follow',
+    from: 'repository',
+    to: 'entity',
+    relation: 'one-to-one',
+
+    execute: function (controller, graph, relation, repositoryState, entityState) {
+      var rel = relation.name,
+        href = entityState.urlTemplate,
+        title = relation.description;
+
+      repositoryState.addLinkToEntities(rel, href, title, entityState);
+    }
+  });
+
   var Link = Strategy.extend({
     semantics: 'follow',
     from: 'start',
@@ -102,6 +117,7 @@
 
   var strategies = [
     new AddEntityToRepository(),
+    new LinkFromRepoToEntity(),
     new Link()
   ];
 
@@ -130,7 +146,8 @@
       var properties = Foxx.Model.prototype.forClient.call(this);
 
       return {
-        properties: properties
+        properties: properties,
+        links: []
       };
     }
   });
@@ -172,7 +189,18 @@
       var entities = [];
 
       if (this.type === 'repository') {
-        entities = _.map(this.repository.all(), forClient);
+        entities = _.map(this.repository.all(), function (entity) {
+          var result = entity.forClient();
+
+          _.each(this.childLinks, function(link) {
+            result.links.push({
+              rel: link.rel,
+              href: link.target.urlFor(entity.get('_key')),
+              title: link.title
+            });
+          });
+          return result;
+        }, this);
       }
 
       return entities;
@@ -183,6 +211,15 @@
         rel: rel,
         href: href,
         title: title
+      });
+    },
+
+    addLinkToEntities: function (rel, href, title, target) {
+      this.childLinks.push({
+        rel: rel,
+        href: href,
+        title: title,
+        target: target
       });
     },
 

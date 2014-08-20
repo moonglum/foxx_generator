@@ -16,6 +16,7 @@
     // TODO: Do this in the child class
     this.links = [];
     this.actions = [];
+    this.childLinks = [];
 
     if (this.parameterized) {
       this.urlTemplate = '/' + this.name + '/:id';

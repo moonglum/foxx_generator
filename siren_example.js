@@ -14,7 +14,14 @@
 
   // This should result in a link
   generator.defineTransition('listIdeas', {
+    semantics: 'follow',
     description: 'Get the list of all ideas',
+    to: 'one'
+  });
+
+  generator.defineTransition('showDetail', {
+    semantics: 'follow',
+    description: 'Show details for a particular item',
     to: 'one'
   });
 
@@ -53,7 +60,8 @@
     type: 'repository',
 
     transitions: [
-      { to: 'idea', via: 'addIdea' }
+      { to: 'idea', via: 'addIdea' },
+      { to: 'idea', via: 'showDetail' }
     ]
   });
 
