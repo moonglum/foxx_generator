@@ -48,10 +48,21 @@
     }
   });
 
+  generator.defineTransition('calculateFibonacci', {
+    semantics: 'link',
+    to: 'one',
+    description: 'Calculate Fibonacci',
+
+    parameters: {
+      calculateFor: Joi.number()
+    }
+  });
+
   generator.addStartState({
     transitions: [
       { to: 'ideas', via: 'listIdeas' },
-      { to: 'addition', via: 'addTwoNumbers' }
+      { to: 'addition', via: 'addTwoNumbers' },
+      { to: 'fibonacci', via: 'calculateFibonacci' }
     ]
   });
 
@@ -93,6 +104,35 @@
     // verb: 'put',
 
     transitions: []
+  });
+
+  generator.addState('fibonacci', {
+    type: 'asyncService',
+
+    action: function (data) {
+      var calculateFor = data.calculateFor;
+
+      require('console').log('calculateFor: %s', calculateFor);
+      var a=0, b=1, i, temp;
+
+      for (i = 0; i < calculateFor; i++) {
+        temp = a + b;
+        a = b;
+        b = temp;
+      }
+    },
+
+    success: function () {
+      require('console').log('Calculated result');
+    },
+
+    failure: function () {
+      require('console').log('Could not calculate');
+    },
+
+    // maxFailures: 4,
+
+    queue: 'fibonaccis'
   });
 
   generator.generate();

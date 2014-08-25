@@ -6,7 +6,8 @@
 
   var State,
     extend = require('org/arangodb/extend').extend,
-    _ = require('underscore');
+    _ = require('underscore'),
+    Foxx = require("org/arangodb/foxx");
 
   State = function (name, graph, paramaterized) {
     this.name = name;
@@ -78,6 +79,26 @@
     addService: function (action, verb) {
       this.type = 'service';
       this.action = action;
+      this.verb = verb.toLowerCase();
+    },
+
+    addAsyncService: function (name, action, verb, success, failure, maxFailures, queueName) {
+      this.type = 'asyncService';
+
+      var queue = Foxx.queues.create(queueName);
+
+      Foxx.queues.registerJobType(name, {
+        execute: action,
+        maxFailures: maxFailures
+      });
+
+      this.executeAsync = function (data) {
+        queue.push(name, data, {
+          success: success,
+          failure: failure
+        });
+      };
+
       this.verb = verb.toLowerCase();
     },
 

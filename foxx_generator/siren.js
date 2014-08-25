@@ -139,10 +139,43 @@
     }
   });
 
+  var LinkToAsyncService = Strategy.extend({
+    semantics: 'link',
+    from: 'start',
+    to: 'asyncService',
+    relation: 'one-to-one',
+
+    execute: function (controller, graph, relation, from, to) {
+      var rel = relation.name,
+        href = to.urlTemplate,
+        title = relation.description,
+        verb = to.verb,
+        executeAsync = to.executeAsync,
+        nameOfRootElement = to.name,
+        BodyParam = Foxx.Model.extend({ schema: relation.parameters });
+
+      from.addLink([rel], href, title);
+
+      controller[verb](href, function (req, res) {
+        var params = req.params(nameOfRootElement);
+
+        executeAsync(params.forClient());
+
+        res.status(201);
+        res.json({
+          job: 'created'
+        });
+      }).summary(relation.description)
+        .bodyParam(nameOfRootElement, 'TODO', BodyParam)
+        .notes('TODO');
+    }
+  });
+
   var strategies = [
     new AddEntityToRepository(),
     new LinkFromRepoToEntity(),
     new LinkToService(),
+    new LinkToAsyncService(),
     new Link()
   ];
 

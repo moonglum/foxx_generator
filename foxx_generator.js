@@ -65,6 +65,21 @@
       case 'service':
         state.addService(options.action, options.verb || 'post');
         break;
+      case 'asyncService':
+        state.addAsyncService(name,
+                              options.action,
+                              options.verb || 'post',
+                              options.success,
+                              options.failure,
+                              // options.success || function () {
+                              //   require('console').log('Operation for state %s successful', name);
+                              // },
+                              // options.failure || function () {
+                              //   require('console').log('Operation for state %s failed', name);
+                              // },
+                              options.maxFailures || 1,
+                              options.queue || 'defaultQueue');
+        break;
       default:
         require('console').log('Unknown state type "' + options.type + '"');
       }
