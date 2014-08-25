@@ -62,6 +62,9 @@
       case 'repository':
         state.addRepository(this.mediaType.Repository, this.states);
         break;
+      case 'service':
+        state.addService(options.action, options.verb || 'post');
+        break;
       default:
         require('console').log('Unknown state type "' + options.type + '"');
       }

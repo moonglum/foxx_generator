@@ -115,9 +115,34 @@
     }
   });
 
+  var LinkToService = Strategy.extend({
+    semantics: 'link',
+    from: 'start',
+    to: 'service',
+    relation: 'one-to-one',
+
+    execute: function (controller, graph, relation, from, to) {
+      var rel = relation.name,
+        href = to.urlTemplate,
+        title = relation.description,
+        verb = to.verb,
+        action = to.action,
+        nameOfRootElement = to.name,
+        BodyParam = Foxx.Model.extend({ schema: relation.parameters });
+
+      from.addLink([rel], href, title);
+
+      controller[verb](href, action)
+        .summary(relation.description)
+        .bodyParam(nameOfRootElement, 'TODO', BodyParam)
+        .notes('TODO');
+    }
+  });
+
   var strategies = [
     new AddEntityToRepository(),
     new LinkFromRepoToEntity(),
+    new LinkToService(),
     new Link()
   ];
 

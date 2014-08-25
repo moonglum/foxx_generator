@@ -75,6 +75,12 @@
       });
     },
 
+    addService: function (action, verb) {
+      this.type = 'service';
+      this.action = action;
+      this.verb = verb.toLowerCase();
+    },
+
     urlFor: function (selector) {
       var url;
 
