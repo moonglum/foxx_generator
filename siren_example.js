@@ -32,7 +32,7 @@
     description: 'Add an idea',
 
     condition: function () {
-      return false;
+      return true;
     },
 
     parameters: {

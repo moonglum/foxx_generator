@@ -43,6 +43,7 @@
         BodyParam = Foxx.Model.extend({ schema: relation.parameters }),
         href = repositoryState.urlTemplate,
         name = relation.name,
+        precondition = relation.precondition,
         method = 'POST',
         fields,
         title = relation.description;
@@ -61,7 +62,7 @@
         return fieldDescription;
       });
 
-      repositoryState.addAction(name, method, href, title, fields);
+      repositoryState.addAction(name, method, href, title, fields, precondition);
 
       controller.post(href, function (req, res) {
         var data = {},
@@ -103,16 +104,17 @@
     execute: function (controller, graph, relation, from, to) {
       var rel = relation.name,
         href = to.urlTemplate,
+        precondition = relation.precondition,
         title = relation.description;
 
-      from.addLink([rel], href, title);
+      from.addLink([rel], href, title, precondition);
 
       controller.get(href, function (req, res) {
         res.json({
           properties: to.properties(),
           entities: to.entities(),
-          links: to.links,
-          actions: to.actions
+          links: to.filteredLinks(req),
+          actions: to.filteredActions(req)
         });
       }).summary(relation.description)
         .notes('TODO')
@@ -134,9 +136,10 @@
         verb = to.verb,
         action = to.action,
         nameOfRootElement = to.name,
+        precondition = relation.precondition,
         BodyParam = Foxx.Model.extend({ schema: relation.parameters });
 
-      from.addLink([rel], href, title);
+      from.addLink([rel], href, title, precondition);
 
       controller[verb](href, action)
         .summary(relation.description)
@@ -160,9 +163,10 @@
         verb = to.verb,
         executeAsync = to.executeAsync,
         nameOfRootElement = to.name,
+        precondition = relation.precondition,
         BodyParam = Foxx.Model.extend({ schema: relation.parameters });
 
-      from.addLink([rel], href, title);
+      from.addLink([rel], href, title, precondition);
 
       controller[verb](href, function (req, res) {
         var params = req.params(nameOfRootElement);
@@ -241,8 +245,8 @@
       controller.get('/', function (req, res) {
         res.json({
           properties: {},
-          links: that.links,
-          actions: that.actions
+          links: that.filteredLinks(req),
+          actions: that.filteredActions(req)
         });
       }).summary('Billboard URL')
         .notes('TODO');
@@ -274,8 +278,21 @@
       return entities;
     },
 
-    addLink: function (rel, href, title) {
+    filteredLinks: function (req) {
+      return _.filter(this.links, function (link) {
+        return link.precondition(req);
+      });
+    },
+
+    filteredActions: function (req) {
+      return _.filter(this.actions, function (action) {
+        return action.precondition(req);
+      });
+    },
+
+    addLink: function (rel, href, title, precondition) {
       this.links.push({
+        precondition: precondition,
         rel: rel,
         href: href,
         title: title
@@ -291,8 +308,9 @@
       });
     },
 
-    addAction: function (name, method, href, title, fields) {
+    addAction: function (name, method, href, title, fields, precondition) {
       this.actions.push({
+        precondition: precondition,
         name: name,
         // class: ?,
         method: method,

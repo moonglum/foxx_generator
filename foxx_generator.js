@@ -91,6 +91,7 @@
       var Transition,
         semantics = options.semantics || 'follow',
         condition = options.condition || function () { return true; },
+        precondition = options.precondition || condition,
         context;
 
       Transition = this.mediaType.Transition.extend({
@@ -100,7 +101,8 @@
         parameters: options.parameters,
         description: options.description,
         semantics: semantics,
-        condition: condition
+        condition: condition,
+        precondition: precondition
       });
 
       context = new TransitionContext(Transition, this.transitions, this.graph, this.controller);

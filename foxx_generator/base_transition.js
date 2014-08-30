@@ -48,6 +48,7 @@
         parameters: this.parameters,
         description: this.description,
         condition: conditionWrapper,
+        precondition: this.precondition,
         to: to
       });
 
