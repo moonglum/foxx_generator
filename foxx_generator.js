@@ -90,6 +90,7 @@
     defineTransition: function (name, options) {
       var Transition,
         semantics = options.semantics || 'follow',
+        condition = options.condition || function () { return true; },
         context;
 
       Transition = this.mediaType.Transition.extend({
@@ -98,7 +99,8 @@
         relationName: name,
         parameters: options.parameters,
         description: options.description,
-        semantics: semantics
+        semantics: semantics,
+        condition: condition
       });
 
       context = new TransitionContext(Transition, this.transitions, this.graph, this.controller);

@@ -5,7 +5,15 @@
   'use strict';
   var extend = require('org/arangodb/extend').extend,
     _ = require('underscore'),
+    ConditionNotFulfilled,
     Transition;
+
+  ConditionNotFulfilled = function (msg) {
+    this.name = 'ConditionNotFulfilled';
+    this.msg = msg;
+  };
+
+  ConditionNotFulfilled.prototype = Error.prototype;
 
   Transition = function (graph, controller) {
     this.graph = graph;
@@ -26,12 +34,20 @@
     },
 
     apply: function (from, to) {
+      var condition = this.condition,
+        conditionWrapper = function (req) {
+          if (!condition(req)) {
+            throw new ConditionNotFulfilled('Condition was not fulfilled');
+          }
+        };
+
       from.relations.push({
         name: this.relationName,
         edgeCollectionName: this.graph.extendEdgeDefinitions(this.edgeCollectionName(from, to), from, to),
         type: this.relationType,
         parameters: this.parameters,
         description: this.description,
+        condition: conditionWrapper,
         to: to
       });
 
@@ -60,4 +76,5 @@
   Transition.extend = extend;
 
   exports.BaseTransition = Transition;
+  exports.ConditionNotFulfilled = ConditionNotFulfilled;
 }());

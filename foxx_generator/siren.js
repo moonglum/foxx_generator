@@ -11,6 +11,7 @@
     BaseState = require('./state').State,
     // VertexNotFound = require('./graph').VertexNotFound,
     RepositoryWithGraph = require('./repository_with_graph').RepositoryWithGraph,
+    ConditionNotFulfilled = require('./base_transition').ConditionNotFulfilled,
     Transition,
     State,
     Model,
@@ -70,6 +71,9 @@
         res.status(201);
         res.json(data);
       }).bodyParam(nameOfRootElement, 'TODO', BodyParam)
+        .errorResponse(ConditionNotFulfilled, 403, 'The condition could not be fulfilled')
+        .onlyIf(relation.condition)
+        .errorResponse(ConditionNotFulfilled, 403, 'The condition could not be fulfilled')
         .summary(relation.description)
         .notes('TODO');
     }
@@ -111,7 +115,9 @@
           actions: to.actions
         });
       }).summary(relation.description)
-        .notes('TODO');
+        .notes('TODO')
+        .errorResponse(ConditionNotFulfilled, 403, 'The condition could not be fulfilled')
+        .onlyIf(relation.condition);
     }
   });
 
@@ -135,7 +141,9 @@
       controller[verb](href, action)
         .summary(relation.description)
         .bodyParam(nameOfRootElement, 'TODO', BodyParam)
-        .notes('TODO');
+        .notes('TODO')
+        .errorResponse(ConditionNotFulfilled, 403, 'The condition could not be fulfilled')
+        .onlyIf(relation.condition);
     }
   });
 
@@ -167,7 +175,9 @@
         });
       }).summary(relation.description)
         .bodyParam(nameOfRootElement, 'TODO', BodyParam)
-        .notes('TODO');
+        .notes('TODO')
+        .errorResponse(ConditionNotFulfilled, 403, 'The condition could not be fulfilled')
+        .onlyIf(relation.condition);
     }
   });
 

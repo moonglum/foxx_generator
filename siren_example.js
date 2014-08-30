@@ -31,6 +31,10 @@
     to: 'one',
     description: 'Add an idea',
 
+    condition: function () {
+      return false;
+    },
+
     parameters: {
       title: Joi.string()
       // .required();
