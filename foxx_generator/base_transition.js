@@ -41,7 +41,7 @@
           }
         };
 
-      from.relations.push({
+      var relation = {
         name: this.relationName,
         edgeCollectionName: this.graph.extendEdgeDefinitions(this.edgeCollectionName(from, to), from, to),
         type: this.relationType,
@@ -50,15 +50,15 @@
         condition: conditionWrapper,
         precondition: this.precondition,
         to: to
-      });
+      };
 
-      _.each(from.relations, function (relation) {
-        if (relation.type === 'many') {
-          this.addRoutesForManyRelation(this.controller, this.graph, relation, from, to);
-        } else if (relation.type === 'one') {
-          this.addRoutesForOneRelation(this.controller, this.graph, relation, from, to);
-        }
-      }, this);
+      from.relations.push(relation);
+
+      if (relation.type === 'many') {
+        this.addRoutesForManyRelation(this.controller, this.graph, relation, from, to);
+      } else if (relation.type === 'one') {
+        this.addRoutesForOneRelation(this.controller, this.graph, relation, from, to);
+      }
     }
   });
 
