@@ -1,2 +1,2 @@
-# Collection JSON Prototype
+# Foxx Generator
 
