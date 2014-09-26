@@ -3,7 +3,7 @@
 
 (function () {
   'use strict';
-  var graph_module = require('org/arangodb/general-graph'),
+  var graphModule = require('org/arangodb/general-graph'),
     ArangoError = require('internal').ArangoError,
     _ = require('underscore'),
     Graph,
@@ -40,9 +40,9 @@
     this.appContext = appContext;
 
     tryAndHandleArangoError(function () {
-      that.graph = graph_module._graph(name);
+      that.graph = graphModule._graph(name);
     }, function () {
-      that.graph = graph_module._create(name);
+      that.graph = graphModule._create(name);
     });
   };
 
@@ -53,7 +53,7 @@
 
       if (from.collectionName && to.collectionName) {
         vertexCollections = [ from.collectionName, to.collectionName ];
-        edgeDefinition = graph_module._undirectedRelation(edgeCollectionName, vertexCollections);
+        edgeDefinition = graphModule._undirectedRelation(edgeCollectionName, vertexCollections);
         graph = this.graph;
 
         tryAndHandleArangoError(function () {

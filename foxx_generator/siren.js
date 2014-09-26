@@ -15,29 +15,35 @@
     Transition,
     State,
     Model,
-    Repository;
+    Repository,
+    Strategy,
+    AddEntityToRepository,
+    LinkFromRepoToEntity,
+    Link,
+    LinkToService,
+    LinkToAsyncService,
+    strategies,
+    Context;
 
-  var forClient = function (model) {
-    return model.forClient();
+  Strategy = function () {
+    this.type = 'strategy';
   };
 
-  var Strategy = function () {};
-
   _.extend(Strategy.prototype, {
-    executable: function(semantics, from, to, relation) {
+    executable: function (semantics, from, to, relation) {
       return semantics === this.semantics && from === this.from && to === this.to && relation === this.relation;
     }
   });
 
   Strategy.extend = extend;
 
-  var AddEntityToRepository = Strategy.extend({
+  AddEntityToRepository = Strategy.extend({
     semantics: 'link',
     from: 'repository',
     to: 'entity',
     relation: 'one-to-one',
 
-    execute: function(controller, graph, relation, repositoryState, entityState) {
+    execute: function (controller, graph, relation, repositoryState, entityState) {
       var nameOfRootElement = entityState.name,
         repository = repositoryState.repository,
         BodyParam = Foxx.Model.extend({ schema: relation.parameters }),
@@ -80,7 +86,7 @@
     }
   });
 
-  var LinkFromRepoToEntity = Strategy.extend({
+  LinkFromRepoToEntity = Strategy.extend({
     semantics: 'follow',
     from: 'repository',
     to: 'entity',
@@ -95,7 +101,7 @@
     }
   });
 
-  var Link = Strategy.extend({
+  Link = Strategy.extend({
     semantics: 'follow',
     from: 'start',
     to: 'repository',
@@ -123,7 +129,7 @@
     }
   });
 
-  var LinkToService = Strategy.extend({
+  LinkToService = Strategy.extend({
     semantics: 'link',
     from: 'start',
     to: 'service',
@@ -150,7 +156,7 @@
     }
   });
 
-  var LinkToAsyncService = Strategy.extend({
+  LinkToAsyncService = Strategy.extend({
     semantics: 'link',
     from: 'start',
     to: 'asyncService',
@@ -185,7 +191,7 @@
     }
   });
 
-  var strategies = [
+  strategies = [
     new AddEntityToRepository(),
     new LinkFromRepoToEntity(),
     new LinkToService(),
@@ -193,13 +199,13 @@
     new Link()
   ];
 
-  var Context = function (semantics, from, to, relation) {
+  Context = function (semantics, from, to, relation) {
     this.strategy = _.find(strategies, function (maybeStrategy) {
       return maybeStrategy.executable(semantics, from, to, relation);
     });
 
     if (_.isUndefined(this.strategy)) {
-      require('console').log("Couldn't find %s strategy for semantic %s from %s to %s", relation, semantics, from, to);
+      require('console').log('Couldn\'t find %s strategy for semantic %s from %s to %s', relation, semantics, from, to);
       throw 'Could not find strategy';
     }
   };
@@ -264,7 +270,7 @@
         entities = _.map(this.repository.all(), function (entity) {
           var result = entity.forClient();
 
-          _.each(this.childLinks, function(link) {
+          _.each(this.childLinks, function (link) {
             result.links.push({
               rel: link.rel,
               href: link.target.urlFor(entity.get('_key')),

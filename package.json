@@ -3,7 +3,9 @@
   "version": "0.1.0",
   "description": "Generate Foxx APIs using Statecharts and Domain Driven Design",
   "main": "foxx_generator.js",
-  "scripts": {},
+  "scripts": {
+    "jshint": "jshint -c .jshintrc foxx_generator.js foxx_generator/*.js"
+  },
   "repository": {
     "type": "git",
     "url": "git@github.com/moonglum/foxx_generator.git"

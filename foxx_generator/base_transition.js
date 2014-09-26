@@ -34,14 +34,17 @@
     },
 
     apply: function (from, to) {
-      var condition = this.condition,
-        conditionWrapper = function (req) {
-          if (!condition(req)) {
-            throw new ConditionNotFulfilled('Condition was not fulfilled');
-          }
-        };
+      var condition, conditionWrapper, relation;
 
-      var relation = {
+      condition = this.condition;
+
+      conditionWrapper = function (req) {
+        if (!condition(req)) {
+          throw new ConditionNotFulfilled('Condition was not fulfilled');
+        }
+      };
+
+      relation = {
         name: this.relationName,
         edgeCollectionName: this.graph.extendEdgeDefinitions(this.edgeCollectionName(from, to), from, to),
         type: this.relationType,

@@ -7,14 +7,13 @@
   var State,
     extend = require('org/arangodb/extend').extend,
     _ = require('underscore'),
-    Foxx = require("org/arangodb/foxx");
+    Foxx = require('org/arangodb/foxx');
 
   State = function (name, graph, paramaterized) {
     this.name = name;
     this.graph = graph;
     this.parameterized = paramaterized;
 
-    // TODO: Do this in the child class
     this.links = [];
     this.actions = [];
     this.childLinks = [];
