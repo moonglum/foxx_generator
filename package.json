@@ -1,0 +1,23 @@
+{
+  "name": "foxx_generator",
+  "version": "0.1.0",
+  "description": "Generate Foxx APIs using Statecharts and Domain Driven Design",
+  "main": "foxx_generator.js",
+  "scripts": {},
+  "repository": {
+    "type": "git",
+    "url": "git@github.com/moonglum/foxx_generator.git"
+  },
+  "keywords": [
+    "foxx",
+    "arangodb",
+    "generator",
+    "hypermedia"
+  ],
+  "author": "Lucas Dohmen <lucas@arangodb.org>",
+  "license": "Apache License Version 2.0",
+  "bugs": {
+    "url": "https://github.com/moonglum/foxx_generator/issues"
+  },
+  "homepage": "https://github.com/moonglum/foxx_generator"
+}
