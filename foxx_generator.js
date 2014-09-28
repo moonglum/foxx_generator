@@ -48,30 +48,6 @@
     queue: 'defaultQueue'
   };
 
-  var decorateState = function (state, options, mediaType, states) {
-    switch (options.type) {
-      case 'entity':
-        state.addModel(mediaType.Model, options.attributes);
-      break;
-      case 'repository':
-        state.addRepository(mediaType.Repository, states);
-      break;
-      case 'service':
-        state.addService(options.action, options.verb);
-      break;
-      case 'asyncService':
-        state.addAsyncService(options.action,
-                              options.verb,
-                              options.success,
-                              options.failure,
-                              options.maxFailures,
-                              options.queue);
-                              break;
-                              default:
-                                require('console').log('Unknown state type "' + options.type + '"');
-    }
-  };
-
   _.extend(Generator.prototype, {
     addStartState: function (options) {
       var name = '',
@@ -85,7 +61,7 @@
       var options = _.defaults(opts, defaultsForStateOptions),
         state = new this.mediaType.State(name, this.graph, options.parameterized);
 
-      decorateState(state, options, this.mediaType, this.states);
+      state.configure(options, this.mediaType, this.states);
       state.addTransitions(options.transitions, this.transitions);
 
       this.states[name] = state;

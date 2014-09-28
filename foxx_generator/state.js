@@ -28,6 +28,30 @@
   };
 
   _.extend(State.prototype, {
+    configure: function (options, mediaType, states) {
+      switch (options.type) {
+        case 'entity':
+          this.addModel(mediaType.Model, options.attributes);
+          break;
+        case 'repository':
+          this.addRepository(mediaType.Repository, states);
+          break;
+        case 'service':
+          this.addService(options.action, options.verb);
+          break;
+        case 'asyncService':
+          this.addAsyncService(options.action,
+                                options.verb,
+                                options.success,
+                                options.failure,
+                                options.maxFailures,
+                                options.queue);
+          break;
+        default:
+          require('console').log('Unknown state type "' + options.type + '"');
+      }
+    },
+
     addTransitions: function (transitions, definitions) {
       this.transitions = _.map(transitions, function (transitionDescription) {
         return {
