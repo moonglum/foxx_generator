@@ -9,6 +9,7 @@
     Generator,
     TransitionContext,
     defaultsForStateOptions,
+    defaultsForTransitionOptions,
     mediaTypes;
 
   mediaTypes = {
@@ -48,6 +49,11 @@
     queue: 'defaultQueue'
   };
 
+  defaultsForTransitionOptions = {
+    semantics: 'follow',
+    condition: function () { return true; }
+  };
+
   _.extend(Generator.prototype, {
     addStartState: function (options) {
       var name = '',
@@ -67,23 +73,18 @@
       this.states[name] = state;
     },
 
-    defineTransition: function (name, options) {
+    defineTransition: function (name, opts) {
       var Transition,
-        semantics = options.semantics || 'follow',
-        condition = options.condition || function () { return true; },
-        precondition = options.precondition || condition,
+        options = _.defaults(opts, defaultsForTransitionOptions),
         context;
 
-      Transition = this.mediaType.Transition.extend({
+      options.precondition = options.precondition || options.condition;
+
+      Transition = this.mediaType.Transition.extend(_.extend(options, {
         collectionBaseName: name,
-        relationType: options.to,
         relationName: name,
-        parameters: options.parameters,
-        description: options.description,
-        semantics: semantics,
-        condition: condition,
-        precondition: precondition
-      });
+        relationType: options.to
+      }));
 
       context = new TransitionContext(Transition, this.transitions, this.graph, this.controller);
 
