@@ -8,6 +8,7 @@
     Graph = require('./foxx_generator/graph').Graph,
     Generator,
     TransitionContext,
+    defaultsForStateOptions,
     mediaTypes;
 
   mediaTypes = {
@@ -40,6 +41,13 @@
     }, {}, this);
   };
 
+  defaultsForStateOptions = {
+    parameterized: false,
+    verb: 'post',
+    maxFailures: 1,
+    queue: 'defaultQueue'
+  };
+
   _.extend(Generator.prototype, {
     addStartState: function (options) {
       var name = '',
@@ -49,9 +57,9 @@
       this.states[name] = state;
     },
 
-    addState: function (name, options) {
-      var parameterized = (options.parameterized === true),
-        state = new this.mediaType.State(name, this.graph, parameterized);
+    addState: function (name, opts) {
+      var options = _.defaults(opts, defaultsForStateOptions),
+        state = new this.mediaType.State(name, this.graph, options.parameterized);
 
       state.addTransitions(options.transitions, this.transitions);
 
@@ -63,22 +71,16 @@
         state.addRepository(this.mediaType.Repository, this.states);
         break;
       case 'service':
-        state.addService(options.action, options.verb || 'post');
+        state.addService(options.action, options.verb);
         break;
       case 'asyncService':
         state.addAsyncService(name,
                               options.action,
-                              options.verb || 'post',
+                              options.verb,
                               options.success,
                               options.failure,
-                              // options.success || function () {
-                              //   require('console').log('Operation for state %s successful', name);
-                              // },
-                              // options.failure || function () {
-                              //   require('console').log('Operation for state %s failed', name);
-                              // },
-                              options.maxFailures || 1,
-                              options.queue || 'defaultQueue');
+                              options.maxFailures,
+                              options.queue);
         break;
       default:
         require('console').log('Unknown state type "' + options.type + '"');
