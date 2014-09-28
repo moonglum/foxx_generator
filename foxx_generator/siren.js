@@ -80,7 +80,6 @@
       }).bodyParam(nameOfRootElement, 'TODO', BodyParam)
         .errorResponse(ConditionNotFulfilled, 403, 'The condition could not be fulfilled')
         .onlyIf(relation.condition)
-        .errorResponse(ConditionNotFulfilled, 403, 'The condition could not be fulfilled')
         .summary(relation.description)
         .notes('TODO');
     }
