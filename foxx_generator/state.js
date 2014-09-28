@@ -81,18 +81,18 @@
       this.verb = verb.toLowerCase();
     },
 
-    addAsyncService: function (name, action, verb, success, failure, maxFailures, queueName) {
+    addAsyncService: function (action, verb, success, failure, maxFailures, queueName) {
       this.type = 'asyncService';
 
       var queue = Foxx.queues.create(queueName);
 
-      Foxx.queues.registerJobType(name, {
+      Foxx.queues.registerJobType(this.name, {
         execute: action,
         maxFailures: maxFailures
       });
 
       this.executeAsync = function (data) {
-        queue.push(name, data, {
+        queue.push(this.name, data, {
           success: success,
           failure: failure
         });
