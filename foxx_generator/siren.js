@@ -52,6 +52,7 @@
         precondition = relation.precondition,
         method = 'POST',
         fields,
+
         title = relation.description;
 
       fields = _.map(relation.parameters, function (joi, name) {
@@ -94,7 +95,21 @@
     execute: function (controller, graph, relation, repositoryState, entityState) {
       var rel = relation.name,
         href = entityState.urlTemplate,
-        title = relation.description;
+        title = relation.description,
+        repository = repositoryState.repository;
+
+      controller.get(href, function (req, res) {
+        var id = req.params('id'),
+          entry = repository.byIdWithNeighbors(id);
+
+        res.json(entry.forClient());
+      }).pathParam('id', {
+        description: 'ID of the document',
+        type: 'string'
+      }).errorResponse(ConditionNotFulfilled, 403, 'The condition could not be fulfilled')
+        .onlyIf(relation.condition)
+        .summary(relation.description)
+        .notes('TODO');
 
       repositoryState.addLinkToEntities(rel, href, title, entityState);
     }
