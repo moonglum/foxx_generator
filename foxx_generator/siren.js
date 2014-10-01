@@ -25,6 +25,7 @@
     UnlinkTwoEntities,
     LinkToAsyncService,
     LinkTwoEntities,
+    FollowToEntity,
     strategies,
     Context;
 
@@ -88,6 +89,17 @@
     }
   });
 
+  FollowToEntity = Strategy.extend({
+    semantics: 'follow',
+    from: 'entity',
+    to: 'entity',
+    relation: 'one-to-one',
+
+    prepare: function () {},
+
+    executeOneToOne: function (controller, graph, relation, from, to) {}
+  });
+
   AddEntityToRepository = Strategy.extend({
     semantics: 'link',
     from: 'repository',
@@ -145,6 +157,8 @@
     to: 'entity',
 
     prepare: function (from, to) {
+      var repository = from.repository;
+      repository.relations = to.relations;
     },
 
     executeOneToOne: function (controller, graph, relation, repositoryState, entityState) {
@@ -269,6 +283,7 @@
   strategies = [
     new LinkTwoEntities(),
     new UnlinkTwoEntities(),
+    new FollowToEntity(),
     new AddEntityToRepository(),
     new LinkFromRepoToEntity(),
     new LinkToService(),
