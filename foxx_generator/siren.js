@@ -30,8 +30,8 @@
   };
 
   _.extend(Strategy.prototype, {
-    executable: function (semantics, from, to, relation) {
-      return semantics === this.semantics && from === this.from && to === this.to && relation === this.relation;
+    executable: function (semantics, from, to) {
+      return semantics === this.semantics && from === this.from && to === this.to;
     }
   });
 
@@ -41,9 +41,11 @@
     semantics: 'link',
     from: 'repository',
     to: 'entity',
-    relation: 'one-to-one',
 
-    execute: function (controller, graph, relation, repositoryState, entityState) {
+    prepare: function (from, to) {
+    },
+
+    executeOneToOne: function (controller, graph, relation, repositoryState, entityState) {
       var nameOfRootElement = entityState.name,
         repository = repositoryState.repository,
         BodyParam = Foxx.Model.extend({ schema: relation.parameters }),
@@ -52,7 +54,6 @@
         precondition = relation.precondition,
         method = 'POST',
         fields,
-
         title = relation.description;
 
       fields = _.map(relation.parameters, function (joi, name) {
@@ -90,9 +91,11 @@
     semantics: 'follow',
     from: 'repository',
     to: 'entity',
-    relation: 'one-to-one',
 
-    execute: function (controller, graph, relation, repositoryState, entityState) {
+    prepare: function (from, to) {
+    },
+
+    executeOneToOne: function (controller, graph, relation, repositoryState, entityState) {
       var rel = relation.name,
         href = entityState.urlTemplate,
         title = relation.description,
@@ -119,9 +122,11 @@
     semantics: 'follow',
     from: 'start',
     to: 'repository',
-    relation: 'one-to-one',
 
-    execute: function (controller, graph, relation, from, to) {
+    prepare: function (from, to) {
+    },
+
+    executeOneToOne: function (controller, graph, relation, from, to) {
       var rel = relation.name,
         href = to.urlTemplate,
         precondition = relation.precondition,
@@ -147,9 +152,11 @@
     semantics: 'link',
     from: 'start',
     to: 'service',
-    relation: 'one-to-one',
 
-    execute: function (controller, graph, relation, from, to) {
+    prepare: function (from, to) {
+    },
+
+    executeOneToOne: function (controller, graph, relation, from, to) {
       var rel = relation.name,
         href = to.urlTemplate,
         title = relation.description,
@@ -174,9 +181,11 @@
     semantics: 'link',
     from: 'start',
     to: 'asyncService',
-    relation: 'one-to-one',
 
-    execute: function (controller, graph, relation, from, to) {
+    prepare: function (from, to) {
+    },
+
+    executeOneToOne: function (controller, graph, relation, from, to) {
       var rel = relation.name,
         href = to.urlTemplate,
         title = relation.description,
@@ -213,20 +222,28 @@
     new Link()
   ];
 
-  Context = function (semantics, from, to, relation) {
+  Context = function (semantics, from, to) {
     this.strategy = _.find(strategies, function (maybeStrategy) {
-      return maybeStrategy.executable(semantics, from, to, relation);
+      return maybeStrategy.executable(semantics, from, to);
     });
 
     if (_.isUndefined(this.strategy)) {
-      require('console').log('Couldn\'t find %s strategy for semantic %s from %s to %s', relation, semantics, from, to);
+      require('console').log('Couldn\'t find a strategy for semantic %s from %s to %s', semantics, from, to);
       throw 'Could not find strategy';
     }
   };
 
   _.extend(Context.prototype, {
-    execute: function (controller, graph, relation, from, to) {
-      this.strategy.execute(controller, graph, relation, from, to);
+    prepare: function (from, to) {
+      this.strategy.prepare(from, to);
+    },
+
+    executeOneToOne: function (controller, graph, relation, from, to) {
+      this.strategy.executeOneToOne(controller, graph, relation, from, to);
+    },
+
+    executeOneToMany: function (controller, graph, relation, from, to) {
+      this.strategy.executeOneToMany(controller, graph, relation, from, to);
     }
   });
 
@@ -343,14 +360,19 @@
   });
 
   Transition = BaseTransition.extend({
+    prepare: function (from, to) {
+      var context = new Context(this.semantics, from.type, to.type);
+      context.prepare(from, to);
+    },
+
     addRoutesForOneRelation: function (controller, graph, relation, from, to) {
-      var context = new Context(this.semantics, from.type, to.type, 'one-to-one');
-      context.execute(controller, graph, relation, from, to);
+      var context = new Context(this.semantics, from.type, to.type);
+      context.executeOneToOne(controller, graph, relation, from, to);
     },
 
     addRoutesForManyRelation: function (controller, graph, relation, from, to) {
-      var context = new Context(this.semantics, from.type, to.type, 'one-to-many');
-      context.execute(controller, graph, relation, from, to);
+      var context = new Context(this.semantics, from.type, to.type);
+      context.executeOneToMany(controller, graph, relation, from, to);
     }
   });
 

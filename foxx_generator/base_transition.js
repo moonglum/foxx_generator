@@ -33,6 +33,8 @@
       require('console').log('No route for "to one" transition "%s" added (%s)', relation.name, controller && graph);
     },
 
+    prepare: function () {},
+
     apply: function (from, to) {
       var condition, conditionWrapper, relation;
 

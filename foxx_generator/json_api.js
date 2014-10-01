@@ -177,6 +177,13 @@
   };
 
   _.extend(ElementTransition.prototype, {
+    prepare: function (from, to) {
+      var repository = from.repository;
+
+      from.urlTemplate = '/' + from.name;
+      repository.relations = to.relations;
+    },
+
     apply: function (from, to) {
       var perPage = 10,
         repository = from.repository,
@@ -184,9 +191,6 @@
         Model = to.model,
         attributes = Model.attributes,
         BodyParam = Foxx.Model.extend({}, { attributes: attributes });
-
-      from.urlTemplate = '/' + from.name;
-      repository.relations = to.relations;
 
       this.controller.get(from.urlTemplate, function (req, res) {
         var data = {},
@@ -227,12 +231,14 @@
   };
 
   _.extend(ContainerTransition.prototype, {
+    prepare: function (from, to) {
+      from.urlTemplate = '/' + to.name + '/:id';
+      from.collectionName = to.collectionName;
+    },
+
     apply: function (from, to) {
       var repository = to.repository,
         nameOfRootElement = to.name;
-
-      from.urlTemplate = '/' + to.name + '/:id';
-      from.collectionName = to.collectionName;
 
       this.controller.get(from.urlTemplate, function (req, res) {
         var id = req.params('id'),

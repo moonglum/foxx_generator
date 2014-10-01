@@ -74,6 +74,13 @@
       });
     },
 
+    prepareTransitions: function (states) {
+      _.each(this.transitions, function (transitionDescription) {
+        var to = states[transitionDescription.to];
+        transitionDescription.transition.prepare(this, to);
+      }, this);
+    },
+
     applyTransitions: function (states) {
       _.each(this.transitions, function (transitionDescription) {
         var to = states[transitionDescription.to];
