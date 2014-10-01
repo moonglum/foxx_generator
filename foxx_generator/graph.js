@@ -51,7 +51,7 @@
       var vertexCollections, edgeCollectionName, edgeDefinition, graph;
       edgeCollectionName = this.appContext.collectionName(rawEdgeCollectionName);
 
-      if (from.collectionName && to.collectionName) {
+      if (from.type === 'entity' && to.type === 'entity' && from.collectionName && to.collectionName) {
         vertexCollections = [ from.collectionName, to.collectionName ];
         edgeDefinition = graphModule._undirectedRelation(edgeCollectionName, vertexCollections);
         graph = this.graph;
