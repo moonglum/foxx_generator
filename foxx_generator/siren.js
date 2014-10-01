@@ -43,6 +43,7 @@
     to: 'entity',
 
     prepare: function (from, to) {
+      to.collectionName = from.collectionName;
     },
 
     executeOneToOne: function (controller, graph, relation, repositoryState, entityState) {
