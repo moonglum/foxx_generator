@@ -22,6 +22,7 @@
     LinkFromRepoToEntity,
     Link,
     LinkToService,
+    UnlinkTwoEntities,
     LinkToAsyncService,
     LinkTwoEntities,
     strategies,
@@ -60,6 +61,20 @@
       }).errorResponse(VertexNotFound, 404, 'The vertex could not be found')
         .summary('Set the relation')
         .notes('TODO');
+    }
+  });
+
+  UnlinkTwoEntities = Strategy.extend({
+    semantics: 'unlink',
+    from: 'entity',
+    to: 'entity',
+    relation: 'one-to-one',
+
+    prepare: function () {},
+
+    executeOneToOne: function (controller, graph, relation, from, to) {
+      var url = from.urlFor(':entityId') + '/links/' + relation.name,
+        relationRepository = new RelationRepository(from, to, relation, graph);
 
       controller.delete(url, function (req, res) {
         relationRepository.deleteRelation(req.params('entityId'));
@@ -253,6 +268,7 @@
 
   strategies = [
     new LinkTwoEntities(),
+    new UnlinkTwoEntities(),
     new AddEntityToRepository(),
     new LinkFromRepoToEntity(),
     new LinkToService(),
