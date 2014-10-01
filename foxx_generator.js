@@ -81,7 +81,7 @@
       options.precondition = options.precondition || options.condition;
 
       Transition = this.mediaType.Transition.extend(_.extend(options, {
-        collectionBaseName: name,
+        collectionBaseName: options.as || name,
         relationName: name,
         relationType: options.to
       }));
