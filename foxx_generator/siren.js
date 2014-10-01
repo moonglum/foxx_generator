@@ -22,6 +22,7 @@
     Link,
     LinkToService,
     LinkToAsyncService,
+    LinkTwoEntities,
     strategies,
     Context;
 
@@ -36,6 +37,19 @@
   });
 
   Strategy.extend = extend;
+
+  LinkTwoEntities = Strategy.extend({
+    semantics: 'link',
+    from: 'entity',
+    to: 'entity',
+    relation: 'one-to-one',
+
+    prepare: function () {},
+
+    executeOneToOne: function (controller, graph, relation, from, to) {
+      require('console').log('Linking two entities: %s and %s', from.name, to.name);
+    }
+  });
 
   AddEntityToRepository = Strategy.extend({
     semantics: 'link',
@@ -216,6 +230,7 @@
   });
 
   strategies = [
+    new LinkTwoEntities(),
     new AddEntityToRepository(),
     new LinkFromRepoToEntity(),
     new LinkToService(),
