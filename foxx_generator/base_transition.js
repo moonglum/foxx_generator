@@ -50,6 +50,7 @@
         name: this.relationName,
         edgeCollectionName: this.graph.extendEdgeDefinitions(this.edgeCollectionName(from, to), from, to),
         type: this.relationType,
+        semantics: this.semantics,
         parameters: this.parameters,
         description: this.description,
         condition: conditionWrapper,
