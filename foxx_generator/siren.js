@@ -9,9 +9,10 @@
     // ArangoError = require('internal').ArangoError,
     BaseTransition = require('./base_transition').BaseTransition,
     BaseState = require('./state').State,
-    // VertexNotFound = require('./graph').VertexNotFound,
+    VertexNotFound = require('./graph').VertexNotFound,
     RepositoryWithGraph = require('./repository_with_graph').RepositoryWithGraph,
     ConditionNotFulfilled = require('./base_transition').ConditionNotFulfilled,
+    RelationRepository = require('./relation_repository').RelationRepository,
     Transition,
     State,
     Model,
@@ -47,7 +48,28 @@
     prepare: function () {},
 
     executeOneToOne: function (controller, graph, relation, from, to) {
-      require('console').log('Linking two entities: %s and %s', from.name, to.name);
+      var url = from.urlFor(':entityId') + '/links/' + relation.name,
+        relationRepository = new RelationRepository(from, to, relation, graph);
+
+      controller.post(url, function (req, res) {
+        relationRepository.replaceRelation(req.params('entityId'), req.body()[relation.name]);
+        res.status(204);
+      }).pathParam('entityId', {
+        description: 'ID of the document',
+        type: 'string'
+      }).errorResponse(VertexNotFound, 404, 'The vertex could not be found')
+        .summary('Set the relation')
+        .notes('TODO');
+
+      controller.delete(url, function (req, res) {
+        relationRepository.deleteRelation(req.params('entityId'));
+        res.status(204);
+      }).pathParam('entityId', {
+        description: 'ID of the document',
+        type: 'string'
+      }).errorResponse(VertexNotFound, 404, 'The vertex could not be found')
+        .summary('Remove the relation')
+        .notes('TODO');
     }
   });
 
