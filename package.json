@@ -1,6 +1,6 @@
 {
   "name": "foxx_generator",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Generate Foxx APIs using Statecharts and Domain Driven Design",
   "main": "foxx_generator.js",
   "scripts": {
