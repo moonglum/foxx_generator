@@ -62,6 +62,21 @@
       }).errorResponse(VertexNotFound, 404, 'The vertex could not be found')
         .summary('Set the relation')
         .notes('TODO');
+    },
+
+    executeOneToMany: function (controller, graph, relation, from, to) {
+      var url = from.urlFor(':entityId') + '/links/' + relation.name,
+        relationRepository = new RelationRepository(from, to, relation, graph);
+
+      controller.post(url, function (req, res) {
+        relationRepository.addRelations(req.params('entityId'), req.body()[relation.name]);
+        res.status(204);
+      }).pathParam('entityId', {
+        description: 'ID of the document',
+        type: 'string'
+      }).errorResponse(VertexNotFound, 404, 'The vertex could not be found')
+        .summary('Set the relation')
+        .notes('TODO');
     }
   });
 
@@ -86,6 +101,9 @@
       }).errorResponse(VertexNotFound, 404, 'The vertex could not be found')
         .summary('Remove the relation')
         .notes('TODO');
+    },
+
+    executeOneToMany: function (controller, graph, relation, from, to) {
     }
   });
 
@@ -97,7 +115,8 @@
 
     prepare: function () {},
 
-    executeOneToOne: function (controller, graph, relation, from, to) {}
+    executeOneToOne: function (controller, graph, relation, from, to) {},
+    executeOneToMany: function (controller, graph, relation, from, to) {}
   });
 
   AddEntityToRepository = Strategy.extend({
