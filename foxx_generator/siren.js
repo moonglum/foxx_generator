@@ -36,7 +36,21 @@
   _.extend(Strategy.prototype, {
     executable: function (semantics, from, to) {
       return semantics === this.semantics && from === this.from && to === this.to;
-    }
+    },
+
+    prepare: function () {
+      require('console').log('Nothing to prepare with semantics %s from %s to %s', this.semantics, this.from, this.to);
+    },
+
+    /*jshint maxlen: 200 */
+    executeOneToOne: function () {
+      require('console').log('Nothing to execute for one to one with semantics %s from %s to %s', this.semantics, this.from, this.to);
+    },
+
+    executeOneToMany: function () {
+      require('console').log('Nothing to execute for one to many with semantics %s from %s to %s', this.semantics, this.from, this.to);
+    },
+    /*jshint maxlen: 100 */
   });
 
   Strategy.extend = extend;
@@ -46,8 +60,6 @@
     from: 'entity',
     to: 'entity',
     relation: 'one-to-one',
-
-    prepare: function () {},
 
     executeOneToOne: function (controller, graph, relation, from, to) {
       var url = from.urlFor(':entityId') + '/links/' + relation.name,
@@ -86,8 +98,6 @@
     to: 'entity',
     relation: 'one-to-one',
 
-    prepare: function () {},
-
     executeOneToOne: function (controller, graph, relation, from, to) {
       var url = from.urlFor(':entityId') + '/links/' + relation.name,
         relationRepository = new RelationRepository(from, to, relation, graph);
@@ -101,9 +111,6 @@
       }).errorResponse(VertexNotFound, 404, 'The vertex could not be found')
         .summary('Remove the relation')
         .notes('TODO');
-    },
-
-    executeOneToMany: function (controller, graph, relation, from, to) {
     }
   });
 
@@ -112,8 +119,6 @@
     from: 'entity',
     to: 'entity',
     relation: 'one-to-one',
-
-    prepare: function () {},
 
     executeOneToOne: function (controller, graph, relation, from, to) {},
     executeOneToMany: function (controller, graph, relation, from, to) {}
@@ -208,9 +213,6 @@
     from: 'start',
     to: 'repository',
 
-    prepare: function (from, to) {
-    },
-
     executeOneToOne: function (controller, graph, relation, from, to) {
       var rel = relation.name,
         href = to.urlTemplate,
@@ -238,9 +240,6 @@
     from: 'start',
     to: 'service',
 
-    prepare: function (from, to) {
-    },
-
     executeOneToOne: function (controller, graph, relation, from, to) {
       var rel = relation.name,
         href = to.urlTemplate,
@@ -266,9 +265,6 @@
     semantics: 'link',
     from: 'start',
     to: 'asyncService',
-
-    prepare: function (from, to) {
-    },
 
     executeOneToOne: function (controller, graph, relation, from, to) {
       var rel = relation.name,
@@ -310,6 +306,7 @@
     new Link()
   ];
 
+  /*jshint maxlen: 200 */
   Context = function (semantics, from, to) {
     this.strategy = _.find(strategies, function (maybeStrategy) {
       return maybeStrategy.executable(semantics, from, to);
@@ -320,6 +317,7 @@
       throw 'Could not find strategy';
     }
   };
+  /*jshint maxlen: 100 */
 
   _.extend(Context.prototype, {
     prepare: function (from, to) {
