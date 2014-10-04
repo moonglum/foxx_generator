@@ -18,6 +18,7 @@
     Model,
     Repository,
     Strategy,
+    ModifyAnEntity,
     AddEntityToRepository,
     LinkFromRepoToEntity,
     Link,
@@ -54,6 +55,39 @@
   });
 
   Strategy.extend = extend;
+
+  ModifyAnEntity = Strategy.extend({
+    semantics: 'modify',
+    from: 'entity',
+    to: 'entity',
+    relation: 'one-to-one',
+
+    executeOneToOne: function (controller, graph, relation, entityState) {
+      var url = entityState.urlFor(':entityId'),
+        nameOfRootElement = entityState.name,
+        BodyParam = Foxx.Model.extend({ schema: relation.parameters }),
+        repository = entityState.repository;
+
+      controller.patch(url, function (req, res) {
+        var id = req.params('entityId'),
+          patch = req.params(nameOfRootElement),
+          result;
+
+        repository.updateById(id, patch.forDB());
+        result = repository.byIdWithNeighbors(id);
+
+        res.json(result.forClient());
+      }).errorResponse(ConditionNotFulfilled, 403, 'The condition could not be fulfilled')
+        .onlyIf(relation.condition)
+        .pathParam('entityId', {
+          description: 'ID of the entity',
+          type: 'string'
+        })
+        .bodyParam(nameOfRootElement, 'TODO', BodyParam)
+        .summary('Set the relation')
+        .notes('TODO');
+    }
+  });
 
   LinkTwoEntities = Strategy.extend({
     semantics: 'link',
@@ -137,6 +171,7 @@
 
     prepare: function (from, to) {
       to.collectionName = from.collectionName;
+      to.repository = from.repository;
     },
 
     executeOneToOne: function (controller, graph, relation, repositoryState, entityState) {
@@ -302,6 +337,7 @@
   });
 
   strategies = [
+    new ModifyAnEntity(),
     new LinkTwoEntities(),
     new UnlinkTwoEntities(),
     new FollowToEntity(),
