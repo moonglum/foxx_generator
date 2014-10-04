@@ -72,6 +72,8 @@
         description: 'ID of the document',
         type: 'string'
       }).errorResponse(VertexNotFound, 404, 'The vertex could not be found')
+        .errorResponse(ConditionNotFulfilled, 403, 'The condition could not be fulfilled')
+        .onlyIf(relation.condition)
         .summary('Set the relation')
         .notes('TODO');
     },
@@ -87,6 +89,8 @@
         description: 'ID of the document',
         type: 'string'
       }).errorResponse(VertexNotFound, 404, 'The vertex could not be found')
+        .errorResponse(ConditionNotFulfilled, 403, 'The condition could not be fulfilled')
+        .onlyIf(relation.condition)
         .summary('Set the relation')
         .notes('TODO');
     }
@@ -109,6 +113,8 @@
         description: 'ID of the document',
         type: 'string'
       }).errorResponse(VertexNotFound, 404, 'The vertex could not be found')
+        .errorResponse(ConditionNotFulfilled, 403, 'The condition could not be fulfilled')
+        .onlyIf(relation.condition)
         .summary('Remove the relation')
         .notes('TODO');
     }
