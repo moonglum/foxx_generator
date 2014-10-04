@@ -242,7 +242,7 @@
   });
 
   LinkToService = Strategy.extend({
-    semantics: 'link',
+    semantics: 'follow',
     from: 'start',
     to: 'service',
 
@@ -268,7 +268,7 @@
   });
 
   LinkToAsyncService = Strategy.extend({
-    semantics: 'link',
+    semantics: 'follow',
     from: 'start',
     to: 'asyncService',
 
