@@ -4,16 +4,9 @@
 (function () {
   'use strict';
   var extend = require('org/arangodb/extend').extend,
+    ConditionNotFulfilled = require('./condition_not_fulfilled').ConditionNotFulfilled,
     _ = require('underscore'),
-    ConditionNotFulfilled,
     Transition;
-
-  ConditionNotFulfilled = function (msg) {
-    this.name = 'ConditionNotFulfilled';
-    this.msg = msg;
-  };
-
-  ConditionNotFulfilled.prototype = Error.prototype;
 
   Transition = function (graph, controller) {
     this.graph = graph;
@@ -83,5 +76,4 @@
   Transition.extend = extend;
 
   exports.BaseTransition = Transition;
-  exports.ConditionNotFulfilled = ConditionNotFulfilled;
 }());

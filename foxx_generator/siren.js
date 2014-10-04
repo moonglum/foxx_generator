@@ -11,7 +11,7 @@
     BaseState = require('./state').State,
     VertexNotFound = require('./graph').VertexNotFound,
     RepositoryWithGraph = require('./repository_with_graph').RepositoryWithGraph,
-    ConditionNotFulfilled = require('./base_transition').ConditionNotFulfilled,
+    ConditionNotFulfilled = require('./condition_not_fulfilled').ConditionNotFulfilled,
     RelationRepository = require('./relation_repository').RelationRepository,
     Transition,
     State,
