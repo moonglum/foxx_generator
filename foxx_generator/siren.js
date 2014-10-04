@@ -24,6 +24,7 @@
     Link,
     LinkToService,
     UnlinkTwoEntities,
+    LinkEntityToService,
     LinkToAsyncService,
     LinkTwoEntities,
     FollowToEntity,
@@ -55,6 +56,37 @@
   });
 
   Strategy.extend = extend;
+
+  LinkEntityToService = Strategy.extend({
+    semantics: 'link',
+    from: 'entity',
+    to: 'service',
+    relation: 'one-to-one',
+
+    executeOneToOne: function (controller, graph, relation, entityState, serviceState) {
+      var url = entityState.urlFor(':entityId') + '/' + relation.name,
+        nameOfRootElement = entityState.name,
+        BodyParam = Foxx.Model.extend({ schema: relation.parameters }),
+        verb = serviceState.verb,
+        repository = entityState.repository;
+
+      controller[verb](url, function (req, res) {
+        var id = req.params('entityId'),
+          entity = repository.byId(id);
+
+        req.parameters.entity = entity;
+        serviceState.action(req, res);
+      }).errorResponse(ConditionNotFulfilled, 403, 'The condition could not be fulfilled')
+        .onlyIf(relation.condition)
+        .pathParam('entityId', {
+          description: 'ID of the entity',
+          type: 'string'
+        })
+        .bodyParam(nameOfRootElement, 'TODO', BodyParam)
+        .summary(relation.description)
+        .notes('TODO');
+    }
+  });
 
   ModifyAnEntity = Strategy.extend({
     semantics: 'modify',
@@ -343,6 +375,7 @@
     new FollowToEntity(),
     new AddEntityToRepository(),
     new LinkFromRepoToEntity(),
+    new LinkEntityToService(),
     new LinkToService(),
     new LinkToAsyncService(),
     new Link()
