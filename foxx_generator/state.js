@@ -7,6 +7,7 @@
   var State,
     extend = require('org/arangodb/extend').extend,
     _ = require('underscore'),
+    report = require('./reporter').report,
     Foxx = require('org/arangodb/foxx');
 
   State = function (name, graph, paramaterized) {
@@ -49,6 +50,7 @@
           break;
         default:
           require('console').log('Unknown state type "' + options.type + '"');
+          throw 'Unknown State Type';
       }
     },
 
@@ -90,12 +92,12 @@
 
     setAsStart: function () {
       this.type = 'start';
-      require('console').log('Not implemented');
+      report('Not implemented');
     },
 
     addRepository: function () {
       this.type = 'repository';
-      require('console').log('Not implemented');
+      report('Not implemented');
     },
 
     addModel: function (Model, attributes) {

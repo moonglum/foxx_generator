@@ -13,6 +13,7 @@
     RepositoryWithGraph = require('./repository_with_graph').RepositoryWithGraph,
     ConditionNotFulfilled = require('./condition_not_fulfilled').ConditionNotFulfilled,
     RelationRepository = require('./relation_repository').RelationRepository,
+    report = require('./reporter').report,
     Transition,
     State,
     Model,
@@ -41,16 +42,16 @@
     },
 
     prepare: function () {
-      require('console').log('Nothing to prepare with semantics %s from %s to %s', this.semantics, this.from, this.to);
+      report('Nothing to prepare with semantics %s from %s to %s', this.semantics, this.from, this.to);
     },
 
     /*jshint maxlen: 200 */
     executeOneToOne: function () {
-      require('console').log('Nothing to execute for one to one with semantics %s from %s to %s', this.semantics, this.from, this.to);
+      report('Nothing to execute for one to one with semantics %s from %s to %s', this.semantics, this.from, this.to);
     },
 
     executeOneToMany: function () {
-      require('console').log('Nothing to execute for one to many with semantics %s from %s to %s', this.semantics, this.from, this.to);
+      report('Nothing to execute for one to many with semantics %s from %s to %s', this.semantics, this.from, this.to);
     },
     /*jshint maxlen: 100 */
   });

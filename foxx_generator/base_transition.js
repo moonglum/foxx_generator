@@ -5,6 +5,7 @@
   'use strict';
   var extend = require('org/arangodb/extend').extend,
     ConditionNotFulfilled = require('./condition_not_fulfilled').ConditionNotFulfilled,
+    report = require('./reporter').report,
     _ = require('underscore'),
     Transition;
 
@@ -18,12 +19,12 @@
 
     addRoutesForManyRelation: function (controller, graph, relation) {
       // Overwrite me in media type specific transition
-      require('console').log('No route for "to many" transition "%s" added (%s)', relation.name, controller && graph);
+      report('No route for "to many" transition "%s" added (%s)', relation.name, controller && graph);
     },
 
     addRoutesForOneRelation: function (controller, graph, relation) {
       // Overwrite me in media type specific transition
-      require('console').log('No route for "to one" transition "%s" added (%s)', relation.name, controller && graph);
+      report('No route for "to one" transition "%s" added (%s)', relation.name, controller && graph);
     },
 
     prepare: function () {},

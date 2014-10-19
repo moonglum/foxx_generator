@@ -6,6 +6,7 @@
   var graphModule = require('org/arangodb/general-graph'),
     ArangoError = require('internal').ArangoError,
     _ = require('underscore'),
+    report = require('./reporter').report,
     Graph,
     VertexNotFound,
     tryAndHandleArangoError,
@@ -31,7 +32,7 @@
 
   alreadyExists = function (type, name) {
     return function () {
-      require('console').log('%s "%s" already added. Leaving it untouched.', type, name);
+      report('%s "%s" already added. Leaving it untouched.', type, name);
     };
   };
 
@@ -60,7 +61,7 @@
           graph._extendEdgeDefinitions(edgeDefinition);
         }, alreadyExists('EdgeDefinition', edgeCollectionName));
       } else {
-        require('console').log('Invalid edge definition for "%s" and "%s"', from.collectionName, to.collectionName);
+        report('Invalid edge definition for "%s" and "%s"', from.collectionName, to.collectionName);
       }
 
       return edgeCollectionName;
