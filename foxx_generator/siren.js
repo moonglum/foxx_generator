@@ -26,7 +26,6 @@
     LinkToService,
     UnlinkTwoEntities,
     LinkEntityToService,
-    LinkToAsyncService,
     LinkTwoEntities,
     FollowToEntity,
     strategies,
@@ -335,40 +334,6 @@
     }
   });
 
-  LinkToAsyncService = Strategy.extend({
-    semantics: 'follow',
-    from: 'start',
-    to: 'asyncService',
-
-    executeOneToOne: function (controller, graph, relation, from, to) {
-      var rel = relation.name,
-        href = to.urlTemplate,
-        title = relation.description,
-        verb = to.verb,
-        executeAsync = to.executeAsync,
-        nameOfRootElement = to.name,
-        precondition = relation.precondition,
-        BodyParam = Foxx.Model.extend({ schema: relation.parameters });
-
-      from.addLink([rel], href, title, precondition);
-
-      controller[verb](href, function (req, res) {
-        var params = req.params(nameOfRootElement);
-
-        executeAsync(params.forClient());
-
-        res.status(201);
-        res.json({
-          job: 'created'
-        });
-      }).summary(relation.description)
-        .bodyParam(nameOfRootElement, 'TODO', BodyParam)
-        .notes('TODO')
-        .errorResponse(ConditionNotFulfilled, 403, 'The condition could not be fulfilled')
-        .onlyIf(relation.condition);
-    }
-  });
-
   strategies = [
     new ModifyAnEntity(),
     new LinkTwoEntities(),
@@ -378,7 +343,6 @@
     new LinkFromRepoToEntity(),
     new LinkEntityToService(),
     new LinkToService(),
-    new LinkToAsyncService(),
     new Link()
   ];
 

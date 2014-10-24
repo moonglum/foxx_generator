@@ -7,7 +7,6 @@ To create an API with FoxxGenerator, first draw a statechart that represents you
 * Entity: This state represents something that has an identity and an arbitrary number of (optionally nested) attributes.
 * Repository: A repository can store entities.
 * Service: A service can do something. What it can do is defined via a JavaScript function that you can define. A service does not have a state.
-* AsyncService: Like a service, but instead of doing something directly, it will do these things outside of the request/response cycle.
 
 Connect these states with transitions. When you have modeled your statechart in a way that it can fulfill all your use cases, it is time to classify your transitions. For every transition you have to decide which of the following semantics it follows:
 
@@ -81,7 +80,7 @@ You can also define a `condition` for a transition. This is a JavaScript functio
 
 ## Adding states and transitions
 
-Now you can add states and transitions to your API. Every state has a name, a type and a number of outgoing transitions. The type is one of the above described ones – either `entity`, `repository`, `service` or `asyncService`. Every transition needs information about where it leads to and via which transition type. The transition type needs to be defined as described above. Simple example:
+Now you can add states and transitions to your API. Every state has a name, a type and a number of outgoing transitions. The type is one of the above described ones – either `entity`, `repository` or `service`. Every transition needs information about where it leads to and via which transition type. The transition type needs to be defined as described above. Simple example:
 
 ```js
 generator.addState('ideas', {
@@ -132,40 +131,6 @@ generator.addState('title', {
     var entity = req.params('entity');
     res.json({ title: entity.get('title') });
   }
-});
-```
-
-### Asynchronous Service
-
-The `action` of an asynchronous service gets all parameters of the request as its argument. It can also define `success` and `failure` handlers as normal JavaScript functions. If the action should be tried more than once, you can define a number of `maxFailures`. You can also determine which `queue` should be used to work on the asynchronous requests. For more details see the documentation of [FoxxQueues](http://docs.arangodb.org/Foxx/FoxxQueues.html).
-
-```js
-generator.addState('fibonacci', {
-  type: 'asyncService',
-
-  action: function (data) {
-    var calculateFor = data.calculateFor;
-
-    var a=0, b=1, i, temp;
-
-    for (i = 0; i < calculateFor; i++) {
-      temp = a + b;
-      a = b;
-      b = temp;
-    }
-  },
-
-  success: function () {
-    require('console').log('Calculated result');
-  },
-
-  failure: function () {
-    require('console').log('Could not calculate');
-  },
-
-  maxFailures: 1,
-
-  queue: 'fibonaccis'
 });
 ```
 
