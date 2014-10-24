@@ -171,10 +171,7 @@ generator.addState('fibonacci', {
 
 ## Media types
 
-FoxxGenerator currently supports the following media types:
-
-* `application/vnd.siren+json`: A media type without application semantics described [here](https://github.com/kevinswiber/siren).
-* `application/vnd.api+json`: A media type with collection semantics described [here](http://jsonapi.org).
+FoxxGenerator currently only supports [siren](https://github.com/kevinswiber/siren) which is a media type without application semantics. Use the media type `application/vnd.siren+json`. We plan to support HAL with an extension for forms in the near future.
 
 ## Interactive Documentation
 
@@ -188,7 +185,6 @@ If you click on one of the routes, you can try it out:
 
 ## Examples
 
-* An example for a JSON+API generated with FoxxGenerator can be found [here](https://github.com/moonglum/json_api)
 * An example for a Siren API generated with FoxxGenerator can be found [here](https://github.com/moonglum/siren)
 
 ## Linting

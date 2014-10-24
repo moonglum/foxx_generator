@@ -13,7 +13,6 @@
     mediaTypes;
 
   mediaTypes = {
-    'application/vnd.api+json': require('./foxx_generator/json_api').mediaType,
     'application/vnd.siren+json': require('./foxx_generator/siren').mediaType
   };
 
