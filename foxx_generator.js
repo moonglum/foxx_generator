@@ -50,6 +50,7 @@
 
   defaultsForTransitionOptions = {
     semantics: 'follow',
+    to: 'one',
     condition: function () { return true; }
   };
 
