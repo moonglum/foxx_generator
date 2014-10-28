@@ -48,16 +48,9 @@
     addTransitions: function (transitions, definitions) {
       this.transitions = _.map(transitions, function (transitionDescription) {
         return {
-          type: transitionDescription.via,
           transition: definitions[transitionDescription.via],
           to: transitionDescription.to
         };
-      });
-    },
-
-    findTransitionByType: function (type) {
-      return _.find(this.transitions, function (transition) {
-        return transition.type === type;
       });
     },
 
