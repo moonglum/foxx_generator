@@ -36,9 +36,9 @@
           edgeCollectionRestriction: [relation.edgeCollectionName]
         });
 
-        if (relation.type === 'one' && neighbors.length > 0) {
+        if (relation.cardinality === 'one' && neighbors.length > 0) {
           links[relation.name] = neighbors[0]._key;
-        } else if (relation.type === 'many') {
+        } else if (relation.cardinality === 'many') {
           links[relation.name] = _.pluck(neighbors, '_key');
         }
       });

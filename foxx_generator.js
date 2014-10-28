@@ -83,7 +83,7 @@
       Transition = this.mediaType.Transition.extend(_.extend(options, {
         collectionBaseName: options.as || name,
         relationName: name,
-        relationType: options.to
+        cardinality: options.to
       }));
 
       context = new TransitionContext(Transition, this.transitions, this.graph, this.controller);

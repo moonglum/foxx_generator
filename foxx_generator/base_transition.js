@@ -43,7 +43,7 @@
       relation = {
         name: this.relationName,
         edgeCollectionName: this.graph.extendEdgeDefinitions(this.edgeCollectionName(from, to), from, to),
-        type: this.relationType,
+        cardinality: this.cardinality,
         semantics: this.semantics,
         parameters: this.parameters,
         description: this.description,
@@ -54,20 +54,20 @@
 
       from.relations.push(relation);
 
-      if (relation.type === 'many') {
+      if (relation.cardinality === 'many') {
         this.addRoutesForManyRelation(this.controller, this.graph, relation, from, to);
-      } else if (relation.type === 'one') {
+      } else if (relation.cardinality === 'one') {
         this.addRoutesForOneRelation(this.controller, this.graph, relation, from, to);
       }
     }
   });
 
   _.extend(Transition, {
-    reverse: function (newName, type) {
+    reverse: function (newName, cardinality) {
       var ReverseTransition = this.extend({
         edgeCollectionName: function (from, to) { return this.collectionBaseName + '_' + to.name + '_' + from.name; },
         relationName: newName,
-        relationType: type
+        cardinality: cardinality
       });
 
       return ReverseTransition;
