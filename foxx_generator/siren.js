@@ -115,7 +115,7 @@
           type: 'string'
         })
         .bodyParam(nameOfRootElement, 'TODO', BodyParam)
-        .summary('Set the relation')
+        .summary(relation.summary)
         .notes(relation.notes);
     }
   });
@@ -139,7 +139,7 @@
       }).errorResponse(VertexNotFound, 404, 'The vertex could not be found')
         .errorResponse(ConditionNotFulfilled, 403, 'The condition could not be fulfilled')
         .onlyIf(relation.condition)
-        .summary('Set the relation')
+        .summary(relation.summary)
         .notes(relation.notes);
     },
 
@@ -156,7 +156,7 @@
       }).errorResponse(VertexNotFound, 404, 'The vertex could not be found')
         .errorResponse(ConditionNotFulfilled, 403, 'The condition could not be fulfilled')
         .onlyIf(relation.condition)
-        .summary('Set the relation')
+        .summary(relation.summary)
         .notes(relation.notes);
     }
   });
@@ -180,7 +180,7 @@
       }).errorResponse(VertexNotFound, 404, 'The vertex could not be found')
         .errorResponse(ConditionNotFulfilled, 403, 'The condition could not be fulfilled')
         .onlyIf(relation.condition)
-        .summary('Remove the relation')
+        .summary(relation.summary)
         .notes(relation.notes);
     }
   });
@@ -325,11 +325,11 @@
       from.addLink([rel], href, title, precondition);
 
       controller[verb](href, action)
-        .summary(relation.summary)
         .bodyParam(nameOfRootElement, 'TODO', BodyParam)
-        .notes(relation.notes)
         .errorResponse(ConditionNotFulfilled, 403, 'The condition could not be fulfilled')
-        .onlyIf(relation.condition);
+        .onlyIf(relation.condition)
+        .summary(relation.summary)
+        .notes(relation.notes);
     }
   });
 
