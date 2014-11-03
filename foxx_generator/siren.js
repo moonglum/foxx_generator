@@ -10,14 +10,13 @@
     BaseTransition = require('./base_transition').BaseTransition,
     BaseState = require('./state').State,
     VertexNotFound = require('./graph').VertexNotFound,
-    RepositoryWithGraph = require('./repository_with_graph').RepositoryWithGraph,
+    Repository = require('./repository_with_graph').RepositoryWithGraph,
     ConditionNotFulfilled = require('./condition_not_fulfilled').ConditionNotFulfilled,
     RelationRepository = require('./relation_repository').RelationRepository,
     report = require('./reporter').report,
     Transition,
     State,
     Model,
-    Repository,
     Strategy,
     ModifyAnEntity,
     AddEntityToRepository,
@@ -370,9 +369,6 @@
     executeOneToMany: function (controller, graph, relation, from, to) {
       this.strategy.executeOneToMany(controller, graph, relation, from, to);
     }
-  });
-
-  Repository = RepositoryWithGraph.extend({
   });
 
   Model = Foxx.Model.extend({
