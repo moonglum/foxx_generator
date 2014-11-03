@@ -23,13 +23,6 @@
     this.controller = controller;
   };
 
-  _.extend(TransitionContext.prototype, {
-    inverseTransition: function (name, options) {
-      var ReverseTransition = this.Transition.reverse(name, options.to);
-      this.transitions[name] = new ReverseTransition(this.graph, this.controller);
-    }
-  });
-
   Generator = function (name, options) {
     this.graph = new Graph(name, options.applicationContext);
     this.mediaType = mediaTypes[options.mediaType];

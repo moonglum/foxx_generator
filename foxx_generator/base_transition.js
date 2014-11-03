@@ -62,18 +62,6 @@
     }
   });
 
-  _.extend(Transition, {
-    reverse: function (newName, cardinality) {
-      var ReverseTransition = this.extend({
-        edgeCollectionName: function (from, to) { return this.collectionBaseName + '_' + to.name + '_' + from.name; },
-        relationName: newName,
-        cardinality: cardinality
-      });
-
-      return ReverseTransition;
-    }
-  });
-
   Transition.extend = extend;
 
   exports.BaseTransition = Transition;
