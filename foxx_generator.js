@@ -10,6 +10,8 @@
     TransitionContext,
     defaultsForStateOptions,
     defaultsForTransitionOptions,
+    parseOptions,
+    extractDocumentation,
     mediaTypes;
 
   mediaTypes = {
@@ -48,6 +50,34 @@
     condition: function () { return true; }
   };
 
+  parseOptions = function (opts) {
+    var options;
+
+    opts = opts || {};
+    options = _.defaults(opts, defaultsForTransitionOptions);
+    options.precondition = options.precondition || options.condition;
+
+    return options;
+  };
+
+  extractDocumentation = function (applicationContext) {
+    var summary = '', notes = '';
+
+    if (applicationContext.comments.length > 0) {
+      do {
+        summary = applicationContext.comments.shift();
+      } while (summary === '');
+      notes = applicationContext.comments.join('\n');
+    }
+
+    applicationContext.clearComments();
+
+    return {
+      summary: summary,
+      notes: notes
+    };
+  };
+
   _.extend(Generator.prototype, {
     addStartState: function (options) {
       var name = '',
@@ -69,27 +99,13 @@
 
     defineTransition: function (name, opts) {
       var Transition,
-        options,
+        options = parseOptions(opts),
         context,
-        summary = '',
-        notes = '';
-
-      opts = opts || {};
-      options = _.defaults(opts, defaultsForTransitionOptions);
-      options.precondition = options.precondition || options.condition;
-
-      if (this.applicationContext.comments.length > 0) {
-        do {
-          summary = this.applicationContext.comments.shift();
-        } while (summary === '');
-        notes = this.applicationContext.comments.join("\n");
-      }
-
-      this.applicationContext.clearComments();
+        documentation = extractDocumentation(this.applicationContext);
 
       Transition = this.mediaType.Transition.extend(_.extend(options, {
-        summary: summary,
-        notes: notes,
+        summary: documentation.summary,
+        notes: documentation.notes,
         collectionBaseName: options.as || name,
         relationName: name,
         cardinality: options.to
