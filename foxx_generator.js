@@ -42,14 +42,21 @@
     condition: function () { return true; }
   };
 
-  parseOptions = function (opts) {
-    var options;
+  parseOptions = function (name, opts, applicationContext) {
+    var options,
+      documentation = extractDocumentation(applicationContext);
 
     opts = opts || {};
     options = _.defaults(opts, defaultsForTransitionOptions);
     options.precondition = options.precondition || options.condition;
 
-    return options;
+    return _.extend(options, {
+      collectionBaseName: options.as || name,
+      relationName: name,
+      cardinality: options.to,
+      summary: documentation.summary,
+      notes: documentation.notes
+    });
   };
 
   extractDocumentation = function (applicationContext) {
@@ -91,16 +98,9 @@
 
     defineTransition: function (name, opts) {
       var Transition,
-        options = parseOptions(opts),
-        documentation = extractDocumentation(this.applicationContext);
+        options = parseOptions(name, opts, this.applicationContext);
 
-      Transition = this.mediaType.Transition.extend(_.extend(options, {
-        summary: documentation.summary,
-        notes: documentation.notes,
-        collectionBaseName: options.as || name,
-        relationName: name,
-        cardinality: options.to
-      }));
+      Transition = this.mediaType.Transition.extend(options);
 
       this.transitions[name] = new Transition(this.graph, this.controller);
     },
