@@ -7,7 +7,6 @@
     _ = require('underscore'),
     Graph = require('./foxx_generator/graph').Graph,
     Generator,
-    TransitionContext,
     defaultsForStateOptions,
     defaultsForTransitionOptions,
     parseOptions,
@@ -16,13 +15,6 @@
 
   mediaTypes = {
     'application/vnd.siren+json': require('./foxx_generator/siren').mediaType
-  };
-
-  TransitionContext = function (Transition, transitions, graph, controller) {
-    this.Transition = Transition;
-    this.transitions = transitions;
-    this.graph = graph;
-    this.controller = controller;
   };
 
   Generator = function (name, options) {
@@ -100,7 +92,6 @@
     defineTransition: function (name, opts) {
       var Transition,
         options = parseOptions(opts),
-        context,
         documentation = extractDocumentation(this.applicationContext);
 
       Transition = this.mediaType.Transition.extend(_.extend(options, {
@@ -111,10 +102,7 @@
         cardinality: options.to
       }));
 
-      context = new TransitionContext(Transition, this.transitions, this.graph, this.controller);
-
       this.transitions[name] = new Transition(this.graph, this.controller);
-      return context;
     },
 
     generate: function () {
