@@ -8,7 +8,7 @@ To create an API with FoxxGenerator, first draw a statechart that represents you
 * Repository: A repository can store entities.
 * Service: A service can do something. What it can do is defined via a JavaScript function that you can define. A service does not have a state.
 
-Connect these states with transitions. When you have modeled your statechart in a way that it can fulfill all your use cases, it is time to classify your transitions. For every transition you have to decide which of the following semantics it follows:
+Connect these states with transitions. When you have modeled your statechart in a way that it can fulfill all your use cases, it is time to classify your transitions. For every transition you have to decide which of the following type it follows:
 
 * `follow`: This is a transition that you can just follow from one state to the next.
 * `link`: This is a point of extension where you can create a transition at runtime. In order to be able to follow this transition, you have to add a `follow` transition as well.
@@ -46,7 +46,7 @@ For more information on how to choose a media type, see the section about Media 
 Every transition needs the following attributes:
 
 * A name for the transition that you can use when you want to add a transition of this type.
-* `semantics`: One of the semantics described above.
+* `type`: One of the types described above.
 * `description`: A human readable description of this transition. This is used in both the generated API as well as the generated documentation.
 * `to`: Is the target of this transition one or more states? For a `link` transition this for example determines if you can only link one state to it or more than that. Acceptable values are `one` and `many`.
 
@@ -54,7 +54,7 @@ An example for that would be the following transition definition:
 
 ```js
 generator.defineTransition('showDetail', {
-  semantics: 'follow',
+  type: 'follow',
   description: 'Show details for a particular item',
   to: 'one'
 });
@@ -66,7 +66,7 @@ You can also add `parameters` to the transition, if in the transition process yo
 
 ```js
 generator.defineTransition('changeTitle', {
-  semantics: 'modify',
+  type: 'modify',
   to: 'one',
   description: 'Modify the title of the entity',
 

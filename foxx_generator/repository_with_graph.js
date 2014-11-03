@@ -29,7 +29,7 @@
     addLinks: function (model) {
       var links = {},
         graph = this.graph,
-        relations = _.filter(this.relations, function (relation) { return relation.semantics === 'follow'; });
+        relations = _.filter(this.relations, function (relation) { return relation.type === 'follow'; });
 
       _.each(relations, function (relation) {
         var neighbors = graph.neighbors(model.get('_id'), {

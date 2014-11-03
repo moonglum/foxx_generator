@@ -44,7 +44,7 @@
         name: this.relationName,
         edgeCollectionName: this.graph.extendEdgeDefinitions(this.edgeCollectionName(from, to), from, to),
         cardinality: this.cardinality,
-        semantics: this.semantics,
+        type: this.type,
         parameters: this.parameters,
         description: this.description,
         condition: conditionWrapper,

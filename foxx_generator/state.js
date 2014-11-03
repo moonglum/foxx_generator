@@ -54,9 +54,9 @@
       });
     },
 
-    findTransitionBySemantics: function (semantics) {
+    findTransitionByType: function (type) {
       return _.find(this.transitions, function (transition) {
-        return transition.transition.semantics === semantics;
+        return transition.transition.type === type;
       });
     },
 

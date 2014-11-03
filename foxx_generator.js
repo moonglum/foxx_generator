@@ -49,7 +49,7 @@
   };
 
   defaultsForTransitionOptions = {
-    semantics: 'follow',
+    type: 'follow',
     to: 'one',
     condition: function () { return true; }
   };

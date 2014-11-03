@@ -32,25 +32,24 @@
     Context;
 
   Strategy = function () {
-    this.type = 'strategy';
   };
 
   _.extend(Strategy.prototype, {
-    executable: function (semantics, from, to) {
-      return semantics === this.semantics && from === this.from && to === this.to;
+    executable: function (type, from, to) {
+      return type === this.type && from === this.from && to === this.to;
     },
 
     prepare: function () {
-      report('Nothing to prepare with semantics %s from %s to %s', this.semantics, this.from, this.to);
+      report('Nothing to prepare with type %s from %s to %s', this.type, this.from, this.to);
     },
 
     /*jshint maxlen: 200 */
     executeOneToOne: function () {
-      report('Nothing to execute for one to one with semantics %s from %s to %s', this.semantics, this.from, this.to);
+      report('Nothing to execute for one to one with type %s from %s to %s', this.type, this.from, this.to);
     },
 
     executeOneToMany: function () {
-      report('Nothing to execute for one to many with semantics %s from %s to %s', this.semantics, this.from, this.to);
+      report('Nothing to execute for one to many with type %s from %s to %s', this.type, this.from, this.to);
     },
     /*jshint maxlen: 100 */
   });
@@ -58,7 +57,7 @@
   Strategy.extend = extend;
 
   LinkEntityToService = Strategy.extend({
-    semantics: 'link',
+    type: 'link',
     from: 'entity',
     to: 'service',
     relation: 'one-to-one',
@@ -89,7 +88,7 @@
   });
 
   ModifyAnEntity = Strategy.extend({
-    semantics: 'modify',
+    type: 'modify',
     from: 'entity',
     to: 'entity',
     relation: 'one-to-one',
@@ -122,7 +121,7 @@
   });
 
   LinkTwoEntities = Strategy.extend({
-    semantics: 'link',
+    type: 'link',
     from: 'entity',
     to: 'entity',
     relation: 'one-to-one',
@@ -163,7 +162,7 @@
   });
 
   UnlinkTwoEntities = Strategy.extend({
-    semantics: 'unlink',
+    type: 'unlink',
     from: 'entity',
     to: 'entity',
     relation: 'one-to-one',
@@ -187,7 +186,7 @@
   });
 
   FollowToEntity = Strategy.extend({
-    semantics: 'follow',
+    type: 'follow',
     from: 'entity',
     to: 'entity',
     relation: 'one-to-one',
@@ -197,7 +196,7 @@
   });
 
   AddEntityToRepository = Strategy.extend({
-    semantics: 'link',
+    type: 'link',
     from: 'repository',
     to: 'entity',
 
@@ -249,7 +248,7 @@
   });
 
   LinkFromRepoToEntity = Strategy.extend({
-    semantics: 'follow',
+    type: 'follow',
     from: 'repository',
     to: 'entity',
 
@@ -282,7 +281,7 @@
   });
 
   Link = Strategy.extend({
-    semantics: 'follow',
+    type: 'follow',
     from: 'start',
     to: 'repository',
 
@@ -309,7 +308,7 @@
   });
 
   LinkToService = Strategy.extend({
-    semantics: 'follow',
+    type: 'follow',
     from: 'start',
     to: 'service',
 
@@ -347,13 +346,13 @@
   ];
 
   /*jshint maxlen: 200 */
-  Context = function (semantics, from, to) {
+  Context = function (type, from, to) {
     this.strategy = _.find(strategies, function (maybeStrategy) {
-      return maybeStrategy.executable(semantics, from, to);
+      return maybeStrategy.executable(type, from, to);
     });
 
     if (_.isUndefined(this.strategy)) {
-      require('console').log('Couldn\'t find a strategy for semantic %s from %s to %s', semantics, from, to);
+      require('console').log('Couldn\'t find a strategy for semantic %s from %s to %s', type, from, to);
       throw 'Could not find strategy';
     }
   };
@@ -390,7 +389,7 @@
   State = BaseState.extend({
     addRepository: function (Repository, states) {
       this.type = 'repository';
-      var elementRelation = this.findTransitionBySemantics('link'),
+      var elementRelation = this.findTransitionByType('link'),
         ModelForRepo = states[elementRelation.to].model;
 
       this.collection = this.graph.addVertexCollection(this.name);
@@ -487,17 +486,17 @@
 
   Transition = BaseTransition.extend({
     prepare: function (from, to) {
-      var context = new Context(this.semantics, from.type, to.type);
+      var context = new Context(this.type, from.type, to.type);
       context.prepare(from, to);
     },
 
     addRoutesForOneRelation: function (controller, graph, relation, from, to) {
-      var context = new Context(this.semantics, from.type, to.type);
+      var context = new Context(this.type, from.type, to.type);
       context.executeOneToOne(controller, graph, relation, from, to);
     },
 
     addRoutesForManyRelation: function (controller, graph, relation, from, to) {
-      var context = new Context(this.semantics, from.type, to.type);
+      var context = new Context(this.type, from.type, to.type);
       context.executeOneToMany(controller, graph, relation, from, to);
     }
   });
