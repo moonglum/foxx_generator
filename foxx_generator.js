@@ -69,11 +69,13 @@
 
     defineTransition: function (name, opts) {
       var Transition,
-        options = _.defaults(opts, defaultsForTransitionOptions),
+        options,
         context,
         summary = '',
         notes = '';
 
+      opts = opts || {};
+      options = _.defaults(opts, defaultsForTransitionOptions);
       options.precondition = options.precondition || options.condition;
 
       if (this.applicationContext.comments.length > 0) {
