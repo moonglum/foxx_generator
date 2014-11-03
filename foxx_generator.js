@@ -10,7 +10,7 @@
     defaultsForStateOptions,
     defaultsForTransitionOptions,
     parseOptions,
-    extractDocumentation,
+    Documentation = require('./foxx_generator/documentation').Documentation,
     mediaTypes;
 
   mediaTypes = {
@@ -44,7 +44,7 @@
 
   parseOptions = function (name, opts, applicationContext) {
     var options,
-      documentation = extractDocumentation(applicationContext);
+      documentation = new Documentation(applicationContext);
 
     opts = opts || {};
     options = _.defaults(opts, defaultsForTransitionOptions);
@@ -57,24 +57,6 @@
       summary: documentation.summary,
       notes: documentation.notes
     });
-  };
-
-  extractDocumentation = function (applicationContext) {
-    var summary = '', notes = '';
-
-    if (applicationContext.comments.length > 0) {
-      do {
-        summary = applicationContext.comments.shift();
-      } while (summary === '');
-      notes = applicationContext.comments.join('\n');
-    }
-
-    applicationContext.clearComments();
-
-    return {
-      summary: summary,
-      notes: notes
-    };
   };
 
   _.extend(Generator.prototype, {
