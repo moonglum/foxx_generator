@@ -432,20 +432,7 @@
   });
 
   Transition = BaseTransition.extend({
-    prepare: function (from, to) {
-      var context = new Context(this.type, from.type, to.type);
-      context.prepare(from, to);
-    },
-
-    addRoutesForOneRelation: function (controller, graph, relation, from, to) {
-      var context = new Context(this.type, from.type, to.type);
-      context.executeOneToOne(controller, graph, relation, from, to);
-    },
-
-    addRoutesForManyRelation: function (controller, graph, relation, from, to) {
-      var context = new Context(this.type, from.type, to.type);
-      context.executeOneToMany(controller, graph, relation, from, to);
-    }
+    Context: Context
   });
 
   exports.mediaType = {

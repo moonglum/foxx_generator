@@ -5,7 +5,6 @@
   'use strict';
   var extend = require('org/arangodb/extend').extend,
     ConditionNotFulfilled = require('./condition_not_fulfilled').ConditionNotFulfilled,
-    report = require('./reporter').report,
     _ = require('underscore'),
     Transition;
 
@@ -17,17 +16,20 @@
   _.extend(Transition.prototype, {
     edgeCollectionName: function (from, to) { return this.collectionBaseName + '_' + from.name + '_' + to.name; },
 
-    addRoutesForManyRelation: function (controller, graph, relation) {
-      // Overwrite me in media type specific transition
-      report('No route for "to many" transition "%s" added (%s)', relation.name, controller && graph);
+    prepare: function (from, to) {
+      var context = new this.Context(this.type, from.type, to.type);
+      context.prepare(from, to);
     },
 
-    addRoutesForOneRelation: function (controller, graph, relation) {
-      // Overwrite me in media type specific transition
-      report('No route for "to one" transition "%s" added (%s)', relation.name, controller && graph);
+    addRoutesForOneRelation: function (controller, graph, relation, from, to) {
+      var context = new this.Context(this.type, from.type, to.type);
+      context.executeOneToOne(controller, graph, relation, from, to);
     },
 
-    prepare: function () {},
+    addRoutesForManyRelation: function (controller, graph, relation, from, to) {
+      var context = new this.Context(this.type, from.type, to.type);
+      context.executeOneToMany(controller, graph, relation, from, to);
+    },
 
     apply: function (from, to) {
       var condition, conditionWrapper, relation;
