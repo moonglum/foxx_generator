@@ -84,11 +84,12 @@
       report('Not implemented');
     },
 
-    addModel: function (Model, attributes) {
+    addModel: function (Model, schema) {
       this.type = 'entity';
-      this.model = Model.extend({}, {
+      this.model = Model.extend({
+        schema: _.extend(schema, { links: { type: 'object' } })
+      }, {
         state: this,
-        attributes: _.extend(attributes, { links: { type: 'object' } })
       });
     },
 

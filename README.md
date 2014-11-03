@@ -98,7 +98,7 @@ Some states take additional information.
 
 An entity can be `parameterized` (by setting its attribute `parameterized` to `true`) which means that there is not only one state of that type, but there can be an arbitrary amount – each of them is identified by a parameter. This is usually the case with entities that are stored in a repository.
 
-It also takes an object of attributes which describe the representation of the entity. Each attribute can have a type and can be required or optional.
+It also takes an object of attributes which describe the representation of the entity. Each of the attributes needs to be a value object defined with [Joi](https://github.com/hapijs/joi).
 
 Example for an entity:
 
@@ -108,8 +108,8 @@ generator.addState('idea', {
   parameterized: true,
 
   attributes: {
-    description: { type: 'string', required: true },
-    title: { type: 'string', required: true }
+    description: Joi.string().required(),
+    title: Joi.string().required()
   },
 
   transitions: [
