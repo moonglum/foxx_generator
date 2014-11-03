@@ -5,7 +5,6 @@
   'use strict';
   var Foxx = require('org/arangodb/foxx'),
     _ = require('underscore'),
-    extend = require('org/arangodb/extend').extend,
     // ArangoError = require('internal').ArangoError,
     BaseTransition = require('./base_transition').BaseTransition,
     BaseState = require('./state').State,
@@ -13,11 +12,10 @@
     Repository = require('./repository_with_graph').RepositoryWithGraph,
     ConditionNotFulfilled = require('./condition_not_fulfilled').ConditionNotFulfilled,
     RelationRepository = require('./relation_repository').RelationRepository,
-    report = require('./reporter').report,
     Transition,
     State,
     Model,
-    Strategy,
+    Strategy = require('./strategy').Strategy,
     ModifyAnEntity,
     AddEntityToRepository,
     ConnectRepoWithEntity,
@@ -29,31 +27,6 @@
     FollowToEntity,
     strategies,
     Context;
-
-  Strategy = function () {
-  };
-
-  _.extend(Strategy.prototype, {
-    executable: function (type, from, to) {
-      return type === this.type && from === this.from && to === this.to;
-    },
-
-    prepare: function () {
-      report('Nothing to prepare with type %s from %s to %s', this.type, this.from, this.to);
-    },
-
-    /*jshint maxlen: 200 */
-    executeOneToOne: function () {
-      report('Nothing to execute for one to one with type %s from %s to %s', this.type, this.from, this.to);
-    },
-
-    executeOneToMany: function () {
-      report('Nothing to execute for one to many with type %s from %s to %s', this.type, this.from, this.to);
-    },
-    /*jshint maxlen: 100 */
-  });
-
-  Strategy.extend = extend;
 
   ConnectEntityToService = Strategy.extend({
     type: 'connect',
