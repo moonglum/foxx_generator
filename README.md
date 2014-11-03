@@ -11,8 +11,8 @@ To create an API with FoxxGenerator, first draw a statechart that represents you
 Connect these states with transitions. When you have modeled your statechart in a way that it can fulfill all your use cases, it is time to classify your transitions. For every transition you have to decide which of the following type it follows:
 
 * `follow`: This is a transition that you can just follow from one state to the next.
-* `link`: This is a point of extension where you can create a transition at runtime. In order to be able to follow this transition, you have to add a `follow` transition as well.
-* `unlink`: With this transition you can remove a transition created with `link`.
+* `connect`: This is a point of extension where you can create a transition at runtime. In order to be able to follow this transition, you have to add a `follow` transition as well.
+* `disconnect`: With this transition you can remove a transition created with `connect`.
 * `modify`: This is a transition that can only be created from an entity to itself. It is used to modify the state of this entity.
 
 You can now translate this annotated statechart into the DSL of FoxxGenerator to create your API.
@@ -48,7 +48,7 @@ Every transition needs the following attributes:
 * A name for the transition that you can use when you want to add a transition of this type.
 * `type`: One of the types described above.
 * `description`: A human readable description of this transition. This is used in both the generated API as well as the generated documentation.
-* `to`: Is the target of this transition one or more states? For a `link` transition this for example determines if you can only link one state to it or more than that. Acceptable values are `one` and `many`.
+* `to`: Is the target of this transition one or more states? For a `connect` transition this for example determines if you can only connect one state to it or more than that. Acceptable values are `one` and `many`.
 
 An example for that would be the following transition definition:
 
@@ -60,7 +60,7 @@ generator.defineTransition('showDetail', {
 });
 ```
 
-For a `link` and `unlink` transition you additionally have to determine which `follow` transition can be used to follow the created transition. This is done with `as` and the name of the transition.
+For a `connect` and `disconnect` transition you additionally have to determine which `follow` transition can be used to follow the created transition. This is done with `as` and the name of the transition.
 
 You can also add `parameters` to the transition, if in the transition process you need additional information from the user of the API. Each of the parameters needs to be a value object defined with [Joi](https://github.com/hapijs/joi). For example:
 

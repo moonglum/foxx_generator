@@ -21,12 +21,12 @@
     Strategy,
     ModifyAnEntity,
     AddEntityToRepository,
-    LinkFromRepoToEntity,
-    Link,
-    LinkToService,
-    UnlinkTwoEntities,
-    LinkEntityToService,
-    LinkTwoEntities,
+    ConnectRepoWithEntity,
+    ConnectStartWithRepository,
+    ConnectToService,
+    DisconnectTwoEntities,
+    ConnectEntityToService,
+    ConnectTwoEntities,
     FollowToEntity,
     strategies,
     Context;
@@ -56,8 +56,8 @@
 
   Strategy.extend = extend;
 
-  LinkEntityToService = Strategy.extend({
-    type: 'link',
+  ConnectEntityToService = Strategy.extend({
+    type: 'connect',
     from: 'entity',
     to: 'service',
     relation: 'one-to-one',
@@ -120,8 +120,8 @@
     }
   });
 
-  LinkTwoEntities = Strategy.extend({
-    type: 'link',
+  ConnectTwoEntities = Strategy.extend({
+    type: 'connect',
     from: 'entity',
     to: 'entity',
     relation: 'one-to-one',
@@ -161,8 +161,8 @@
     }
   });
 
-  UnlinkTwoEntities = Strategy.extend({
-    type: 'unlink',
+  DisconnectTwoEntities = Strategy.extend({
+    type: 'disconnect',
     from: 'entity',
     to: 'entity',
     relation: 'one-to-one',
@@ -196,7 +196,7 @@
   });
 
   AddEntityToRepository = Strategy.extend({
-    type: 'link',
+    type: 'connect',
     from: 'repository',
     to: 'entity',
 
@@ -247,7 +247,7 @@
     }
   });
 
-  LinkFromRepoToEntity = Strategy.extend({
+  ConnectRepoWithEntity = Strategy.extend({
     type: 'follow',
     from: 'repository',
     to: 'entity',
@@ -280,7 +280,7 @@
     }
   });
 
-  Link = Strategy.extend({
+  ConnectStartWithRepository = Strategy.extend({
     type: 'follow',
     from: 'start',
     to: 'repository',
@@ -307,7 +307,7 @@
     }
   });
 
-  LinkToService = Strategy.extend({
+  ConnectToService = Strategy.extend({
     type: 'follow',
     from: 'start',
     to: 'service',
@@ -335,14 +335,14 @@
 
   strategies = [
     new ModifyAnEntity(),
-    new LinkTwoEntities(),
-    new UnlinkTwoEntities(),
+    new ConnectTwoEntities(),
+    new DisconnectTwoEntities(),
     new FollowToEntity(),
     new AddEntityToRepository(),
-    new LinkFromRepoToEntity(),
-    new LinkEntityToService(),
-    new LinkToService(),
-    new Link()
+    new ConnectRepoWithEntity(),
+    new ConnectEntityToService(),
+    new ConnectToService(),
+    new ConnectStartWithRepository()
   ];
 
   /*jshint maxlen: 200 */
@@ -389,7 +389,7 @@
   State = BaseState.extend({
     addRepository: function (Repository, states) {
       this.type = 'repository';
-      var elementRelation = this.findTransitionByType('link'),
+      var elementRelation = this.findTransitionByType('connect'),
         ModelForRepo = states[elementRelation.to].model;
 
       this.collection = this.graph.addVertexCollection(this.name);
