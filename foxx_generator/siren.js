@@ -82,8 +82,8 @@
           type: 'string'
         })
         .bodyParam(nameOfRootElement, 'TODO', BodyParam)
-        .summary(relation.description)
-        .notes('TODO');
+        .summary(relation.summary)
+        .notes(relation.notes);
     }
   });
 
@@ -116,7 +116,7 @@
         })
         .bodyParam(nameOfRootElement, 'TODO', BodyParam)
         .summary('Set the relation')
-        .notes('TODO');
+        .notes(relation.notes);
     }
   });
 
@@ -140,7 +140,7 @@
         .errorResponse(ConditionNotFulfilled, 403, 'The condition could not be fulfilled')
         .onlyIf(relation.condition)
         .summary('Set the relation')
-        .notes('TODO');
+        .notes(relation.notes);
     },
 
     executeOneToMany: function (controller, graph, relation, from, to) {
@@ -157,7 +157,7 @@
         .errorResponse(ConditionNotFulfilled, 403, 'The condition could not be fulfilled')
         .onlyIf(relation.condition)
         .summary('Set the relation')
-        .notes('TODO');
+        .notes(relation.notes);
     }
   });
 
@@ -181,7 +181,7 @@
         .errorResponse(ConditionNotFulfilled, 403, 'The condition could not be fulfilled')
         .onlyIf(relation.condition)
         .summary('Remove the relation')
-        .notes('TODO');
+        .notes(relation.notes);
     }
   });
 
@@ -214,7 +214,7 @@
         precondition = relation.precondition,
         method = 'POST',
         fields,
-        title = relation.description;
+        title = relation.summary;
 
       fields = _.map(relation.parameters, function (joi, name) {
         var fieldDescription = { name: name, type: joi._type };
@@ -242,8 +242,8 @@
       }).bodyParam(nameOfRootElement, 'TODO', BodyParam)
         .errorResponse(ConditionNotFulfilled, 403, 'The condition could not be fulfilled')
         .onlyIf(relation.condition)
-        .summary(relation.description)
-        .notes('TODO');
+        .summary(relation.summary)
+        .notes(relation.notes);
     }
   });
 
@@ -260,7 +260,7 @@
     executeOneToOne: function (controller, graph, relation, repositoryState, entityState) {
       var rel = relation.name,
         href = entityState.urlTemplate,
-        title = relation.description,
+        title = relation.summary,
         repository = repositoryState.repository;
 
       controller.get(href, function (req, res) {
@@ -273,8 +273,8 @@
         type: 'string'
       }).errorResponse(ConditionNotFulfilled, 403, 'The condition could not be fulfilled')
         .onlyIf(relation.condition)
-        .summary(relation.description)
-        .notes('TODO');
+        .summary(relation.summary)
+        .notes(relation.notes);
 
       repositoryState.addLinkToEntities(rel, href, title, entityState);
     }
@@ -289,7 +289,7 @@
       var rel = relation.name,
         href = to.urlTemplate,
         precondition = relation.precondition,
-        title = relation.description;
+        title = relation.summary;
 
       from.addLink([rel], href, title, precondition);
 
@@ -300,8 +300,8 @@
           links: to.filteredLinks(req),
           actions: to.filteredActions(req)
         });
-      }).summary(relation.description)
-        .notes('TODO')
+      }).summary(relation.summary)
+        .notes(relation.notes)
         .errorResponse(ConditionNotFulfilled, 403, 'The condition could not be fulfilled')
         .onlyIf(relation.condition);
     }
@@ -315,7 +315,7 @@
     executeOneToOne: function (controller, graph, relation, from, to) {
       var rel = relation.name,
         href = to.urlTemplate,
-        title = relation.description,
+        title = relation.summary,
         verb = to.verb,
         action = to.action,
         nameOfRootElement = to.name,
@@ -325,9 +325,9 @@
       from.addLink([rel], href, title, precondition);
 
       controller[verb](href, action)
-        .summary(relation.description)
+        .summary(relation.summary)
         .bodyParam(nameOfRootElement, 'TODO', BodyParam)
-        .notes('TODO')
+        .notes(relation.notes)
         .errorResponse(ConditionNotFulfilled, 403, 'The condition could not be fulfilled')
         .onlyIf(relation.condition);
     }
@@ -411,7 +411,7 @@
           actions: that.filteredActions(req)
         });
       }).summary('Billboard URL')
-        .notes('TODO');
+        .notes('This is the starting point for using the API');
       this.type = 'start';
     },
 

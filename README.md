@@ -47,15 +47,17 @@ Every transition needs the following attributes:
 
 * A name for the transition that you can use when you want to add a transition of this type.
 * `type`: One of the types described above.
-* `description`: A human readable description of this transition. This is used in both the generated API as well as the generated documentation.
 * `to`: Is the target of this transition one or more states? For a `connect` transition this for example determines if you can only connect one state to it or more than that. Acceptable values are `one` and `many`.
 
-An example for that would be the following transition definition:
+You can also add a documentation block (a JavaScript comment starting with `/**`) that will be used for the documentation. The first line should be a short summary, all other lines will be used for a long description. An example for that would be the following transition definition:
 
 ```js
+/** Show details for a particular item
+ * 
+ * Show all information about this particular item.
+ */
 generator.defineTransition('showDetail', {
   type: 'follow',
-  description: 'Show details for a particular item',
   to: 'one'
 });
 ```
@@ -65,10 +67,12 @@ For a `connect` and `disconnect` transition you additionally have to determine w
 You can also add `parameters` to the transition, if in the transition process you need additional information from the user of the API. Each of the parameters needs to be a value object defined with [Joi](https://github.com/hapijs/joi). For example:
 
 ```js
+/** Modify the title of the entity
+ *
+ */
 generator.defineTransition('changeTitle', {
   type: 'modify',
   to: 'one',
-  description: 'Modify the title of the entity',
 
   parameters: {
     title: Joi.string()

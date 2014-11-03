@@ -24,6 +24,7 @@
   };
 
   Generator = function (name, options) {
+    this.applicationContext = options.applicationContext;
     this.graph = new Graph(name, options.applicationContext);
     this.mediaType = mediaTypes[options.mediaType];
     this.controller = new Foxx.Controller(options.applicationContext, options);
@@ -69,11 +70,24 @@
     defineTransition: function (name, opts) {
       var Transition,
         options = _.defaults(opts, defaultsForTransitionOptions),
-        context;
+        context,
+        summary = '',
+        notes = '';
 
       options.precondition = options.precondition || options.condition;
 
+      if (this.applicationContext.comments.length > 0) {
+        do {
+          summary = this.applicationContext.comments.shift();
+        } while (summary === '');
+        notes = this.applicationContext.comments.join("\n");
+      }
+
+      this.applicationContext.clearComments();
+
       Transition = this.mediaType.Transition.extend(_.extend(options, {
+        summary: summary,
+        notes: notes,
         collectionBaseName: options.as || name,
         relationName: name,
         cardinality: options.to

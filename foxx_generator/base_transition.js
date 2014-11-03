@@ -46,7 +46,8 @@
         cardinality: this.cardinality,
         type: this.type,
         parameters: this.parameters,
-        description: this.description,
+        summary: this.summary,
+        notes: this.notes,
         condition: conditionWrapper,
         precondition: this.precondition,
         to: to
