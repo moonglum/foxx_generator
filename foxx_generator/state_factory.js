@@ -11,11 +11,12 @@
     queue: 'defaultQueue'
   };
 
-  StateFactory = function (graph, transitions, states, State) {
+  StateFactory = function (graph, transitions, states, State, controller) {
     this.graph = graph;
     this.transitions = transitions;
     this.states = states;
     this.State = State;
+    this.controller = controller;
   };
 
   _.extend(StateFactory.prototype, {
@@ -25,6 +26,15 @@
 
       state.addTransitions(options.transitions, this.transitions);
       state.configure(options, this.states);
+
+      return state;
+    },
+
+    createStartState: function (name, options) {
+      var state = new this.State(name, this.graph, false);
+
+      state.addTransitions(options.transitions, this.transitions);
+      state.setAsStart(this.controller);
 
       return state;
     }

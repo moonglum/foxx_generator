@@ -38,17 +38,14 @@
       return transitions;
     }, {}, this);
 
-    this.stateFactory = new StateFactory(this.graph, this.transitions, this.states, this.mediaType.State);
+    this.stateFactory = new StateFactory(this.graph, this.transitions, this.states, this.mediaType.State, this.controller);
     this.transitionFactory = new TransitionFactory(this.applicationContext, this.graph, this.controller, this.Transition);
   };
 
   _.extend(Generator.prototype, {
     addStartState: function (options) {
-      var name = '',
-        state = new this.mediaType.State(name, this.graph, false);
-      state.addTransitions(options.transitions, this.transitions);
-      state.setAsStart(this.controller);
-      this.states[name] = state;
+      var name = '';
+      this.states[name] = this.stateFactory.createStartState(name, options);
     },
 
     addState: function (name, opts) {
