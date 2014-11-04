@@ -7,12 +7,10 @@
     _ = require('underscore'),
     Graph = require('./foxx_generator/graph').Graph,
     Generator,
-    defaultsForTransitionOptions,
-    parseOptions,
-    Documentation = require('./foxx_generator/documentation').Documentation,
     BaseTransition = require('./foxx_generator/base_transition').BaseTransition,
     BaseContext = require('./foxx_generator/context').Context,
     StateFactory = require('./foxx_generator/state_factory').StateFactory,
+    TransitionFactory = require('./foxx_generator/transition_factory').TransitionFactory,
     mediaTypes;
 
   mediaTypes = {
@@ -41,29 +39,6 @@
     }, {}, this);
   };
 
-  defaultsForTransitionOptions = {
-    type: 'follow',
-    to: 'one',
-    condition: function () { return true; }
-  };
-
-  parseOptions = function (name, opts, applicationContext) {
-    var options,
-      documentation = new Documentation(applicationContext);
-
-    opts = opts || {};
-    options = _.defaults(opts, defaultsForTransitionOptions);
-    options.precondition = options.precondition || options.condition;
-
-    return _.extend(options, {
-      collectionBaseName: options.as || name,
-      relationName: name,
-      cardinality: options.to,
-      summary: documentation.summary,
-      notes: documentation.notes
-    });
-  };
-
   _.extend(Generator.prototype, {
     addStartState: function (options) {
       var name = '',
@@ -79,12 +54,8 @@
     },
 
     defineTransition: function (name, opts) {
-      var Transition,
-        options = parseOptions(name, opts, this.applicationContext);
-
-      Transition = this.Transition.extend(options);
-
-      this.transitions[name] = new Transition(this.graph, this.controller);
+      var transitionFactory = new TransitionFactory(this.applicationContext, this.graph, this.controller, this.Transition);
+      this.transitions[name] = transitionFactory.create(name, opts);
     },
 
     generate: function () {
