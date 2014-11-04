@@ -9,10 +9,10 @@
     BaseState = require('./state').State,
     VertexNotFound = require('./graph').VertexNotFound,
     Repository = require('./repository_with_graph').RepositoryWithGraph,
+    Model = require('./model').Model,
     ConditionNotFulfilled = require('./condition_not_fulfilled').ConditionNotFulfilled,
     RelationRepository = require('./relation_repository').RelationRepository,
     State,
-    Model,
     Strategy = require('./strategy').Strategy,
     ModifyAnEntity,
     AddEntityToRepository,
@@ -313,17 +313,6 @@
     new ConnectToService(),
     new ConnectStartWithRepository()
   ];
-
-  Model = Foxx.Model.extend({
-    forClient: function () {
-      var properties = Foxx.Model.prototype.forClient.call(this);
-
-      return {
-        properties: properties,
-        links: []
-      };
-    }
-  });
 
   State = BaseState.extend({
     addRepository: function (Repository, states) {
