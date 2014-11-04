@@ -6,13 +6,11 @@
   var Foxx = require('org/arangodb/foxx'),
     _ = require('underscore'),
     // ArangoError = require('internal').ArangoError,
-    BaseTransition = require('./base_transition').BaseTransition,
     BaseState = require('./state').State,
     VertexNotFound = require('./graph').VertexNotFound,
     Repository = require('./repository_with_graph').RepositoryWithGraph,
     ConditionNotFulfilled = require('./condition_not_fulfilled').ConditionNotFulfilled,
     RelationRepository = require('./relation_repository').RelationRepository,
-    Transition,
     State,
     Model,
     Strategy = require('./strategy').Strategy,
@@ -25,9 +23,7 @@
     ConnectEntityToService,
     ConnectTwoEntities,
     FollowToEntity,
-    strategies,
-    BaseContext = require('./context').Context,
-    Context;
+    strategies;
 
   ConnectEntityToService = Strategy.extend({
     type: 'connect',
@@ -427,19 +423,11 @@
     }
   });
 
-  Context = BaseContext.extend({
-    strategies: strategies
-  });
-
-  Transition = BaseTransition.extend({
-    Context: Context
-  });
-
   exports.mediaType = {
     Model: Model,
     Repository: Repository,
-    Transition: Transition,
     State: State,
+    strategies: strategies,
     transitions: []
   };
 }());

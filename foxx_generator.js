@@ -11,6 +11,8 @@
     defaultsForTransitionOptions,
     parseOptions,
     Documentation = require('./foxx_generator/documentation').Documentation,
+    BaseTransition = require('./foxx_generator/base_transition').BaseTransition,
+    BaseContext = require('./foxx_generator/context').Context,
     mediaTypes;
 
   mediaTypes = {
@@ -18,11 +20,21 @@
   };
 
   Generator = function (name, options) {
+    var Context;
     this.applicationContext = options.applicationContext;
     this.graph = new Graph(name, options.applicationContext);
     this.mediaType = mediaTypes[options.mediaType];
     this.controller = new Foxx.Controller(options.applicationContext, options);
     this.states = {};
+
+    Context = BaseContext.extend({
+      strategies: this.mediaType.strategies
+    });
+
+    this.Transition = BaseTransition.extend({
+      Context: Context
+    });
+
     this.transitions = _.reduce(this.mediaType.transitions, function (transitions, tuple) {
       transitions[tuple.name] = new tuple.Transition(this.graph, this.controller);
       return transitions;
@@ -82,7 +94,7 @@
       var Transition,
         options = parseOptions(name, opts, this.applicationContext);
 
-      Transition = this.mediaType.Transition.extend(options);
+      Transition = this.Transition.extend(options);
 
       this.transitions[name] = new Transition(this.graph, this.controller);
     },
