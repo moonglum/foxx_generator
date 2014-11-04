@@ -37,6 +37,9 @@
       transitions[tuple.name] = new tuple.Transition(this.graph, this.controller);
       return transitions;
     }, {}, this);
+
+    this.stateFactory = new StateFactory(this.graph, this.transitions, this.states, this.mediaType.State);
+    this.transitionFactory = new TransitionFactory(this.applicationContext, this.graph, this.controller, this.Transition);
   };
 
   _.extend(Generator.prototype, {
@@ -49,13 +52,11 @@
     },
 
     addState: function (name, opts) {
-      var stateFactory = new StateFactory(this.graph, this.transitions, this.states, this.mediaType.State);
-      this.states[name] = stateFactory.create(name, opts);
+      this.states[name] = this.stateFactory.create(name, opts);
     },
 
     defineTransition: function (name, opts) {
-      var transitionFactory = new TransitionFactory(this.applicationContext, this.graph, this.controller, this.Transition);
-      this.transitions[name] = transitionFactory.create(name, opts);
+      this.transitions[name] = this.transitionFactory.create(name, opts);
     },
 
     generate: function () {
