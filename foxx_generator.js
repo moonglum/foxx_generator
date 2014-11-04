@@ -7,8 +7,6 @@
     _ = require('underscore'),
     Graph = require('./foxx_generator/graph').Graph,
     Generator,
-    BaseTransition = require('./foxx_generator/base_transition').BaseTransition,
-    BaseContext = require('./foxx_generator/context').Context,
     StateFactory = require('./foxx_generator/state_factory').StateFactory,
     TransitionFactory = require('./foxx_generator/transition_factory').TransitionFactory,
     mediaTypes;
@@ -18,22 +16,12 @@
   };
 
   Generator = function (name, options) {
-    var Context,
-      Transition,
-      applicationContext = options.applicationContext,
+    var applicationContext = options.applicationContext,
       graph = new Graph(name, applicationContext),
       mediaType = mediaTypes[options.mediaType],
       controller = new Foxx.Controller(applicationContext, options);
 
     this.states = {};
-
-    Context = BaseContext.extend({
-      strategies: mediaType.strategies
-    });
-
-    Transition = BaseTransition.extend({
-      Context: Context
-    });
 
     this.transitions = _.reduce(mediaType.transitions, function (transitions, tuple) {
       transitions[tuple.name] = new tuple.Transition(graph, controller);
@@ -41,7 +29,7 @@
     }, {}, this);
 
     this.stateFactory = new StateFactory(graph, this.transitions, this.states, mediaType.State, controller);
-    this.transitionFactory = new TransitionFactory(applicationContext, graph, controller, Transition);
+    this.transitionFactory = new TransitionFactory(applicationContext, graph, controller, mediaType.strategies);
   };
 
   _.extend(Generator.prototype, {
@@ -59,13 +47,8 @@
     },
 
     generate: function () {
-      _.each(this.states, function (state) {
-        state.prepareTransitions(this.states);
-      }, this);
-
-      _.each(this.states, function (state) {
-        state.applyTransitions(this.states);
-      }, this);
+      _.each(this.states, function (state) { state.prepareTransitions(this.states); }, this);
+      _.each(this.states, function (state) { state.applyTransitions(this.states); }, this);
     }
   });
 

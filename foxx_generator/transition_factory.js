@@ -3,6 +3,8 @@
   var  _ = require('underscore'),
     defaultsForTransitionOptions,
     parseOptions,
+    BaseTransition = require('./base_transition').BaseTransition,
+    BaseContext = require('./context').Context,
     Documentation = require('./documentation').Documentation;
 
   defaultsForTransitionOptions = {
@@ -28,11 +30,18 @@
     });
   };
 
-  var TransitionFactory = function (applicationContext, graph, controller, Transition) {
+  var TransitionFactory = function (applicationContext, graph, controller, strategies) {
     this.applicationContext = applicationContext;
     this.graph = graph;
     this.controller = controller;
-    this.Transition = Transition;
+
+    var Context = BaseContext.extend({
+      strategies: strategies
+    });
+
+    this.Transition = BaseTransition.extend({
+      Context: Context
+    });
   };
 
   _.extend(TransitionFactory.prototype, {
