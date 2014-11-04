@@ -85,7 +85,7 @@
         state = new this.mediaType.State(name, this.graph, options.parameterized);
 
       state.addTransitions(options.transitions, this.transitions);
-      state.configure(options, this.mediaType, this.states);
+      state.configure(options, this.states);
 
       this.states[name] = state;
     },

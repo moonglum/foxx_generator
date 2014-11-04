@@ -5,11 +5,8 @@
   'use strict';
   var Foxx = require('org/arangodb/foxx'),
     _ = require('underscore'),
-    // ArangoError = require('internal').ArangoError,
     BaseState = require('./state').State,
     VertexNotFound = require('./graph').VertexNotFound,
-    Repository = require('./repository_with_graph').RepositoryWithGraph,
-    Model = require('./model').Model,
     ConditionNotFulfilled = require('./condition_not_fulfilled').ConditionNotFulfilled,
     RelationRepository = require('./relation_repository').RelationRepository,
     State,
@@ -413,8 +410,6 @@
   });
 
   exports.mediaType = {
-    Model: Model,
-    Repository: Repository,
     State: State,
     strategies: strategies,
     transitions: []

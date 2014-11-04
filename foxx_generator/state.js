@@ -7,6 +7,8 @@
   var State,
     extend = require('org/arangodb/extend').extend,
     _ = require('underscore'),
+    Repository = require('./repository_with_graph').RepositoryWithGraph,
+    Model = require('./model').Model,
     report = require('./reporter').report;
 
   State = function (name, graph, paramaterized) {
@@ -28,13 +30,13 @@
   };
 
   _.extend(State.prototype, {
-    configure: function (options, mediaType, states) {
+    configure: function (options, states) {
       switch (options.type) {
         case 'entity':
-          this.addModel(mediaType.Model, options.attributes);
+          this.addModel(Model, options.attributes);
           break;
         case 'repository':
-          this.addRepository(mediaType.Repository, states);
+          this.addRepository(Repository, states);
           break;
         case 'service':
           this.addService(options.action, options.verb);
