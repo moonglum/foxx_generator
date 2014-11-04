@@ -7,12 +7,12 @@
     _ = require('underscore'),
     Graph = require('./foxx_generator/graph').Graph,
     Generator,
-    defaultsForStateOptions,
     defaultsForTransitionOptions,
     parseOptions,
     Documentation = require('./foxx_generator/documentation').Documentation,
     BaseTransition = require('./foxx_generator/base_transition').BaseTransition,
     BaseContext = require('./foxx_generator/context').Context,
+    StateFactory = require('./foxx_generator/state_factory').StateFactory,
     mediaTypes;
 
   mediaTypes = {
@@ -39,13 +39,6 @@
       transitions[tuple.name] = new tuple.Transition(this.graph, this.controller);
       return transitions;
     }, {}, this);
-  };
-
-  defaultsForStateOptions = {
-    parameterized: false,
-    verb: 'post',
-    maxFailures: 1,
-    queue: 'defaultQueue'
   };
 
   defaultsForTransitionOptions = {
@@ -81,13 +74,8 @@
     },
 
     addState: function (name, opts) {
-      var options = _.defaults(opts, defaultsForStateOptions),
-        state = new this.mediaType.State(name, this.graph, options.parameterized);
-
-      state.addTransitions(options.transitions, this.transitions);
-      state.configure(options, this.states);
-
-      this.states[name] = state;
+      var stateFactory = new StateFactory(this.graph, this.transitions, this.states, this.mediaType.State);
+      this.states[name] = stateFactory.create(name, opts);
     },
 
     defineTransition: function (name, opts) {
