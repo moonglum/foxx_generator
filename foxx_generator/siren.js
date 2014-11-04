@@ -411,7 +411,6 @@
 
   exports.mediaType = {
     State: State,
-    strategies: strategies,
-    transitions: []
+    strategies: strategies
   };
 }());

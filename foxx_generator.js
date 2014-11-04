@@ -22,11 +22,7 @@
       controller = new Foxx.Controller(applicationContext, options);
 
     this.states = {};
-
-    this.transitions = _.reduce(mediaType.transitions, function (transitions, tuple) {
-      transitions[tuple.name] = new tuple.Transition(graph, controller);
-      return transitions;
-    }, {}, this);
+    this.transitions = [];
 
     this.stateFactory = new StateFactory(graph, this.transitions, this.states, mediaType.State, controller);
     this.transitionFactory = new TransitionFactory(applicationContext, graph, controller, mediaType.strategies);
