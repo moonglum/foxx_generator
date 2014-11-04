@@ -18,28 +18,30 @@
   };
 
   Generator = function (name, options) {
-    var Context;
-    this.applicationContext = options.applicationContext;
-    this.graph = new Graph(name, options.applicationContext);
-    this.mediaType = mediaTypes[options.mediaType];
-    this.controller = new Foxx.Controller(options.applicationContext, options);
+    var Context,
+      Transition,
+      applicationContext = options.applicationContext,
+      graph = new Graph(name, applicationContext),
+      mediaType = mediaTypes[options.mediaType],
+      controller = new Foxx.Controller(applicationContext, options);
+
     this.states = {};
 
     Context = BaseContext.extend({
-      strategies: this.mediaType.strategies
+      strategies: mediaType.strategies
     });
 
-    this.Transition = BaseTransition.extend({
+    Transition = BaseTransition.extend({
       Context: Context
     });
 
-    this.transitions = _.reduce(this.mediaType.transitions, function (transitions, tuple) {
-      transitions[tuple.name] = new tuple.Transition(this.graph, this.controller);
+    this.transitions = _.reduce(mediaType.transitions, function (transitions, tuple) {
+      transitions[tuple.name] = new tuple.Transition(graph, controller);
       return transitions;
     }, {}, this);
 
-    this.stateFactory = new StateFactory(this.graph, this.transitions, this.states, this.mediaType.State, this.controller);
-    this.transitionFactory = new TransitionFactory(this.applicationContext, this.graph, this.controller, this.Transition);
+    this.stateFactory = new StateFactory(graph, this.transitions, this.states, mediaType.State, controller);
+    this.transitionFactory = new TransitionFactory(applicationContext, graph, controller, Transition);
   };
 
   _.extend(Generator.prototype, {
