@@ -41,12 +41,6 @@
       });
     },
 
-    findTransitionByType: function (type) {
-      return _.find(this.transitions, function (transition) {
-        return transition.transition.type === type;
-      });
-    },
-
     prepareTransitions: function (states) {
       _.each(this.transitions, function (transitionDescription) {
         var to = states[transitionDescription.to];
