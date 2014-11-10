@@ -4,9 +4,7 @@
   var stateTypes = ['entity', 'repository', 'service', 'start'],
     extend = require('org/arangodb/extend').extend,
     _ = require('underscore'),
-    State,
-    Repository = require('./repository_with_graph').RepositoryWithGraph,
-    Model = require('./model').Model;
+    State;
 
   State = function (name, graph, options) {
     this.name = name;
@@ -34,25 +32,6 @@
   };
 
   _.extend(State.prototype, {
-    configure: function (states) {
-      var options = this.options;
-
-      switch (this.type) {
-        case 'entity':
-          this.addModel(Model);
-          break;
-        case 'repository':
-          this.addRepository(Repository, states[options.contains].model);
-          break;
-        case 'service':
-          this.addService();
-          break;
-        case 'start':
-          this.setAsStart();
-          break;
-      }
-    },
-
     addTransitions: function (definitions) {
       this.transitions = _.map(this.options.transitions, function (transitionDescription) {
         return {
@@ -99,12 +78,12 @@
         .notes('This is the starting point for using the API');
     },
 
-    addRepository: function (Repository, ModelForRepo) {
+    addRepository: function (Repository, states) {
       this.collection = this.graph.addVertexCollection(this.name);
       this.collectionName = this.collection.name();
 
       this.repository = new Repository(this.collection, {
-        model: ModelForRepo,
+        model: states[this.options.contains].model,
         graph: this.graph
       });
     },

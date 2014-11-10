@@ -6,10 +6,25 @@
     Generator,
     StateFactory = require('./foxx_generator/state_factory').StateFactory,
     TransitionFactory = require('./foxx_generator/transition_factory').TransitionFactory,
+    Repository = require('./foxx_generator/repository_with_graph').RepositoryWithGraph,
+    Model = require('./foxx_generator/model').Model,
+    configure,
     mediaTypes;
 
   mediaTypes = {
     'application/vnd.siren+json': require('./foxx_generator/siren').mediaType
+  };
+
+  configure = function (states) {
+    var entities = _.filter(states, function (state) { return state.type === 'entity'; }),
+      repositories = _.filter(states, function (state) { return state.type === 'repository'; }),
+      services = _.filter(states, function (state) { return state.type === 'service'; }),
+      starts = _.filter(states, function (state) { return state.type === 'start'; });
+
+    _.each(starts, function (start) { start.setAsStart(); });
+    _.each(services, function (service) { service.addService(); });
+    _.each(entities, function (entity) { entity.addModel(Model); });
+    _.each(repositories, function (repository) { repository.addRepository(Repository, states); });
   };
 
   Generator = function (name, options) {
@@ -44,7 +59,7 @@
 
     generate: function () {
       _.each(this.states, function (state) { state.addTransitions(this.transitions); }, this);
-      _.each(this.states, function (state) { state.configure(this.states); }, this);
+      configure(this.states);
       _.each(this.states, function (state) { state.prepareTransitions(this.states); }, this);
       _.each(this.states, function (state) { state.applyTransitions(this.states); }, this);
     }
