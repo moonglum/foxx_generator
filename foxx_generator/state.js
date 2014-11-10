@@ -7,10 +7,11 @@
     Repository = require('./repository_with_graph').RepositoryWithGraph,
     Model = require('./model').Model;
 
-  State = function (name, graph, paramaterized) {
+  State = function (name, graph, options) {
     this.name = name;
     this.graph = graph;
-    this.parameterized = paramaterized;
+    this.options = options;
+    this.parameterized = this.options.paramaterized;
 
     this.links = [];
     this.actions = [];
@@ -26,7 +27,9 @@
   };
 
   _.extend(State.prototype, {
-    configure: function (options, states) {
+    configure: function (states) {
+      var options = this.options;
+
       switch (options.type) {
         case 'entity':
           this.addModel(Model, options.attributes);
@@ -46,8 +49,8 @@
       }
     },
 
-    addTransitions: function (transitions, definitions) {
-      this.transitions = _.map(transitions, function (transitionDescription) {
+    addTransitions: function (definitions) {
+      this.transitions = _.map(this.options.transitions, function (transitionDescription) {
         return {
           transition: definitions[transitionDescription.via],
           to: transitionDescription.to

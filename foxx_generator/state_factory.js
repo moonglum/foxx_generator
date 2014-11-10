@@ -21,10 +21,10 @@
   _.extend(StateFactory.prototype, {
     create: function (name, opts) {
       var options = _.defaults(opts, defaultsForStateOptions),
-        state = new State(name, this.graph, options.parameterized);
+        state = new State(name, this.graph, options);
 
-      state.addTransitions(options.transitions, this.transitions);
-      state.configure(options, this.states);
+      state.addTransitions(this.transitions);
+      state.configure(this.states);
 
       return state;
     }
