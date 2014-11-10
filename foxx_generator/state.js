@@ -8,8 +8,7 @@
     extend = require('org/arangodb/extend').extend,
     _ = require('underscore'),
     Repository = require('./repository_with_graph').RepositoryWithGraph,
-    Model = require('./model').Model,
-    report = require('./reporter').report;
+    Model = require('./model').Model;
 
   State = function (name, graph, paramaterized) {
     this.name = name;
@@ -76,14 +75,36 @@
       }, this);
     },
 
-    setAsStart: function () {
-      this.type = 'start';
-      report('Not implemented');
+    properties: function () {
+      return {};
     },
 
-    addRepository: function () {
+    setAsStart: function (controller) {
+      var that = this;
+
+      controller.get('/', function (req, res) {
+        res.json({
+          properties: {},
+          links: that.filteredLinks(req),
+          actions: that.filteredActions(req)
+        });
+      }).summary('Billboard URL')
+        .notes('This is the starting point for using the API');
+      this.type = 'start';
+    },
+
+    addRepository: function (Repository, states) {
       this.type = 'repository';
-      report('Not implemented');
+      var elementRelation = this.findTransitionByType('connect'),
+        ModelForRepo = states[elementRelation.to].model;
+
+      this.collection = this.graph.addVertexCollection(this.name);
+      this.collectionName = this.collection.name();
+
+      this.repository = new Repository(this.collection, {
+        model: ModelForRepo,
+        graph: this.graph
+      });
     },
 
     addModel: function (Model, schema) {
@@ -111,6 +132,70 @@
       }
 
       return url;
+    },
+
+    entities: function () {
+      var entities = [];
+
+      if (this.type === 'repository') {
+        entities = _.map(this.repository.all(), function (entity) {
+          var result = entity.forClient();
+
+          _.each(this.childLinks, function (link) {
+            result.links.push({
+              rel: link.rel,
+              href: link.target.urlFor(entity.get('_key')),
+              title: link.title
+            });
+          });
+          return result;
+        }, this);
+      }
+
+      return entities;
+    },
+
+    filteredLinks: function (req) {
+      return _.filter(this.links, function (link) {
+        return link.precondition(req);
+      });
+    },
+
+    filteredActions: function (req) {
+      return _.filter(this.actions, function (action) {
+        return action.precondition(req);
+      });
+    },
+
+    addLink: function (rel, href, title, precondition) {
+      this.links.push({
+        precondition: precondition,
+        rel: rel,
+        href: href,
+        title: title
+      });
+    },
+
+    addLinkToEntities: function (rel, href, title, target) {
+      this.childLinks.push({
+        rel: rel,
+        href: href,
+        title: title,
+        target: target
+      });
+    },
+
+    addAction: function (name, method, href, title, fields, precondition) {
+      this.actions.push({
+        precondition: precondition,
+        name: name,
+        // class: ?,
+        method: method,
+        href: href,
+        title: title,
+        type: 'application/json',
+        fields: fields
+      });
     }
   });
 
