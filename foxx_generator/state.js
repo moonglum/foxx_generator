@@ -1,9 +1,10 @@
 (function () {
   'use strict';
 
-  var State,
+  var stateTypes = ['entity', 'repository', 'service', 'start'],
     extend = require('org/arangodb/extend').extend,
     _ = require('underscore'),
+    State,
     Repository = require('./repository_with_graph').RepositoryWithGraph,
     Model = require('./model').Model;
 
@@ -13,6 +14,11 @@
     this.options = options;
     this.parameterized = this.options.paramaterized;
     this.type = this.options.type;
+
+    if (!_.contains(stateTypes, this.type)) {
+      require('console').log('Unknown state type "' + options.type + '"');
+      throw 'Unknown State Type';
+    }
 
     this.links = [];
     this.actions = [];
@@ -44,9 +50,6 @@
         case 'start':
           this.setAsStart();
           break;
-        default:
-          require('console').log('Unknown state type "' + options.type + '"');
-          throw 'Unknown State Type';
       }
     },
 
