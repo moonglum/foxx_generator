@@ -34,14 +34,15 @@
   _.extend(State.prototype, {
     prepareTransitions: function (definitions, states) {
       this.transitions = _.map(this.options.transitions, function (transitionDescription) {
-        return {
-          transition: definitions[transitionDescription.via],
-          to: states[transitionDescription.to]
-        };
-      });
+        var transition = definitions[transitionDescription.via],
+          to = states[transitionDescription.to];
 
-      _.each(this.transitions, function (transitionDescription) {
-        transitionDescription.transition.prepare(this, transitionDescription.to);
+        transition.prepare(this, to);
+
+        return {
+          transition: transition,
+          to: to
+        };
       }, this);
     },
 
