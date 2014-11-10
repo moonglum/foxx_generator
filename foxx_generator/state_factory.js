@@ -23,9 +23,6 @@
       var options = _.defaults(opts, defaultsForStateOptions),
         state = new State(name, this.graph, options);
 
-      state.addTransitions(this.transitions);
-      state.configure(this.states);
-
       return state;
     }
   });
