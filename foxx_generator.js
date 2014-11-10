@@ -24,7 +24,7 @@
     this.states = {};
     this.transitions = [];
 
-    this.stateFactory = new StateFactory(graph, this.transitions, this.states, mediaType.State, controller);
+    this.stateFactory = new StateFactory(graph, this.transitions, this.states, controller);
     this.transitionFactory = new TransitionFactory(applicationContext, graph, controller, mediaType.strategies);
   };
 

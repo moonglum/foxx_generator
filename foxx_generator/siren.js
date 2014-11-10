@@ -5,7 +5,6 @@
   'use strict';
   var Foxx = require('org/arangodb/foxx'),
     _ = require('underscore'),
-    State = require('./state').State,
     VertexNotFound = require('./graph').VertexNotFound,
     ConditionNotFulfilled = require('./condition_not_fulfilled').ConditionNotFulfilled,
     RelationRepository = require('./relation_repository').RelationRepository,
@@ -18,8 +17,7 @@
     DisconnectTwoEntities,
     ConnectEntityToService,
     ConnectTwoEntities,
-    FollowToEntity,
-    strategies;
+    FollowToEntity;
 
   ConnectEntityToService = Strategy.extend({
     type: 'connect',
@@ -298,20 +296,17 @@
     }
   });
 
-  strategies = [
-    new ModifyAnEntity(),
-    new ConnectTwoEntities(),
-    new DisconnectTwoEntities(),
-    new FollowToEntity(),
-    new AddEntityToRepository(),
-    new ConnectRepoWithEntity(),
-    new ConnectEntityToService(),
-    new ConnectToService(),
-    new ConnectStartWithRepository()
-  ];
-
   exports.mediaType = {
-    State: State,
-    strategies: strategies
+    strategies: [
+      new ModifyAnEntity(),
+      new ConnectTwoEntities(),
+      new DisconnectTwoEntities(),
+      new FollowToEntity(),
+      new AddEntityToRepository(),
+      new ConnectRepoWithEntity(),
+      new ConnectEntityToService(),
+      new ConnectToService(),
+      new ConnectStartWithRepository()
+    ]
   };
 }());
