@@ -32,7 +32,7 @@
           this.addModel(Model, options.attributes);
           break;
         case 'repository':
-          this.addRepository(Repository, states);
+          this.addRepository(Repository, states[options.contains].model);
           break;
         case 'service':
           this.addService(options.action, options.verb);
@@ -90,10 +90,8 @@
       this.type = 'start';
     },
 
-    addRepository: function (Repository, states) {
+    addRepository: function (Repository, ModelForRepo) {
       this.type = 'repository';
-      var elementRelation = this.findTransitionByType('connect'),
-        ModelForRepo = states[elementRelation.to].model;
 
       this.collection = this.graph.addVertexCollection(this.name);
       this.collectionName = this.collection.name();
