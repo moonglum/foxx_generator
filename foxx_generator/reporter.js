@@ -1,12 +1,13 @@
-'use strict';
+(function () {
+  'use strict';
+  var report,
+    developmentMode = false;
 
-var report,
-  developmentMode = false;
+  report = function () {
+    if (developmentMode) {
+      require('console').log.apply(this, arguments);
+    }
+  };
 
-report = function () {
-  if (developmentMode) {
-    require('console').log.apply(this, arguments);
-  }
-};
-
-exports.report = report;
+  exports.report = report;
+}());
