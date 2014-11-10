@@ -33,16 +33,16 @@
 
       switch (this.type) {
         case 'entity':
-          this.addModel(Model, options.attributes);
+          this.addModel(Model);
           break;
         case 'repository':
           this.addRepository(Repository, states[options.contains].model);
           break;
         case 'service':
-          this.addService(options.action, options.verb);
+          this.addService();
           break;
         case 'start':
-          this.setAsStart(options.controller);
+          this.setAsStart();
           break;
         default:
           require('console').log('Unknown state type "' + options.type + '"');
@@ -83,10 +83,10 @@
       return {};
     },
 
-    setAsStart: function (controller) {
+    setAsStart: function () {
       var that = this;
 
-      controller.get('/', function (req, res) {
+      this.options.controller.get('/', function (req, res) {
         res.json({
           properties: {},
           links: that.filteredLinks(req),
@@ -106,17 +106,17 @@
       });
     },
 
-    addModel: function (Model, schema) {
+    addModel: function (Model) {
       this.model = Model.extend({
-        schema: _.extend(schema, { links: { type: 'object' } })
+        schema: _.extend(this.options.attributes, { links: { type: 'object' } })
       }, {
         state: this,
       });
     },
 
-    addService: function (action, verb) {
-      this.action = action;
-      this.verb = verb.toLowerCase();
+    addService: function () {
+      this.action = this.options.action;
+      this.verb = this.options.verb.toLowerCase();
     },
 
     urlFor: function (selector) {
