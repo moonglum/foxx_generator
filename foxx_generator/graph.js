@@ -5,15 +5,9 @@
     _ = require('underscore'),
     report = require('./reporter').report,
     Graph,
-    VertexNotFound,
+    VertexNotFound = require('./vertex_not_found').VertexNotFound,
     tryAndHandleArangoError,
     alreadyExists;
-
-  VertexNotFound = function () {
-    this.name = 'VertexNotFound';
-    this.message = 'The vertex could not be found';
-  };
-  VertexNotFound.prototype = Error.prototype;
 
   tryAndHandleArangoError = function (func, errHandler) {
     try {
@@ -128,5 +122,4 @@
   });
 
   exports.Graph = Graph;
-  exports.VertexNotFound = VertexNotFound;
 }());

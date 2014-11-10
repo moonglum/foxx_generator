@@ -2,7 +2,7 @@
   'use strict';
   var Foxx = require('org/arangodb/foxx'),
     _ = require('underscore'),
-    VertexNotFound = require('./graph').VertexNotFound,
+    VertexNotFound = require('./vertex_not_found').VertexNotFound,
     ConditionNotFulfilled = require('./condition_not_fulfilled').ConditionNotFulfilled,
     RelationRepository = require('./relation_repository').RelationRepository,
     Strategy = require('./strategy').Strategy,
