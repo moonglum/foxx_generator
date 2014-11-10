@@ -89,6 +89,7 @@ Now you can add states and transitions to your API. Every state has a name, a ty
 ```js
 generator.addState('ideas', {
   type: 'repository',
+  contains: 'idea',
 
   transitions: [
     { to: 'idea', via: 'showDetail' }
@@ -96,7 +97,7 @@ generator.addState('ideas', {
 });
 ```
 
-Some states take additional information.
+Some states take additional information: Entities need to know which repository they are contained in (via `containedIn`) and repositories need to know which entities they contain (via `contains`).
 
 ### Entity
 
@@ -110,6 +111,7 @@ Example for an entity:
 generator.addState('idea', {
   type: 'entity',
   parameterized: true,
+  containedIn: 'ideas',
 
   attributes: {
     description: Joi.string().required(),
