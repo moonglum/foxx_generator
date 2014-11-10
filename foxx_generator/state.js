@@ -12,6 +12,7 @@
     this.graph = graph;
     this.options = options;
     this.parameterized = this.options.paramaterized;
+    this.type = this.options.type;
 
     this.links = [];
     this.actions = [];
@@ -30,7 +31,7 @@
     configure: function (states) {
       var options = this.options;
 
-      switch (options.type) {
+      switch (this.type) {
         case 'entity':
           this.addModel(Model, options.attributes);
           break;
@@ -93,12 +94,9 @@
         });
       }).summary('Billboard URL')
         .notes('This is the starting point for using the API');
-      this.type = 'start';
     },
 
     addRepository: function (Repository, ModelForRepo) {
-      this.type = 'repository';
-
       this.collection = this.graph.addVertexCollection(this.name);
       this.collectionName = this.collection.name();
 
@@ -109,7 +107,6 @@
     },
 
     addModel: function (Model, schema) {
-      this.type = 'entity';
       this.model = Model.extend({
         schema: _.extend(schema, { links: { type: 'object' } })
       }, {
@@ -118,7 +115,6 @@
     },
 
     addService: function (action, verb) {
-      this.type = 'service';
       this.action = action;
       this.verb = verb.toLowerCase();
     },
