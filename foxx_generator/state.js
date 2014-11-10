@@ -36,20 +36,18 @@
       this.transitions = _.map(this.options.transitions, function (transitionDescription) {
         return {
           transition: definitions[transitionDescription.via],
-          to: transitionDescription.to
+          to: states[transitionDescription.to]
         };
       });
 
       _.each(this.transitions, function (transitionDescription) {
-        var to = states[transitionDescription.to];
-        transitionDescription.transition.prepare(this, to);
+        transitionDescription.transition.prepare(this, transitionDescription.to);
       }, this);
     },
 
-    applyTransitions: function (states) {
+    applyTransitions: function () {
       _.each(this.transitions, function (transitionDescription) {
-        var to = states[transitionDescription.to];
-        transitionDescription.transition.apply(this, to);
+        transitionDescription.transition.apply(this, transitionDescription.to);
       }, this);
     },
 
