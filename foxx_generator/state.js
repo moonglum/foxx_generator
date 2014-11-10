@@ -37,6 +37,9 @@
         case 'service':
           this.addService(options.action, options.verb);
           break;
+        case 'start':
+          this.setAsStart(options.controller);
+          break;
         default:
           require('console').log('Unknown state type "' + options.type + '"');
           throw 'Unknown State Type';

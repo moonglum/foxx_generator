@@ -15,20 +15,23 @@
   Generator = function (name, options) {
     var applicationContext = options.applicationContext,
       graph = new Graph(name, applicationContext),
-      mediaType = mediaTypes[options.mediaType],
-      controller = new Foxx.Controller(applicationContext, options);
+      strategies = mediaTypes[options.mediaType].strategies;
+
+    this.controller = new Foxx.Controller(applicationContext, options);
 
     this.states = {};
     this.transitions = [];
 
-    this.stateFactory = new StateFactory(graph, this.transitions, this.states, controller);
-    this.transitionFactory = new TransitionFactory(applicationContext, graph, controller, mediaType.strategies);
+    this.stateFactory = new StateFactory(graph, this.transitions, this.states);
+    this.transitionFactory = new TransitionFactory(applicationContext, graph, this.controller, strategies);
   };
 
   _.extend(Generator.prototype, {
-    addStartState: function (options) {
-      var name = '';
-      this.states[name] = this.stateFactory.createStartState(name, options);
+    addStartState: function (opts) {
+      var name = '',
+        options = _.defaults({ type: 'start', controller: this.controller }, opts);
+
+      this.states[name] = this.stateFactory.create(name, options);
     },
 
     addState: function (name, opts) {
