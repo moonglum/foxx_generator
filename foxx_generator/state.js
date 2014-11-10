@@ -32,16 +32,14 @@
   };
 
   _.extend(State.prototype, {
-    addTransitions: function (definitions) {
+    prepareTransitions: function (definitions, states) {
       this.transitions = _.map(this.options.transitions, function (transitionDescription) {
         return {
           transition: definitions[transitionDescription.via],
           to: transitionDescription.to
         };
       });
-    },
 
-    prepareTransitions: function (states) {
       _.each(this.transitions, function (transitionDescription) {
         var to = states[transitionDescription.to];
         transitionDescription.transition.prepare(this, to);

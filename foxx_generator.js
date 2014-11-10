@@ -45,8 +45,7 @@
 
     generate: function () {
       configureStates(this.states);
-      _.each(this.states, function (state) { state.addTransitions(this.transitions); }, this);
-      _.each(this.states, function (state) { state.prepareTransitions(this.states); }, this);
+      _.each(this.states, function (state) { state.prepareTransitions(this.transitions, this.states); }, this);
       _.each(this.states, function (state) { state.applyTransitions(this.states); }, this);
     }
   });
