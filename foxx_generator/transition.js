@@ -67,5 +67,5 @@
 
   Transition.extend = extend;
 
-  exports.BaseTransition = Transition;
+  exports.Transition = Transition;
 }());

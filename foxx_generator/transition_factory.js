@@ -3,7 +3,7 @@
   var  _ = require('underscore'),
     defaultsForTransitionOptions,
     parseOptions,
-    BaseTransition = require('./base_transition').BaseTransition,
+    Transition = require('./transition').Transition,
     BaseContext = require('./context').Context,
     Documentation = require('./documentation').Documentation;
 
@@ -39,7 +39,7 @@
       strategies: strategies
     });
 
-    this.Transition = BaseTransition.extend({
+    this.Transition = Transition.extend({
       Context: Context
     });
   };
