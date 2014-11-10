@@ -160,11 +160,6 @@
     from: 'repository',
     to: 'entity',
 
-    prepare: function (from, to) {
-      to.collectionName = from.collectionName;
-      to.repository = from.repository;
-    },
-
     executeOneToOne: function (controller, graph, relation, repositoryState, entityState) {
       var nameOfRootElement = entityState.name,
         repository = repositoryState.repository,

@@ -23,8 +23,26 @@
 
     _.each(starts, function (start) { start.setAsStart(); });
     _.each(services, function (service) { service.addService(); });
-    _.each(entities, function (entity) { entity.addModel(Model); });
-    _.each(repositories, function (repository) { repository.addRepository(Repository, states); });
+
+    _.each(entities, function (entity) {
+      var repositoryState = states[entity.options.containedIn];
+      entity.repositoryState = repositoryState;
+      entity.addModel(Model);
+    });
+
+    _.each(repositories, function (repository) {
+      var entityState = states[repository.options.contains];
+      repository.entityState = entityState;
+      repository.model = entityState.model;
+      repository.addRepository(Repository);
+    });
+
+    _.each(entities, function (entity) {
+      var repositoryState = entity.repositoryState;
+      entity.collectionName = repositoryState.collectionName;
+      entity.collection = repositoryState.collection;
+      entity.repository = repositoryState.repository;
+    });
   };
 
   Generator = function (name, options) {
@@ -58,8 +76,8 @@
     },
 
     generate: function () {
-      _.each(this.states, function (state) { state.addTransitions(this.transitions); }, this);
       configure(this.states);
+      _.each(this.states, function (state) { state.addTransitions(this.transitions); }, this);
       _.each(this.states, function (state) { state.prepareTransitions(this.states); }, this);
       _.each(this.states, function (state) { state.applyTransitions(this.states); }, this);
     }

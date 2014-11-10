@@ -78,12 +78,12 @@
         .notes('This is the starting point for using the API');
     },
 
-    addRepository: function (Repository, states) {
+    addRepository: function (Repository) {
       this.collection = this.graph.addVertexCollection(this.name);
       this.collectionName = this.collection.name();
 
       this.repository = new Repository(this.collection, {
-        model: states[this.options.contains].model,
+        model: this.model,
         graph: this.graph
       });
     },
