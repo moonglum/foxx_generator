@@ -3,9 +3,32 @@
   var _ = require('underscore'),
     Repository = require('./repository_with_graph').RepositoryWithGraph,
     Model = require('./model').Model,
-    configureStates;
+    configureStates,
+    typeIs,
+    determineSuperstate,
+    prepareStartState,
+    prepareServiceState,
+    determineUrlTemplate,
+    prepareEntityState,
+    prepareRepositoryState,
+    copyInfoFromRepositoryState;
 
-  var determineUrlTemplate = function (state) {
+  typeIs = function (type) {
+    return function (state) { return state.type === type; };
+  };
+
+  determineSuperstate = function (states) {
+    return function (state) {
+      if (state.superstate) {
+        state.superstate = states[state.superstate];
+      }
+    };
+  };
+
+  prepareStartState = function (start) { start.setAsStart(); };
+  prepareServiceState = function (service) { service.addService(); };
+
+  determineUrlTemplate = function (state) {
     // require('console').log('Superstate? %s', state.superstate);
     if (state.parameterized) {
       state.urlTemplate = '/' + state.name + '/:id';
@@ -14,42 +37,43 @@
     }
   };
 
-  configureStates = function (states) {
-    var entities = _.filter(states, function (state) { return state.type === 'entity'; }),
-      repositories = _.filter(states, function (state) { return state.type === 'repository'; }),
-      services = _.filter(states, function (state) { return state.type === 'service'; }),
-      starts = _.filter(states, function (state) { return state.type === 'start'; });
-
-    _.each(states, function (state) {
-      if (state.superstate) {
-        state.superstate = states[state.superstate];
-      }
-    });
-
-    _.each(states, determineUrlTemplate);
-
-    _.each(starts, function (start) { start.setAsStart(); });
-    _.each(services, function (service) { service.addService(); });
-
-    _.each(entities, function (entity) {
+  prepareEntityState = function (states) {
+    return function (entity) {
       var repositoryState = states[entity.options.containedIn];
       entity.repositoryState = repositoryState;
       entity.addModel(Model);
-    });
+    };
+  };
 
-    _.each(repositories, function (repository) {
+  prepareRepositoryState = function (states) {
+    return function (repository) {
       var entityState = states[repository.options.contains];
       repository.entityState = entityState;
       repository.model = entityState.model;
       repository.addRepository(Repository);
-    });
+    };
+  };
 
-    _.each(entities, function (entity) {
-      var repositoryState = entity.repositoryState;
-      entity.collectionName = repositoryState.collectionName;
-      entity.collection = repositoryState.collection;
-      entity.repository = repositoryState.repository;
-    });
+  copyInfoFromRepositoryState = function (entity) {
+    var repositoryState = entity.repositoryState;
+    entity.collectionName = repositoryState.collectionName;
+    entity.collection = repositoryState.collection;
+    entity.repository = repositoryState.repository;
+  };
+
+  configureStates = function (states) {
+    var entities = _.filter(states, typeIs('entity')),
+      repositories = _.filter(states, typeIs('repository')),
+      services = _.filter(states, typeIs('service')),
+      starts = _.filter(states, typeIs('start'));
+
+    _.each(states, determineSuperstate(states));
+    _.each(states, determineUrlTemplate);
+    _.each(starts, prepareStartState);
+    _.each(services, prepareServiceState);
+    _.each(entities, prepareEntityState(states));
+    _.each(repositories, prepareRepositoryState(states));
+    _.each(entities, copyInfoFromRepositoryState);
   };
 
   exports.configureStates = configureStates;
