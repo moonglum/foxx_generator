@@ -29,11 +29,22 @@
   prepareServiceState = function (service) { service.addService(); };
 
   determineUrlTemplate = function (state) {
-    // require('console').log('Superstate? %s', state.superstate);
-    if (state.parameterized) {
-      state.urlTemplate = '/' + state.name + '/:id';
-    } else {
-      state.urlTemplate = '/' + state.name;
+    var prefix = '/';
+
+    if (!state.urlTemplate) {
+      // Skip if already determined
+
+      if (state.superstate) {
+        // First determine the entire chain
+        determineUrlTemplate(state.superstate);
+        prefix = state.superstate.urlTemplate + '/';
+      }
+
+      if (state.parameterized) {
+        state.urlTemplate = prefix + state.name + '/:id';
+      } else {
+        state.urlTemplate = prefix + state.name;
+      }
     }
   };
 
@@ -69,6 +80,11 @@
 
     _.each(states, determineSuperstate(states));
     _.each(states, determineUrlTemplate);
+
+    _.each(states, function (state) {
+      require('console').log('State %s: %s', state.name, state.urlTemplate);
+    });
+
     _.each(starts, prepareStartState);
     _.each(services, prepareServiceState);
     _.each(entities, prepareEntityState(states));
