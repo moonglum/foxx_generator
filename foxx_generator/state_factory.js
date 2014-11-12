@@ -7,6 +7,7 @@
 
   defaultsForStateOptions = {
     parameterized: false,
+    superstate: false,
     verb: 'post',
     maxFailures: 1,
     queue: 'defaultQueue'

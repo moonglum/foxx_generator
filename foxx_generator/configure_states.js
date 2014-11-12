@@ -5,11 +5,28 @@
     Model = require('./model').Model,
     configureStates;
 
+  var determineUrlTemplate = function (state) {
+    // require('console').log('Superstate? %s', state.superstate);
+    if (state.parameterized) {
+      state.urlTemplate = '/' + state.name + '/:id';
+    } else {
+      state.urlTemplate = '/' + state.name;
+    }
+  };
+
   configureStates = function (states) {
     var entities = _.filter(states, function (state) { return state.type === 'entity'; }),
       repositories = _.filter(states, function (state) { return state.type === 'repository'; }),
       services = _.filter(states, function (state) { return state.type === 'service'; }),
       starts = _.filter(states, function (state) { return state.type === 'start'; });
+
+    _.each(states, function (state) {
+      if (state.superstate) {
+        state.superstate = states[state.superstate];
+      }
+    });
+
+    _.each(states, determineUrlTemplate);
 
     _.each(starts, function (start) { start.setAsStart(); });
     _.each(services, function (service) { service.addService(); });

@@ -11,6 +11,7 @@
     this.graph = graph;
     this.options = options;
     this.parameterized = this.options.parameterized;
+    this.superstate = this.options.superstate;
     this.type = this.options.type;
 
     if (!_.contains(stateTypes, this.type)) {
@@ -21,13 +22,6 @@
     this.links = [];
     this.actions = [];
     this.childLinks = [];
-
-    if (this.parameterized) {
-      this.urlTemplate = '/' + this.name + '/:id';
-    } else {
-      this.urlTemplate = '/' + this.name;
-    }
-
     this.relations = [];
   };
 
