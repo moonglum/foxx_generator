@@ -17,7 +17,7 @@
     FollowToEntity;
 
   ConnectEntityToService = Strategy.extend({
-    type: 'connect',
+    type: 'follow',
     from: 'entity',
     to: 'service',
     relation: 'one-to-one',
