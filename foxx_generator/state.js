@@ -10,7 +10,7 @@
     this.name = name;
     this.graph = graph;
     this.options = options;
-    this.parameterized = this.options.paramaterized;
+    this.parameterized = this.options.parameterized;
     this.type = this.options.type;
 
     if (!_.contains(stateTypes, this.type)) {
