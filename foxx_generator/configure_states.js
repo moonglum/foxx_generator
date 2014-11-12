@@ -9,7 +9,14 @@
     determineSuperstate,
     prepareStartState,
     prepareServiceState,
+    determinePrefix,
+    prependPrefix,
+    appendIdPlaceholder,
+    isParameterized,
+    hasUrlTemplate,
+    appendIdPlaceholderForParameterizedState,
     determineUrlTemplate,
+    determineUrlTemplateIfNotDetermined,
     prepareEntityState,
     prepareRepositoryState,
     copyInfoFromRepositoryState;
@@ -27,25 +34,33 @@
   prepareStartState = R.curry(R.func('setAsStart'));
   prepareServiceState = R.curry(R.func('addService'));
 
-  determineUrlTemplate = function (state) {
+  determinePrefix = function (state) {
     var prefix = '/';
 
-    if (!state.urlTemplate) {
-      // Skip if already determined
-
-      if (state.superstate) {
-        // First determine the entire chain
-        determineUrlTemplate(state.superstate);
-        prefix = state.superstate.urlTemplate + '/';
-      }
-
-      if (state.parameterized) {
-        state.urlTemplate = prefix + state.name + '/:id';
-      } else {
-        state.urlTemplate = prefix + state.name;
-      }
+    if (state.superstate) {
+      // First determine the entire chain
+      determineUrlTemplateIfNotDetermined(state.superstate);
+      prefix = state.superstate.urlTemplate + '/';
     }
+
+    return prefix;
   };
+
+  prependPrefix = function (state) {
+    state.urlTemplate = R.concat(determinePrefix(state), state.name);
+    return state;
+  };
+
+  appendIdPlaceholder = function(state) {
+    state.urlTemplate = R.concat(state.urlTemplate, '/:id');
+    return state;
+  };
+
+  isParameterized = R.prop('parameterized');
+  hasUrlTemplate = R.prop('urlTemplate');
+  appendIdPlaceholderForParameterizedState = R.cond(isParameterized, appendIdPlaceholder, R.identity);
+  determineUrlTemplate = R.pipe(prependPrefix, appendIdPlaceholderForParameterizedState);
+  determineUrlTemplateIfNotDetermined = R.cond(hasUrlTemplate, R.identity, determineUrlTemplate);
 
   prepareEntityState = R.curry(function (states, entity) {
     var repositoryState = states[entity.options.containedIn];
@@ -74,8 +89,9 @@
       starts = _.filter(states, typeIs('start'));
 
     _.each(states, determineSuperstate(states));
-    _.each(states, determineUrlTemplate);
+    _.each(states, determineUrlTemplateIfNotDetermined);
 
+    // TODO: Remove DEBUG info
     _.each(states, function (state) {
       require('console').log('State %s: %s', state.name, state.urlTemplate);
     });
