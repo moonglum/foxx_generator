@@ -1,6 +1,7 @@
 (function () {
   'use strict';
   var _ = require('underscore'),
+    R = require('ramda'),
     Repository = require('./repository_with_graph').RepositoryWithGraph,
     Model = require('./model').Model,
     configureStates,
@@ -13,20 +14,18 @@
     prepareRepositoryState,
     copyInfoFromRepositoryState;
 
-  typeIs = function (type) {
-    return function (state) { return state.type === type; };
-  };
+  typeIs = R.curry(function (type, state) {
+    return state.type === type;
+  });
 
-  determineSuperstate = function (states) {
-    return function (state) {
-      if (state.superstate) {
-        state.superstate = states[state.superstate];
-      }
-    };
-  };
+  determineSuperstate = R.curry(function (states, state) {
+    if (state.superstate) {
+      state.superstate = states[state.superstate];
+    }
+  });
 
-  prepareStartState = function (start) { start.setAsStart(); };
-  prepareServiceState = function (service) { service.addService(); };
+  prepareStartState = R.curry(R.func('setAsStart'));
+  prepareServiceState = R.curry(R.func('addService'));
 
   determineUrlTemplate = function (state) {
     var prefix = '/';
@@ -48,22 +47,18 @@
     }
   };
 
-  prepareEntityState = function (states) {
-    return function (entity) {
-      var repositoryState = states[entity.options.containedIn];
-      entity.repositoryState = repositoryState;
-      entity.addModel(Model);
-    };
-  };
+  prepareEntityState = R.curry(function (states, entity) {
+    var repositoryState = states[entity.options.containedIn];
+    entity.repositoryState = repositoryState;
+    entity.addModel(Model);
+  });
 
-  prepareRepositoryState = function (states) {
-    return function (repository) {
-      var entityState = states[repository.options.contains];
-      repository.entityState = entityState;
-      repository.model = entityState.model;
-      repository.addRepository(Repository);
-    };
-  };
+  prepareRepositoryState = R.curry(function (states, repository) {
+    var entityState = states[repository.options.contains];
+    repository.entityState = entityState;
+    repository.model = entityState.model;
+    repository.addRepository(Repository);
+  });
 
   copyInfoFromRepositoryState = function (entity) {
     var repositoryState = entity.repositoryState;
