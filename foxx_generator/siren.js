@@ -23,21 +23,21 @@
     relation: 'one-to-one',
 
     executeOneToOne: function (controller, graph, relation, entityState, serviceState) {
-      var url = entityState.urlFor(':entityId') + '/' + relation.name,
+      var url = entityState.urlTemplate + '/' + relation.name,
         nameOfRootElement = entityState.name,
         BodyParam = Foxx.Model.extend({ schema: relation.parameters }),
         verb = serviceState.verb,
         repository = entityState.repository;
 
       controller[verb](url, function (req, res) {
-        var id = req.params('entityId'),
+        var id = req.params('id'),
           entity = repository.byId(id);
 
         req.parameters.entity = entity;
         serviceState.action(req, res);
       }).errorResponse(ConditionNotFulfilled, 403, 'The condition could not be fulfilled')
         .onlyIf(relation.condition)
-        .pathParam('entityId', {
+        .pathParam('id', {
           description: 'ID of the entity',
           type: 'string'
         })
@@ -54,13 +54,13 @@
     relation: 'one-to-one',
 
     executeOneToOne: function (controller, graph, relation, entityState) {
-      var url = entityState.urlFor(':entityId'),
+      var url = entityState.urlTemplate,
         nameOfRootElement = entityState.name,
         BodyParam = Foxx.Model.extend({ schema: relation.parameters }),
         repository = entityState.repository;
 
       controller.patch(url, function (req, res) {
-        var id = req.params('entityId'),
+        var id = req.params('id'),
           patch = req.params(nameOfRootElement),
           result;
 
@@ -70,7 +70,7 @@
         res.json(result.forClient());
       }).errorResponse(ConditionNotFulfilled, 403, 'The condition could not be fulfilled')
         .onlyIf(relation.condition)
-        .pathParam('entityId', {
+        .pathParam('id', {
           description: 'ID of the entity',
           type: 'string'
         })
@@ -87,13 +87,13 @@
     relation: 'one-to-one',
 
     executeOneToOne: function (controller, graph, relation, from, to) {
-      var url = from.urlFor(':entityId') + '/links/' + relation.name,
+      var url = from.urlTemplate + '/links/' + relation.name,
         relationRepository = new RelationRepository(from, to, relation, graph);
 
       controller.post(url, function (req, res) {
-        relationRepository.replaceRelation(req.params('entityId'), req.body()[relation.name]);
+        relationRepository.replaceRelation(req.params('id'), req.body()[relation.name]);
         res.status(204);
-      }).pathParam('entityId', {
+      }).pathParam('id', {
         description: 'ID of the document',
         type: 'string'
       }).errorResponse(VertexNotFound, 404, 'The vertex could not be found')
@@ -104,13 +104,13 @@
     },
 
     executeOneToMany: function (controller, graph, relation, from, to) {
-      var url = from.urlFor(':entityId') + '/links/' + relation.name,
+      var url = from.urlTemplate + '/links/' + relation.name,
         relationRepository = new RelationRepository(from, to, relation, graph);
 
       controller.post(url, function (req, res) {
-        relationRepository.addRelations(req.params('entityId'), req.body()[relation.name]);
+        relationRepository.addRelations(req.params('id'), req.body()[relation.name]);
         res.status(204);
-      }).pathParam('entityId', {
+      }).pathParam('id', {
         description: 'ID of the document',
         type: 'string'
       }).errorResponse(VertexNotFound, 404, 'The vertex could not be found')
@@ -128,13 +128,13 @@
     relation: 'one-to-one',
 
     executeOneToOne: function (controller, graph, relation, from, to) {
-      var url = from.urlFor(':entityId') + '/links/' + relation.name,
+      var url = from.urlTemplate + '/links/' + relation.name,
         relationRepository = new RelationRepository(from, to, relation, graph);
 
       controller.delete(url, function (req, res) {
-        relationRepository.deleteRelation(req.params('entityId'));
+        relationRepository.deleteRelation(req.params('id'));
         res.status(204);
-      }).pathParam('entityId', {
+      }).pathParam('id', {
         description: 'ID of the document',
         type: 'string'
       }).errorResponse(VertexNotFound, 404, 'The vertex could not be found')
@@ -164,7 +164,7 @@
       var nameOfRootElement = entityState.name,
         repository = repositoryState.repository,
         BodyParam = Foxx.Model.extend({ schema: relation.parameters }),
-        href = repositoryState.urlTemplate,
+        url = repositoryState.urlTemplate,
         name = relation.name,
         precondition = relation.precondition,
         method = 'POST',
@@ -185,9 +185,9 @@
         return fieldDescription;
       });
 
-      repositoryState.addAction(name, method, href, title, fields, precondition);
+      repositoryState.addAction(name, method, url, title, fields, precondition);
 
-      controller.post(href, function (req, res) {
+      controller.post(url, function (req, res) {
         var data = {},
           model = req.params(nameOfRootElement);
 
@@ -214,11 +214,11 @@
 
     executeOneToOne: function (controller, graph, relation, repositoryState, entityState) {
       var rel = relation.name,
-        href = entityState.urlTemplate,
+        url = entityState.urlTemplate,
         title = relation.summary,
         repository = repositoryState.repository;
 
-      controller.get(href, function (req, res) {
+      controller.get(url, function (req, res) {
         var id = req.params('id'),
           entry = repository.byIdWithNeighbors(id);
 
@@ -231,7 +231,7 @@
         .summary(relation.summary)
         .notes(relation.notes);
 
-      repositoryState.addLinkToEntities(rel, href, title, entityState);
+      repositoryState.addLinkToEntities(rel, url, title, entityState);
     }
   });
 
@@ -242,13 +242,13 @@
 
     executeOneToOne: function (controller, graph, relation, from, to) {
       var rel = relation.name,
-        href = to.urlTemplate,
+        url = to.urlTemplate,
         precondition = relation.precondition,
         title = relation.summary;
 
-      from.addLink([rel], href, title, precondition);
+      from.addLink([rel], url, title, precondition);
 
-      controller.get(href, function (req, res) {
+      controller.get(url, function (req, res) {
         res.json({
           properties: to.properties(),
           entities: to.entities(),
@@ -269,7 +269,7 @@
 
     executeOneToOne: function (controller, graph, relation, from, to) {
       var rel = relation.name,
-        href = to.urlTemplate,
+        url = to.urlTemplate,
         title = relation.summary,
         verb = to.verb,
         action = to.action,
@@ -277,9 +277,9 @@
         precondition = relation.precondition,
         BodyParam = Foxx.Model.extend({ schema: relation.parameters });
 
-      from.addLink([rel], href, title, precondition);
+      from.addLink([rel], url, title, precondition);
 
-      controller[verb](href, action)
+      controller[verb](url, action)
         .bodyParam(nameOfRootElement, 'TODO', BodyParam)
         .errorResponse(ConditionNotFulfilled, 403, 'The condition could not be fulfilled')
         .onlyIf(relation.condition)
