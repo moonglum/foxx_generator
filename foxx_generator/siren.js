@@ -1,13 +1,8 @@
 (function () {
   'use strict';
-  var Foxx = require('org/arangodb/foxx'),
-    _ = require('underscore'),
-    VertexNotFound = require('./vertex_not_found').VertexNotFound,
-    ConditionNotFulfilled = require('./condition_not_fulfilled').ConditionNotFulfilled,
-    RelationRepository = require('./relation_repository').RelationRepository,
+  var RelationRepository = require('./relation_repository').RelationRepository,
     Strategy = require('./strategy').Strategy,
-    joi = require('joi'),
-    constructBodyParams,
+    constructRoute = require('./construct_route').constructRoute,
     ModifyAnEntity,
     AddEntityToRepository,
     ConnectRepoWithEntity,
@@ -18,10 +13,6 @@
     ConnectTwoEntities,
     FollowToEntity;
 
-  constructBodyParams = function (relation) {
-    return Foxx.Model.extend({ schema: relation.parameters });
-  };
-
   ConnectEntityToService = Strategy.extend({
     type: 'follow',
     from: 'entity',
@@ -29,17 +20,18 @@
     relation: 'one-to-one',
 
     executeOneToOne: function (controller, graph, relation, entityState, serviceState) {
-      controller[serviceState.verb](serviceState.urlTemplate, function (req, res) {
+      var action = function (req, res) {
         var id = req.params('id'),
           entity = entityState.repository.byId(id),
           opts = { superstate: { entity: entity } };
 
         serviceState.action(req, res, opts);
-      }).errorResponse(ConditionNotFulfilled, 403, 'The condition could not be fulfilled')
-        .onlyIf(relation.condition)
-        .pathParam('id', joi.string().description('ID of the entity'))
-        .summary(relation.summary)
-        .notes(relation.notes);
+      };
+
+      constructRoute(controller, serviceState.verb, serviceState.urlTemplate, action, relation, {
+        body: false,
+        path: true
+      });
     }
   });
 
@@ -50,7 +42,7 @@
     relation: 'one-to-one',
 
     executeOneToOne: function (controller, graph, relation, entityState) {
-      controller.patch(entityState.urlTemplate, function (req, res) {
+      var action = function (req, res) {
         var id = req.params('id'),
           patch = req.params(entityState.name),
           result;
@@ -59,12 +51,12 @@
         result = entityState.repository.byIdWithNeighbors(id);
 
         res.json(result.forClient());
-      }).errorResponse(ConditionNotFulfilled, 403, 'The condition could not be fulfilled')
-        .onlyIf(relation.condition)
-        .pathParam('id', joi.string().description('ID of the entity'))
-        .bodyParam(entityState.name, 'TODO', constructBodyParams(relation))
-        .summary(relation.summary)
-        .notes(relation.notes);
+      };
+
+      constructRoute(controller, 'patch', entityState.urlTemplate, action, relation, {
+        body: entityState,
+        path: true
+      });
     }
   });
 
@@ -75,31 +67,29 @@
     relation: 'one-to-one',
 
     executeOneToOne: function (controller, graph, relation, from, to) {
-      var relationRepository = new RelationRepository(from, to, relation, graph);
+      var relationRepository = new RelationRepository(from, to, relation, graph),
+        action = function (req, res) {
+          relationRepository.replaceRelation(req.params('id'), req.body()[relation.name]);
+          res.status(204);
+        };
 
-      controller.post(from.urlForRelation(relation), function (req, res) {
-        relationRepository.replaceRelation(req.params('id'), req.body()[relation.name]);
-        res.status(204);
-      }).pathParam('id', joi.string().description('ID of the document'))
-        .errorResponse(VertexNotFound, 404, 'The vertex could not be found')
-        .errorResponse(ConditionNotFulfilled, 403, 'The condition could not be fulfilled')
-        .onlyIf(relation.condition)
-        .summary(relation.summary)
-        .notes(relation.notes);
+      constructRoute(controller, 'post', from.urlForRelation(relation), action, relation, {
+        path: true,
+        body: false
+      });
     },
 
     executeOneToMany: function (controller, graph, relation, from, to) {
-      var relationRepository = new RelationRepository(from, to, relation, graph);
+      var relationRepository = new RelationRepository(from, to, relation, graph),
+        action = function (req, res) {
+          relationRepository.addRelations(req.params('id'), req.body()[relation.name]);
+          res.status(204);
+        };
 
-      controller.post(from.urlForRelation(relation), function (req, res) {
-        relationRepository.addRelations(req.params('id'), req.body()[relation.name]);
-        res.status(204);
-      }).pathParam('id', joi.string().description('ID of the document'))
-        .errorResponse(VertexNotFound, 404, 'The vertex could not be found')
-        .errorResponse(ConditionNotFulfilled, 403, 'The condition could not be fulfilled')
-        .onlyIf(relation.condition)
-        .summary(relation.summary)
-        .notes(relation.notes);
+      constructRoute(controller, 'post', from.urlForRelation(relation), action, relation, {
+        path: true,
+        body: false
+      });
     }
   });
 
@@ -110,17 +100,16 @@
     relation: 'one-to-one',
 
     executeOneToOne: function (controller, graph, relation, from, to) {
-      var relationRepository = new RelationRepository(from, to, relation, graph);
+      var relationRepository = new RelationRepository(from, to, relation, graph),
+        action = function (req, res) {
+          relationRepository.deleteRelation(req.params('id'));
+          res.status(204);
+        };
 
-      controller.delete(from.urlForRelation(relation), function (req, res) {
-        relationRepository.deleteRelation(req.params('id'));
-        res.status(204);
-      }).pathParam('id', joi.string().description('ID of the document'))
-        .errorResponse(VertexNotFound, 404, 'The vertex could not be found')
-        .errorResponse(ConditionNotFulfilled, 403, 'The condition could not be fulfilled')
-        .onlyIf(relation.condition)
-        .summary(relation.summary)
-        .notes(relation.notes);
+      constructRoute(controller, 'delete', from.urlForRelation(relation), action, relation, {
+        path: true,
+        body: false
+      });
     }
   });
 
@@ -140,20 +129,21 @@
     to: 'entity',
 
     executeOneToOne: function (controller, graph, relation, repositoryState, entityState) {
-      repositoryState.addActionWithMethodForRelation('POST', relation);
-
-      controller.post(repositoryState.urlTemplate, function (req, res) {
+      var action = function (req, res) {
         var data = {},
           model = req.params(entityState.name);
 
         data[entityState.name] = repositoryState.repository.save(model).forClient();
         res.status(201);
         res.json(data);
-      }).bodyParam(entityState.name, 'TODO', constructBodyParams(relation))
-        .errorResponse(ConditionNotFulfilled, 403, 'The condition could not be fulfilled')
-        .onlyIf(relation.condition)
-        .summary(relation.summary)
-        .notes(relation.notes);
+      };
+
+      repositoryState.addActionWithMethodForRelation('POST', relation);
+
+      constructRoute(controller, 'post', repositoryState.urlTemplate, action, relation, {
+        path: false,
+        body: entityState
+      });
     }
   });
 
@@ -168,16 +158,17 @@
     },
 
     executeOneToOne: function (controller, graph, relation, repositoryState, entityState) {
-      controller.get(entityState.urlTemplate, function (req, res) {
+      var action = function (req, res) {
         var id = req.params('id'),
           entry = repositoryState.repository.byIdWithNeighbors(id);
 
         res.json(entry.forClient());
-      }).pathParam('id', joi.string().description('ID of the document'))
-        .errorResponse(ConditionNotFulfilled, 403, 'The condition could not be fulfilled')
-        .onlyIf(relation.condition)
-        .summary(relation.summary)
-        .notes(relation.notes);
+      };
+
+      constructRoute(controller, 'get', entityState.urlTemplate, action, relation, {
+        path: true,
+        body: false
+      });
 
       repositoryState.addLinkToEntities(relation, entityState);
     }
@@ -189,19 +180,21 @@
     to: 'repository',
 
     executeOneToOne: function (controller, graph, relation, from, to) {
-      from.addLinkViaTransitionTo(relation, to);
-
-      controller.get(to.urlTemplate, function (req, res) {
+      var action = function (req, res) {
         res.json({
           properties: to.properties(),
           entities: to.entities(),
           links: to.filteredLinks(req),
           actions: to.filteredActions(req)
         });
-      }).summary(relation.summary)
-        .notes(relation.notes)
-        .errorResponse(ConditionNotFulfilled, 403, 'The condition could not be fulfilled')
-        .onlyIf(relation.condition);
+      };
+
+      from.addLinkViaTransitionTo(relation, to);
+
+      constructRoute(controller, 'get', to.urlTemplate, action, relation, {
+        path: false,
+        body: false
+      });
     }
   });
 
@@ -213,12 +206,10 @@
     executeOneToOne: function (controller, graph, relation, from, to) {
       from.addLinkViaTransitionTo(relation, to);
 
-      controller[to.verb](to.urlTemplate, to.action)
-        .bodyParam(to.name, 'TODO', constructBodyParams(relation))
-        .errorResponse(ConditionNotFulfilled, 403, 'The condition could not be fulfilled')
-        .onlyIf(relation.condition)
-        .summary(relation.summary)
-        .notes(relation.notes);
+      constructRoute(controller, to.verb, to.urlTemplate, to.action, relation, {
+        path: false,
+        body: to
+      });
     }
   });
 
