@@ -25,8 +25,6 @@
 
     executeOneToOne: function (controller, graph, relation, entityState, serviceState) {
       var url = serviceState.urlTemplate,
-        nameOfRootElement = entityState.name,
-        BodyParam = Foxx.Model.extend({ schema: relation.parameters }),
         verb = serviceState.verb,
         repository = entityState.repository;
 
@@ -34,12 +32,15 @@
         var id = req.params('id'),
           entity = repository.byId(id);
 
-        req.parameters.entity = entity;
-        serviceState.action(req, res);
+        var opts = {
+          superstate: {
+            entity: entity
+          }
+        };
+        serviceState.action(req, res, opts);
       }).errorResponse(ConditionNotFulfilled, 403, 'The condition could not be fulfilled')
         .onlyIf(relation.condition)
         .pathParam('id', joi.string().description('ID of the entity'))
-        .bodyParam(nameOfRootElement, 'TODO', BodyParam)
         .summary(relation.summary)
         .notes(relation.notes);
     }
