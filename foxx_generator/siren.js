@@ -203,7 +203,7 @@
         .summary(relation.summary)
         .notes(relation.notes);
 
-      repositoryState.addLinkToEntities(relation.name, entityState.urlTemplate, relation.summary, entityState);
+      repositoryState.addLinkToEntities(relation, entityState);
     }
   });
 
@@ -213,7 +213,7 @@
     to: 'repository',
 
     executeOneToOne: function (controller, graph, relation, from, to) {
-      from.addLink([relation.name], to.urlTemplate, relation.summary, relation.precondition);
+      from.addLinkViaTransitionTo(relation, to);
 
       controller.get(to.urlTemplate, function (req, res) {
         res.json({
@@ -237,7 +237,7 @@
     executeOneToOne: function (controller, graph, relation, from, to) {
       var BodyParam = Foxx.Model.extend({ schema: relation.parameters });
 
-      from.addLink([relation.name], to.urlTemplate, relation.summary, relation.precondition);
+      from.addLinkViaTransitionTo(relation, to);
 
       controller[to.verb](to.urlTemplate, to.action)
         .bodyParam(to.name, 'TODO', BodyParam)

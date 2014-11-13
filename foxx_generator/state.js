@@ -140,7 +140,16 @@
       });
     },
 
-    addLinkToEntities: function (rel, href, title, target) {
+    addLinkViaTransitionTo: function (relation, to) {
+      this.addLink([relation.name], to.urlTemplate, relation.summary, relation.precondition);
+    },
+
+    addLinkToEntities: function (relation, to) {
+      var rel = relation.name,
+        href = to.urlTemplate,
+        title = relation.summary,
+        target = to;
+
       this.childLinks.push({
         rel: rel,
         href: href,
