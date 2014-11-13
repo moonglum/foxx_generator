@@ -87,7 +87,7 @@
     relation: 'one-to-one',
 
     executeOneToOne: function (controller, graph, relation, from, to) {
-      var url = from.urlTemplate + '/links/' + relation.name,
+      var url = from.urlForRelation(relation),
         relationRepository = new RelationRepository(from, to, relation, graph);
 
       controller.post(url, function (req, res) {
@@ -104,7 +104,7 @@
     },
 
     executeOneToMany: function (controller, graph, relation, from, to) {
-      var url = from.urlTemplate + '/links/' + relation.name,
+      var url = from.urlForRelation(relation),
         relationRepository = new RelationRepository(from, to, relation, graph);
 
       controller.post(url, function (req, res) {
@@ -128,7 +128,7 @@
     relation: 'one-to-one',
 
     executeOneToOne: function (controller, graph, relation, from, to) {
-      var url = from.urlTemplate + '/links/' + relation.name,
+      var url = from.urlForRelation(relation),
         relationRepository = new RelationRepository(from, to, relation, graph);
 
       controller.delete(url, function (req, res) {

@@ -86,16 +86,16 @@
       this.verb = this.options.verb.toLowerCase();
     },
 
-    urlFor: function (selector) {
-      var url;
-
-      if (this.parameterized) {
-        url = this.urlTemplate.replace(':id', selector);
-      } else {
-        url = this.urlTemplate;
+    urlForEntity: function (selector) {
+      if (!this.parameterized) {
+        throw 'This is not a paremeterized state';
       }
 
-      return url;
+      return this.urlTemplate.replace(':id', selector);
+    },
+
+    urlForRelation: function (relation) {
+      return this.urlTemplate + '/links/' + relation.name;
     },
 
     entities: function () {
@@ -108,7 +108,7 @@
           _.each(this.childLinks, function (link) {
             result.links.push({
               rel: link.rel,
-              href: link.target.urlFor(entity.get('_key')),
+              href: link.target.urlForEntity(entity.get('_key')),
               title: link.title
             });
           });
