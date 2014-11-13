@@ -4,7 +4,24 @@
   var stateTypes = ['entity', 'repository', 'service', 'start'],
     extend = require('org/arangodb/extend').extend,
     _ = require('underscore'),
+    constructFields,
     State;
+
+  constructFields = function (relation) {
+    return _.map(relation.parameters, function (joi, name) {
+      var fieldDescription = { name: name, type: joi._type };
+
+      if (!_.isNull(joi._description)) {
+        fieldDescription.description = joi._description;
+      }
+
+      if (!_.isUndefined(joi._flags.default)) {
+        fieldDescription.value = joi._flags.default;
+      }
+
+      return fieldDescription;
+    });
+  };
 
   State = function (name, graph, options) {
     this.name = name;
@@ -169,6 +186,16 @@
         type: 'application/json',
         fields: fields
       });
+    },
+
+    addActionWithMethodForRelation: function (method, relation) {
+      var name = relation.name,
+        urlTemplate = this.urlTemplate,
+        summary = relation.summary,
+        fields = constructFields(relation),
+        precondition = relation.precondition;
+
+      this.addAction(name, method, urlTemplate, summary, fields, precondition);
     }
   });
 

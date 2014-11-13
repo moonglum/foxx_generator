@@ -140,35 +140,13 @@
     to: 'entity',
 
     executeOneToOne: function (controller, graph, relation, repositoryState, entityState) {
-      var repository = repositoryState.repository,
-        url = repositoryState.urlTemplate,
-        name = relation.name,
-        precondition = relation.precondition,
-        method = 'POST',
-        fields,
-        title = relation.summary;
+      repositoryState.addActionWithMethodForRelation('POST', relation);
 
-      fields = _.map(relation.parameters, function (joi, name) {
-        var fieldDescription = { name: name, type: joi._type };
-
-        if (!_.isNull(joi._description)) {
-          fieldDescription.description = joi._description;
-        }
-
-        if (!_.isUndefined(joi._flags.default)) {
-          fieldDescription.value = joi._flags.default;
-        }
-
-        return fieldDescription;
-      });
-
-      repositoryState.addAction(name, method, url, title, fields, precondition);
-
-      controller.post(url, function (req, res) {
+      controller.post(repositoryState.urlTemplate, function (req, res) {
         var data = {},
           model = req.params(entityState.name);
 
-        data[entityState.name] = repository.save(model).forClient();
+        data[entityState.name] = repositoryState.repository.save(model).forClient();
         res.status(201);
         res.json(data);
       }).bodyParam(entityState.name, 'TODO', constructBodyParams(relation))
