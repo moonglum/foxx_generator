@@ -7,6 +7,7 @@
     RelationRepository = require('./relation_repository').RelationRepository,
     Strategy = require('./strategy').Strategy,
     joi = require('joi'),
+    constructBodyParams,
     ModifyAnEntity,
     AddEntityToRepository,
     ConnectRepoWithEntity,
@@ -17,6 +18,10 @@
     ConnectTwoEntities,
     FollowToEntity;
 
+  constructBodyParams = function (relation) {
+    return Foxx.Model.extend({ schema: relation.parameters });
+  };
+
   ConnectEntityToService = Strategy.extend({
     type: 'follow',
     from: 'entity',
@@ -26,13 +31,9 @@
     executeOneToOne: function (controller, graph, relation, entityState, serviceState) {
       controller[serviceState.verb](serviceState.urlTemplate, function (req, res) {
         var id = req.params('id'),
-          entity = entityState.repository.byId(id);
+          entity = entityState.repository.byId(id),
+          opts = { superstate: { entity: entity } };
 
-        var opts = {
-          superstate: {
-            entity: entity
-          }
-        };
         serviceState.action(req, res, opts);
       }).errorResponse(ConditionNotFulfilled, 403, 'The condition could not be fulfilled')
         .onlyIf(relation.condition)
@@ -49,8 +50,6 @@
     relation: 'one-to-one',
 
     executeOneToOne: function (controller, graph, relation, entityState) {
-      var BodyParam = Foxx.Model.extend({ schema: relation.parameters });
-
       controller.patch(entityState.urlTemplate, function (req, res) {
         var id = req.params('id'),
           patch = req.params(entityState.name),
@@ -63,7 +62,7 @@
       }).errorResponse(ConditionNotFulfilled, 403, 'The condition could not be fulfilled')
         .onlyIf(relation.condition)
         .pathParam('id', joi.string().description('ID of the entity'))
-        .bodyParam(entityState.name, 'TODO', BodyParam)
+        .bodyParam(entityState.name, 'TODO', constructBodyParams(relation))
         .summary(relation.summary)
         .notes(relation.notes);
     }
@@ -142,7 +141,6 @@
 
     executeOneToOne: function (controller, graph, relation, repositoryState, entityState) {
       var repository = repositoryState.repository,
-        BodyParam = Foxx.Model.extend({ schema: relation.parameters }),
         url = repositoryState.urlTemplate,
         name = relation.name,
         precondition = relation.precondition,
@@ -173,7 +171,7 @@
         data[entityState.name] = repository.save(model).forClient();
         res.status(201);
         res.json(data);
-      }).bodyParam(entityState.name, 'TODO', BodyParam)
+      }).bodyParam(entityState.name, 'TODO', constructBodyParams(relation))
         .errorResponse(ConditionNotFulfilled, 403, 'The condition could not be fulfilled')
         .onlyIf(relation.condition)
         .summary(relation.summary)
@@ -235,12 +233,10 @@
     to: 'service',
 
     executeOneToOne: function (controller, graph, relation, from, to) {
-      var BodyParam = Foxx.Model.extend({ schema: relation.parameters });
-
       from.addLinkViaTransitionTo(relation, to);
 
       controller[to.verb](to.urlTemplate, to.action)
-        .bodyParam(to.name, 'TODO', BodyParam)
+        .bodyParam(to.name, 'TODO', constructBodyParams(relation))
         .errorResponse(ConditionNotFulfilled, 403, 'The condition could not be fulfilled')
         .onlyIf(relation.condition)
         .summary(relation.summary)
