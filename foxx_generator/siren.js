@@ -6,6 +6,7 @@
     ConditionNotFulfilled = require('./condition_not_fulfilled').ConditionNotFulfilled,
     RelationRepository = require('./relation_repository').RelationRepository,
     Strategy = require('./strategy').Strategy,
+    joi = require('joi'),
     ModifyAnEntity,
     AddEntityToRepository,
     ConnectRepoWithEntity,
@@ -37,10 +38,7 @@
         serviceState.action(req, res);
       }).errorResponse(ConditionNotFulfilled, 403, 'The condition could not be fulfilled')
         .onlyIf(relation.condition)
-        .pathParam('id', {
-          description: 'ID of the entity',
-          type: 'string'
-        })
+        .pathParam('id', joi.string().description('ID of the entity'))
         .bodyParam(nameOfRootElement, 'TODO', BodyParam)
         .summary(relation.summary)
         .notes(relation.notes);
@@ -70,10 +68,7 @@
         res.json(result.forClient());
       }).errorResponse(ConditionNotFulfilled, 403, 'The condition could not be fulfilled')
         .onlyIf(relation.condition)
-        .pathParam('id', {
-          description: 'ID of the entity',
-          type: 'string'
-        })
+        .pathParam('id', joi.string().description('ID of the entity'))
         .bodyParam(nameOfRootElement, 'TODO', BodyParam)
         .summary(relation.summary)
         .notes(relation.notes);
@@ -93,10 +88,8 @@
       controller.post(url, function (req, res) {
         relationRepository.replaceRelation(req.params('id'), req.body()[relation.name]);
         res.status(204);
-      }).pathParam('id', {
-        description: 'ID of the document',
-        type: 'string'
-      }).errorResponse(VertexNotFound, 404, 'The vertex could not be found')
+      }).pathParam('id', joi.string().description('ID of the document'))
+        .errorResponse(VertexNotFound, 404, 'The vertex could not be found')
         .errorResponse(ConditionNotFulfilled, 403, 'The condition could not be fulfilled')
         .onlyIf(relation.condition)
         .summary(relation.summary)
@@ -110,10 +103,8 @@
       controller.post(url, function (req, res) {
         relationRepository.addRelations(req.params('id'), req.body()[relation.name]);
         res.status(204);
-      }).pathParam('id', {
-        description: 'ID of the document',
-        type: 'string'
-      }).errorResponse(VertexNotFound, 404, 'The vertex could not be found')
+      }).pathParam('id', joi.string().description('ID of the document'))
+        .errorResponse(VertexNotFound, 404, 'The vertex could not be found')
         .errorResponse(ConditionNotFulfilled, 403, 'The condition could not be fulfilled')
         .onlyIf(relation.condition)
         .summary(relation.summary)
@@ -134,10 +125,8 @@
       controller.delete(url, function (req, res) {
         relationRepository.deleteRelation(req.params('id'));
         res.status(204);
-      }).pathParam('id', {
-        description: 'ID of the document',
-        type: 'string'
-      }).errorResponse(VertexNotFound, 404, 'The vertex could not be found')
+      }).pathParam('id', joi.string().description('ID of the document'))
+        .errorResponse(VertexNotFound, 404, 'The vertex could not be found')
         .errorResponse(ConditionNotFulfilled, 403, 'The condition could not be fulfilled')
         .onlyIf(relation.condition)
         .summary(relation.summary)
@@ -223,10 +212,8 @@
           entry = repository.byIdWithNeighbors(id);
 
         res.json(entry.forClient());
-      }).pathParam('id', {
-        description: 'ID of the document',
-        type: 'string'
-      }).errorResponse(ConditionNotFulfilled, 403, 'The condition could not be fulfilled')
+      }).pathParam('id', joi.string().description('ID of the document'))
+        .errorResponse(ConditionNotFulfilled, 403, 'The condition could not be fulfilled')
         .onlyIf(relation.condition)
         .summary(relation.summary)
         .notes(relation.notes);
