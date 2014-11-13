@@ -23,7 +23,7 @@
     relation: 'one-to-one',
 
     executeOneToOne: function (controller, graph, relation, entityState, serviceState) {
-      var url = entityState.urlTemplate + '/' + relation.name,
+      var url = serviceState.urlTemplate,
         nameOfRootElement = entityState.name,
         BodyParam = Foxx.Model.extend({ schema: relation.parameters }),
         verb = serviceState.verb,
