@@ -13,10 +13,6 @@
       return type === this.type && from === this.from && to === this.to;
     },
 
-    prepare: function () {
-      report('Nothing to prepare with type %s from %s to %s', this.type, this.from, this.to);
-    },
-
     /*jshint maxlen: 200 */
     executeOneToOne: function () {
       report('Nothing to execute for one to one with type %s from %s to %s', this.type, this.from, this.to);

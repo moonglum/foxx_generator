@@ -13,11 +13,6 @@
   _.extend(Transition.prototype, {
     edgeCollectionName: function (from, to) { return this.collectionBaseName + '_' + from.name + '_' + to.name; },
 
-    prepare: function (from, to) {
-      var context = new this.Context(this.type, from.type, to.type);
-      context.prepare(from, to);
-    },
-
     addRoutesForOneRelation: function (controller, graph, relation, from, to) {
       var context = new this.Context(this.type, from.type, to.type);
       context.executeOneToOne(controller, graph, relation, from, to);

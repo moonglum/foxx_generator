@@ -18,10 +18,6 @@
   /*jshint maxlen: 100 */
 
   _.extend(Context.prototype, {
-    prepare: function (from, to) {
-      this.strategy.prepare(from, to);
-    },
-
     executeOneToOne: function (controller, graph, relation, from, to) {
       this.strategy.executeOneToOne(controller, graph, relation, from, to);
     },

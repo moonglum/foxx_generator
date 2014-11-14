@@ -48,8 +48,6 @@
         var transition = definitions[transitionDescription.via],
           to = states[transitionDescription.to];
 
-        transition.prepare(this, to);
-
         return {
           transition: transition,
           to: to
