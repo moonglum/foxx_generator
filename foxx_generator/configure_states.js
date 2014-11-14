@@ -76,10 +76,12 @@
   });
 
   copyInfoFromRepositoryState = function (entity) {
-    var repositoryState = entity.repositoryState;
+    var repositoryState = entity.repositoryState,
+      repository = repositoryState.repository;
     entity.collectionName = repositoryState.collectionName;
     entity.collection = repositoryState.collection;
     entity.repository = repositoryState.repository;
+    repository.relations = entity.relations;
   };
 
   configureStates = function (states) {

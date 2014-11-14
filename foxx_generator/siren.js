@@ -152,11 +152,6 @@
     from: 'repository',
     to: 'entity',
 
-    prepare: function (from, to) {
-      var repository = from.repository;
-      repository.relations = to.relations;
-    },
-
     executeOneToOne: function (controller, graph, relation, repositoryState, entityState) {
       var action = function (req, res) {
         var id = req.params('id'),
