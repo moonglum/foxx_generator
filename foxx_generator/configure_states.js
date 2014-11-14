@@ -92,12 +92,6 @@
 
     _.each(states, determineSuperstate(states));
     _.each(states, determineUrlTemplateIfNotDetermined);
-
-    // TODO: Remove DEBUG info
-    _.each(states, function (state) {
-      require('console').log('State %s: %s', state.name, state.urlTemplate);
-    });
-
     _.each(starts, prepareStartState);
     _.each(services, prepareServiceState);
     _.each(entities, prepareEntityState(states));
