@@ -19,11 +19,11 @@
 
   _.extend(Context.prototype, {
     executeOneToOne: function (controller, graph, relation, from, to) {
-      this.strategy.executeOneToOne(controller, graph, relation, from, to);
+      this.strategy.execute(controller, graph, relation, from, to);
     },
 
     executeOneToMany: function (controller, graph, relation, from, to) {
-      this.strategy.executeOneToMany(controller, graph, relation, from, to);
+      this.strategy.execute(controller, graph, relation, from, to);
     }
   });
 

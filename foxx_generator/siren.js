@@ -22,7 +22,7 @@
     to: 'service',
     cardinality: 'one-to-one',
 
-    executeOneToOne: function (controller, graph, relation, entityState, serviceState) {
+    execute: function (controller, graph, relation, entityState, serviceState) {
       var action = function (req, res) {
         var id = req.params('id'),
           entity = entityState.repository.byId(id),
@@ -44,7 +44,7 @@
     to: 'entity',
     cardinality: 'one-to-one',
 
-    executeOneToOne: function (controller, graph, relation, entityState) {
+    execute: function (controller, graph, relation, entityState) {
       var action = function (req, res) {
         var id = req.params('id'),
           patch = req.params(entityState.name),
@@ -69,7 +69,7 @@
     to: 'entity',
     cardinality: 'one-to-one',
 
-    executeOneToOne: function (controller, graph, relation, from, to) {
+    execute: function (controller, graph, relation, from, to) {
       var relationRepository = new RelationRepository(from, to, relation, graph),
         action = function (req, res) {
           relationRepository.replaceRelation(req.params('id'), req.body()[relation.name]);
@@ -89,7 +89,7 @@
     to: 'entity',
     cardinality: 'one-to-many',
 
-    executeOneToMany: function (controller, graph, relation, from, to) {
+    execute: function (controller, graph, relation, from, to) {
       var relationRepository = new RelationRepository(from, to, relation, graph),
         action = function (req, res) {
           relationRepository.addRelations(req.params('id'), req.body()[relation.name]);
@@ -109,7 +109,7 @@
     to: 'entity',
     cardinality: 'one-to-one',
 
-    executeOneToOne: function (controller, graph, relation, from, to) {
+    execute: function (controller, graph, relation, from, to) {
       var relationRepository = new RelationRepository(from, to, relation, graph),
         action = function (req, res) {
           relationRepository.deleteRelation(req.params('id'));
@@ -129,7 +129,7 @@
     to: 'entity',
     cardinality: 'one-to-many',
 
-    executeOneToOne: function (controller, graph, relation, from, to) {}
+    execute: function (controller, graph, relation, from, to) {}
   });
 
 
@@ -139,7 +139,7 @@
     to: 'entity',
     cardinality: 'one-to-one',
 
-    executeOneToOne: function (controller, graph, relation, from, to) {},
+    execute: function (controller, graph, relation, from, to) {},
   });
 
   FollowToEntityToMany = Strategy.extend({
@@ -148,7 +148,7 @@
     to: 'entity',
     cardinality: 'one-to-many',
 
-    executeOneToMany: function (controller, graph, relation, from, to) {}
+    execute: function (controller, graph, relation, from, to) {}
   });
 
   AddEntityToRepository = Strategy.extend({
@@ -157,7 +157,7 @@
     to: 'entity',
     cardinality: 'one-to-one',
 
-    executeOneToOne: function (controller, graph, relation, repositoryState, entityState) {
+    execute: function (controller, graph, relation, repositoryState, entityState) {
       var action = function (req, res) {
         var data = {},
           model = req.params(entityState.name);
@@ -182,7 +182,7 @@
     to: 'entity',
     cardinality: 'one-to-one',
 
-    executeOneToOne: function (controller, graph, relation, repositoryState, entityState) {
+    execute: function (controller, graph, relation, repositoryState, entityState) {
       var action = function (req, res) {
         var id = req.params('id'),
           entry = repositoryState.repository.byIdWithNeighbors(id);
@@ -205,7 +205,7 @@
     to: 'repository',
     cardinality: 'one-to-one',
 
-    executeOneToOne: function (controller, graph, relation, from, to) {
+    execute: function (controller, graph, relation, from, to) {
       var action = function (req, res) {
         res.json({
           properties: to.properties(),
@@ -230,7 +230,7 @@
     to: 'service',
     cardinality: 'one-to-one',
 
-    executeOneToOne: function (controller, graph, relation, from, to) {
+    execute: function (controller, graph, relation, from, to) {
       from.addLinkViaTransitionTo(relation, to);
 
       constructRoute(controller, to.verb, to.urlTemplate, to.action, relation, {
