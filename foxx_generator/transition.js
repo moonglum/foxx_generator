@@ -14,12 +14,12 @@
     edgeCollectionName: function (from, to) { return this.collectionBaseName + '_' + from.name + '_' + to.name; },
 
     addRoutesForOneRelation: function (controller, graph, relation, from, to) {
-      var context = new this.Context(this.type, from.type, to.type);
+      var context = new this.Context(this.type, from.type, to.type, 'one-to-one');
       context.executeOneToOne(controller, graph, relation, from, to);
     },
 
     addRoutesForManyRelation: function (controller, graph, relation, from, to) {
-      var context = new this.Context(this.type, from.type, to.type);
+      var context = new this.Context(this.type, from.type, to.type, 'one-to-many');
       context.executeOneToMany(controller, graph, relation, from, to);
     },
 

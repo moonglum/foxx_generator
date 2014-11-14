@@ -9,15 +9,18 @@
     ConnectStartWithRepository,
     ConnectToService,
     DisconnectTwoEntities,
+    DisconnectTwoEntitiesToMany,
     ConnectEntityToService,
     ConnectTwoEntities,
-    FollowToEntity;
+    ConnectTwoEntitiesToMany,
+    FollowToEntity,
+    FollowToEntityToMany;
 
   ConnectEntityToService = Strategy.extend({
     type: 'follow',
     from: 'entity',
     to: 'service',
-    relation: 'one-to-one',
+    cardinality: 'one-to-one',
 
     executeOneToOne: function (controller, graph, relation, entityState, serviceState) {
       var action = function (req, res) {
@@ -39,7 +42,7 @@
     type: 'modify',
     from: 'entity',
     to: 'entity',
-    relation: 'one-to-one',
+    cardinality: 'one-to-one',
 
     executeOneToOne: function (controller, graph, relation, entityState) {
       var action = function (req, res) {
@@ -64,7 +67,7 @@
     type: 'connect',
     from: 'entity',
     to: 'entity',
-    relation: 'one-to-one',
+    cardinality: 'one-to-one',
 
     executeOneToOne: function (controller, graph, relation, from, to) {
       var relationRepository = new RelationRepository(from, to, relation, graph),
@@ -77,7 +80,14 @@
         path: true,
         body: false
       });
-    },
+    }
+  });
+
+  ConnectTwoEntitiesToMany = Strategy.extend({
+    type: 'connect',
+    from: 'entity',
+    to: 'entity',
+    cardinality: 'one-to-many',
 
     executeOneToMany: function (controller, graph, relation, from, to) {
       var relationRepository = new RelationRepository(from, to, relation, graph),
@@ -97,7 +107,7 @@
     type: 'disconnect',
     from: 'entity',
     to: 'entity',
-    relation: 'one-to-one',
+    cardinality: 'one-to-one',
 
     executeOneToOne: function (controller, graph, relation, from, to) {
       var relationRepository = new RelationRepository(from, to, relation, graph),
@@ -113,13 +123,31 @@
     }
   });
 
+  DisconnectTwoEntitiesToMany = Strategy.extend({
+    type: 'disconnect',
+    from: 'entity',
+    to: 'entity',
+    cardinality: 'one-to-many',
+
+    executeOneToOne: function (controller, graph, relation, from, to) {}
+  });
+
+
   FollowToEntity = Strategy.extend({
     type: 'follow',
     from: 'entity',
     to: 'entity',
-    relation: 'one-to-one',
+    cardinality: 'one-to-one',
 
     executeOneToOne: function (controller, graph, relation, from, to) {},
+  });
+
+  FollowToEntityToMany = Strategy.extend({
+    type: 'follow',
+    from: 'entity',
+    to: 'entity',
+    cardinality: 'one-to-many',
+
     executeOneToMany: function (controller, graph, relation, from, to) {}
   });
 
@@ -127,6 +155,7 @@
     type: 'connect',
     from: 'repository',
     to: 'entity',
+    cardinality: 'one-to-one',
 
     executeOneToOne: function (controller, graph, relation, repositoryState, entityState) {
       var action = function (req, res) {
@@ -151,6 +180,7 @@
     type: 'follow',
     from: 'repository',
     to: 'entity',
+    cardinality: 'one-to-one',
 
     executeOneToOne: function (controller, graph, relation, repositoryState, entityState) {
       var action = function (req, res) {
@@ -173,6 +203,7 @@
     type: 'follow',
     from: 'start',
     to: 'repository',
+    cardinality: 'one-to-one',
 
     executeOneToOne: function (controller, graph, relation, from, to) {
       var action = function (req, res) {
@@ -197,6 +228,7 @@
     type: 'follow',
     from: 'start',
     to: 'service',
+    cardinality: 'one-to-one',
 
     executeOneToOne: function (controller, graph, relation, from, to) {
       from.addLinkViaTransitionTo(relation, to);
@@ -213,11 +245,14 @@
       new ModifyAnEntity(),
       new ConnectTwoEntities(),
       new DisconnectTwoEntities(),
+      new DisconnectTwoEntitiesToMany(),
       new FollowToEntity(),
+      new FollowToEntityToMany(),
       new AddEntityToRepository(),
       new ConnectRepoWithEntity(),
       new ConnectEntityToService(),
       new ConnectToService(),
+      new ConnectTwoEntitiesToMany(),
       new ConnectStartWithRepository()
     ]
   };
