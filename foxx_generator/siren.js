@@ -20,7 +20,7 @@
     type: 'follow',
     from: 'entity',
     to: 'service',
-    cardinality: 'one-to-one',
+    cardinality: 'one',
 
     execute: function (controller, graph, relation, entityState, serviceState) {
       var action = function (req, res) {
@@ -42,7 +42,7 @@
     type: 'modify',
     from: 'entity',
     to: 'entity',
-    cardinality: 'one-to-one',
+    cardinality: 'one',
 
     execute: function (controller, graph, relation, entityState) {
       var action = function (req, res) {
@@ -67,7 +67,7 @@
     type: 'connect',
     from: 'entity',
     to: 'entity',
-    cardinality: 'one-to-one',
+    cardinality: 'one',
 
     execute: function (controller, graph, relation, from, to) {
       var relationRepository = new RelationRepository(from, to, relation, graph),
@@ -87,7 +87,7 @@
     type: 'connect',
     from: 'entity',
     to: 'entity',
-    cardinality: 'one-to-many',
+    cardinality: 'many',
 
     execute: function (controller, graph, relation, from, to) {
       var relationRepository = new RelationRepository(from, to, relation, graph),
@@ -107,7 +107,7 @@
     type: 'disconnect',
     from: 'entity',
     to: 'entity',
-    cardinality: 'one-to-one',
+    cardinality: 'one',
 
     execute: function (controller, graph, relation, from, to) {
       var relationRepository = new RelationRepository(from, to, relation, graph),
@@ -127,7 +127,7 @@
     type: 'disconnect',
     from: 'entity',
     to: 'entity',
-    cardinality: 'one-to-many',
+    cardinality: 'many',
 
     execute: function (controller, graph, relation, from, to) {}
   });
@@ -137,7 +137,7 @@
     type: 'follow',
     from: 'entity',
     to: 'entity',
-    cardinality: 'one-to-one',
+    cardinality: 'one',
 
     execute: function (controller, graph, relation, from, to) {},
   });
@@ -146,7 +146,7 @@
     type: 'follow',
     from: 'entity',
     to: 'entity',
-    cardinality: 'one-to-many',
+    cardinality: 'many',
 
     execute: function (controller, graph, relation, from, to) {}
   });
@@ -155,7 +155,7 @@
     type: 'connect',
     from: 'repository',
     to: 'entity',
-    cardinality: 'one-to-one',
+    cardinality: 'one',
 
     execute: function (controller, graph, relation, repositoryState, entityState) {
       var action = function (req, res) {
@@ -180,7 +180,7 @@
     type: 'follow',
     from: 'repository',
     to: 'entity',
-    cardinality: 'one-to-one',
+    cardinality: 'one',
 
     execute: function (controller, graph, relation, repositoryState, entityState) {
       var action = function (req, res) {
@@ -203,7 +203,7 @@
     type: 'follow',
     from: 'start',
     to: 'repository',
-    cardinality: 'one-to-one',
+    cardinality: 'one',
 
     execute: function (controller, graph, relation, from, to) {
       var action = function (req, res) {
@@ -228,7 +228,7 @@
     type: 'follow',
     from: 'start',
     to: 'service',
-    cardinality: 'one-to-one',
+    cardinality: 'one',
 
     execute: function (controller, graph, relation, from, to) {
       from.addLinkViaTransitionTo(relation, to);

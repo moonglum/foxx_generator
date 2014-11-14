@@ -3,16 +3,7 @@
   var extend = require('org/arangodb/extend').extend,
     ConditionNotFulfilled = require('./condition_not_fulfilled').ConditionNotFulfilled,
     _ = require('underscore'),
-    wrapCondition,
     Transition;
-
-  wrapCondition = function (condition) {
-    return function (req) {
-      if (!condition(req)) {
-        throw new ConditionNotFulfilled('Condition was not fulfilled');
-      }
-    };
-  };
 
   Transition = function (graph, controller) {
     this.graph = graph;
@@ -20,30 +11,40 @@
   };
 
   _.extend(Transition.prototype, {
-    edgeCollectionName: function (from, to) { return this.collectionBaseName + '_' + from.name + '_' + to.name; },
+    extendEdgeDefinitions: function(from, to) {
+      var edgeCollectionName = this.collectionBaseName + '_' + from.name + '_' + to.name;
+      return this.graph.extendEdgeDefinitions(edgeCollectionName, from, to);
+    },
 
-    relationBetween: function (from, to) {
-      return {
+    wrappedCondition: function () {
+      var condition = this.condition;
+
+      return function (req) {
+        if (!condition(req)) {
+          throw new ConditionNotFulfilled('Condition was not fulfilled');
+        }
+      };
+    },
+
+    createContext: function(from, to) {
+      var context = new this.Context(from, to, {
         name: this.relationName,
-        edgeCollectionName: this.graph.extendEdgeDefinitions(this.edgeCollectionName(from, to), from, to),
+        edgeCollectionName: this.extendEdgeDefinitions(from, to),
         cardinality: this.cardinality,
         type: this.type,
         parameters: this.parameters,
         summary: this.summary,
         notes: this.notes,
-        condition: wrapCondition(this.condition),
+        condition: this.wrappedCondition(),
         precondition: this.precondition,
         to: to
-      };
+      });
+
+      return context;
     },
 
     apply: function (from, to) {
-      var relation = this.relationBetween(from, to),
-        context = new this.Context(this.type, from.type, to.type, 'one-to-' + relation.cardinality);
-
-      from.relations.push(relation);
-
-      context.execute(this.controller, this.graph, relation, from, to);
+      this.createContext(from, to).execute(this.controller, this.graph);
     }
   });
 
