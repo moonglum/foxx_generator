@@ -13,14 +13,9 @@
   _.extend(Transition.prototype, {
     edgeCollectionName: function (from, to) { return this.collectionBaseName + '_' + from.name + '_' + to.name; },
 
-    addRoutesForOneRelation: function (controller, graph, relation, from, to) {
-      var context = new this.Context(this.type, from.type, to.type, 'one-to-one');
-      context.executeOneToOne(controller, graph, relation, from, to);
-    },
-
-    addRoutesForManyRelation: function (controller, graph, relation, from, to) {
-      var context = new this.Context(this.type, from.type, to.type, 'one-to-many');
-      context.executeOneToMany(controller, graph, relation, from, to);
+    addRoutes: function (controller, graph, relation, from, to, cardinality) {
+      var context = new this.Context(this.type, from.type, to.type, cardinality);
+      context.execute(controller, graph, relation, from, to);
     },
 
     apply: function (from, to) {
@@ -49,11 +44,7 @@
 
       from.relations.push(relation);
 
-      if (relation.cardinality === 'many') {
-        this.addRoutesForManyRelation(this.controller, this.graph, relation, from, to);
-      } else if (relation.cardinality === 'one') {
-        this.addRoutesForOneRelation(this.controller, this.graph, relation, from, to);
-      }
+      this.addRoutes(this.controller, this.graph, relation, from, to, 'one-to-' + relation.cardinality);
     }
   });
 

@@ -18,11 +18,7 @@
   /*jshint maxlen: 100 */
 
   _.extend(Context.prototype, {
-    executeOneToOne: function (controller, graph, relation, from, to) {
-      this.strategy.execute(controller, graph, relation, from, to);
-    },
-
-    executeOneToMany: function (controller, graph, relation, from, to) {
+    execute: function (controller, graph, relation, from, to) {
       this.strategy.execute(controller, graph, relation, from, to);
     }
   });
