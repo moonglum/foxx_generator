@@ -2,8 +2,7 @@
   'use strict';
   var Strategy,
     _ = require('underscore'),
-    extend = require('org/arangodb/extend').extend,
-    report = require('./reporter').report;
+    extend = require('org/arangodb/extend').extend;
 
   Strategy = function () {
   };
