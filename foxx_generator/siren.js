@@ -14,7 +14,8 @@
     ConnectTwoEntities,
     ConnectTwoEntitiesToMany,
     FollowToEntity,
-    FollowToEntityToMany;
+    FollowToEntityToMany,
+    FollowFromRepositoryToService;
 
   ConnectEntityToService = Strategy.extend({
     type: 'follow',
@@ -240,6 +241,29 @@
     }
   });
 
+  FollowFromRepositoryToService = Strategy.extend({
+    type: 'follow',
+    from: 'repository',
+    to: 'service',
+    cardinality: 'one',
+
+    execute: function (controller, graph, relation, from, to) {
+      var action = function (req, res) {
+        var repository = from.repository,
+          opts = { superstate: { repository: repository } };
+
+        to.action(req, res, opts);
+      };
+
+      from.addLinkViaTransitionTo(relation, to);
+
+      constructRoute(controller, to.verb, to.urlTemplate, action, relation, {
+        path: false,
+        body: false // TODO: is it false?
+      });
+    }
+  });
+
   exports.mediaType = {
     strategies: [
       new ModifyAnEntity(),
@@ -253,7 +277,8 @@
       new ConnectEntityToService(),
       new ConnectToService(),
       new ConnectTwoEntitiesToMany(),
-      new ConnectStartWithRepository()
+      new ConnectStartWithRepository(),
+      new FollowFromRepositoryToService()
     ]
   };
 }());
