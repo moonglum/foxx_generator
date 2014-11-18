@@ -3,6 +3,7 @@
   var RelationRepository = require('./relation_repository').RelationRepository,
     Strategy = require('./strategy').Strategy,
     constructRoute = require('./construct_route').constructRoute,
+    wrapServiceAction = require('./wrap_service_action').wrapServiceAction,
     ModifyAnEntity,
     AddEntityToRepository,
     ConnectRepoWithEntity,
@@ -24,13 +25,7 @@
     cardinality: 'one',
 
     execute: function (controller, graph, relation, entityState, serviceState) {
-      var action = function (req, res) {
-        var id = req.params('id'),
-          entity = entityState.repository.byId(id),
-          opts = { superstate: { entity: entity } };
-
-        serviceState.action(req, res, opts);
-      };
+      var action = wrapServiceAction(serviceState);
 
       constructRoute(controller, serviceState.verb, serviceState.urlTemplate, action, relation, {
         body: false,
@@ -248,12 +243,7 @@
     cardinality: 'one',
 
     execute: function (controller, graph, relation, from, to) {
-      var action = function (req, res) {
-        var repository = from.repository,
-          opts = { superstate: { repository: repository } };
-
-        to.action(req, res, opts);
-      };
+      var action = wrapServiceAction(to);
 
       from.addLinkViaTransitionTo(relation, to);
 
