@@ -24,14 +24,12 @@
     to: 'service',
     cardinality: 'one',
 
-    execute: function (controller, graph, relation, entityState, serviceState) {
-      var action = wrapServiceAction(serviceState);
-
+    execute: function (controller, graph, relation, from, to) {
       constructRoute({
         controller: controller,
-        verb: serviceState.verb,
-        url: serviceState.urlTemplate,
-        action: action,
+        verb: to.verb,
+        url: to.urlTemplate,
+        action: wrapServiceAction(to),
         relation: relation,
         body: false,
         path: true
@@ -45,14 +43,14 @@
     to: 'entity',
     cardinality: 'one',
 
-    execute: function (controller, graph, relation, entityState) {
+    execute: function (controller, graph, relation, from) {
       var action = function (req, res) {
         var id = req.params('id'),
-          patch = req.params(entityState.name),
+          patch = req.params(from.name),
           result;
 
-        entityState.repository.updateById(id, patch.forDB());
-        result = entityState.repository.byIdWithNeighbors(id);
+        from.repository.updateById(id, patch.forDB());
+        result = from.repository.byIdWithNeighbors(id);
 
         res.json(result.forClient());
       };
@@ -60,10 +58,10 @@
       constructRoute({
         controller: controller,
         verb: 'patch',
-        url: entityState.urlTemplate,
+        url: from.urlTemplate,
         action: action,
         relation: relation,
-        body: entityState,
+        body: from,
         path: true
       });
     }
@@ -178,26 +176,26 @@
     to: 'entity',
     cardinality: 'one',
 
-    execute: function (controller, graph, relation, repositoryState, entityState) {
+    execute: function (controller, graph, relation, from, to) {
       var action = function (req, res) {
         var data = {},
-          model = req.params(entityState.name);
+          model = req.params(to.name);
 
-        data[entityState.name] = repositoryState.repository.save(model).forClient();
+        data[to.name] = from.repository.save(model).forClient();
         res.status(201);
         res.json(data);
       };
 
-      repositoryState.addActionWithMethodForRelation('POST', relation);
+      from.addActionWithMethodForRelation('POST', relation);
 
       constructRoute({
         controller: controller,
         verb: 'post',
-        url: repositoryState.urlTemplate,
+        url: from.urlTemplate,
         action: action,
         relation: relation,
         path: false,
-        body: entityState
+        body: to
       });
     }
   });
@@ -208,10 +206,10 @@
     to: 'entity',
     cardinality: 'one',
 
-    execute: function (controller, graph, relation, repositoryState, entityState) {
+    execute: function (controller, graph, relation, from, to) {
       var action = function (req, res) {
         var id = req.params('id'),
-          entry = repositoryState.repository.byIdWithNeighbors(id);
+          entry = from.repository.byIdWithNeighbors(id);
 
         res.json(entry.forClient());
       };
@@ -219,14 +217,14 @@
       constructRoute({
         controller: controller,
         verb: 'get',
-        url: entityState.urlTemplate,
+        url: to.urlTemplate,
         action: action,
         relation: relation,
         path: true,
         body: false
       });
 
-      repositoryState.addLinkToEntities(relation, entityState);
+      from.addLinkToEntities(relation, to);
     }
   });
 
