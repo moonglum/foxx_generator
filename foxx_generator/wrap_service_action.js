@@ -10,6 +10,7 @@
       var id = req.params('id');
       return {
         superstate: {
+          repository: state.repository,
           entity: state.repository.byId(id)
         }
       };
