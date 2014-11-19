@@ -11,13 +11,22 @@
     return Foxx.Model.extend({ schema: relation.parameters });
   };
 
-  constructRoute = function (controller, verb, url, action, relation, opts) {
-    var route = controller[verb](url, action)
+  constructRoute = function (opts) {
+    var route,
+      controller = opts.controller,
+      verb = opts.verb,
+      url = opts.url,
+      action = opts.action,
+      relation = opts.relation;
+
+    route = controller[verb](url, action)
       .errorResponse(VertexNotFound, 404, 'The vertex could not be found')
       .errorResponse(ConditionNotFulfilled, 403, 'The condition could not be fulfilled')
       .onlyIf(relation.condition)
       .summary(relation.summary)
       .notes(relation.notes);
+
+    require('console').log('Constructing a route for "%s"', url);
 
     if (opts.path) {
       route.pathParam('id', joi.string().description('ID of the entity'));

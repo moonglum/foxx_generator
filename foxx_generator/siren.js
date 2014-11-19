@@ -27,7 +27,12 @@
     execute: function (controller, graph, relation, entityState, serviceState) {
       var action = wrapServiceAction(serviceState);
 
-      constructRoute(controller, serviceState.verb, serviceState.urlTemplate, action, relation, {
+      constructRoute({
+        controller: controller,
+        verb: serviceState.verb,
+        url: serviceState.urlTemplate,
+        action: action,
+        relation: relation,
         body: false,
         path: true
       });
@@ -52,7 +57,12 @@
         res.json(result.forClient());
       };
 
-      constructRoute(controller, 'patch', entityState.urlTemplate, action, relation, {
+      constructRoute({
+        controller: controller,
+        verb: 'patch',
+        url: entityState.urlTemplate,
+        action: action,
+        relation: relation,
         body: entityState,
         path: true
       });
@@ -72,7 +82,12 @@
           res.status(204);
         };
 
-      constructRoute(controller, 'post', from.urlForRelation(relation), action, relation, {
+      constructRoute({
+        controller: controller,
+        verb: 'post',
+        url: from.urlForRelation(relation),
+        action: action,
+        relation: relation,
         path: true,
         body: false
       });
@@ -92,7 +107,12 @@
           res.status(204);
         };
 
-      constructRoute(controller, 'post', from.urlForRelation(relation), action, relation, {
+      constructRoute({
+        controller: controller,
+        verb: 'post',
+        url: from.urlForRelation(relation),
+        action: action,
+        relation: relation,
         path: true,
         body: false
       });
@@ -112,7 +132,12 @@
           res.status(204);
         };
 
-      constructRoute(controller, 'delete', from.urlForRelation(relation), action, relation, {
+      constructRoute({
+        controller: controller,
+        verb: 'delete',
+        url: from.urlForRelation(relation),
+        action: action,
+        relation: relation,
         path: true,
         body: false
       });
@@ -165,7 +190,12 @@
 
       repositoryState.addActionWithMethodForRelation('POST', relation);
 
-      constructRoute(controller, 'post', repositoryState.urlTemplate, action, relation, {
+      constructRoute({
+        controller: controller,
+        verb: 'post',
+        url: repositoryState.urlTemplate,
+        action: action,
+        relation: relation,
         path: false,
         body: entityState
       });
@@ -186,7 +216,12 @@
         res.json(entry.forClient());
       };
 
-      constructRoute(controller, 'get', entityState.urlTemplate, action, relation, {
+      constructRoute({
+        controller: controller,
+        verb: 'get',
+        url: entityState.urlTemplate,
+        action: action,
+        relation: relation,
         path: true,
         body: false
       });
@@ -213,7 +248,12 @@
 
       from.addLinkViaTransitionTo(relation, to);
 
-      constructRoute(controller, 'get', to.urlTemplate, action, relation, {
+      constructRoute({
+        controller: controller,
+        verb: 'get',
+        url: to.urlTemplate,
+        action: action,
+        relation: relation,
         path: false,
         body: false
       });
@@ -229,7 +269,12 @@
     execute: function (controller, graph, relation, from, to) {
       from.addLinkViaTransitionTo(relation, to);
 
-      constructRoute(controller, to.verb, to.urlTemplate, to.action, relation, {
+      constructRoute({
+        controller: controller,
+        verb: to.verb,
+        url: to.urlTemplate,
+        action: to.action,
+        relation: relation,
         path: false,
         body: to
       });
@@ -247,7 +292,12 @@
 
       from.addLinkViaTransitionTo(relation, to);
 
-      constructRoute(controller, to.verb, to.urlTemplate, action, relation, {
+      constructRoute({
+        controller: controller,
+        verb: to.verb,
+        url: to.urlTemplate,
+        action: action,
+        relation: relation,
         path: false,
         body: false // TODO: is it false?
       });
