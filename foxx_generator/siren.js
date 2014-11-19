@@ -3,7 +3,6 @@
   var RelationRepository = require('./relation_repository').RelationRepository,
     Strategy = require('./strategy').Strategy,
     constructRoute = require('./construct_route').constructRoute,
-    wrapServiceAction = require('./wrap_service_action').wrapServiceAction,
     ModifyAnEntity,
     AddEntityToRepository,
     ConnectRepoWithEntity,
@@ -27,9 +26,8 @@
     execute: function (controller, graph, relation, from, to) {
       constructRoute({
         controller: controller,
-        verb: to.verb,
-        url: to.urlTemplate,
-        action: wrapServiceAction(to),
+        from: from,
+        to: to,
         relation: relation,
         body: false,
         path: true
@@ -43,7 +41,7 @@
     to: 'entity',
     cardinality: 'one',
 
-    execute: function (controller, graph, relation, from) {
+    execute: function (controller, graph, relation, from, to) {
       var action = function (req, res) {
         var id = req.params('id'),
           patch = req.params(from.name),
@@ -60,6 +58,8 @@
         verb: 'patch',
         url: from.urlTemplate,
         action: action,
+        from: from,
+        to: to,
         relation: relation,
         body: from,
         path: true
@@ -85,6 +85,8 @@
         verb: 'post',
         url: from.urlForRelation(relation),
         action: action,
+        from: from,
+        to: to,
         relation: relation,
         path: true,
         body: false
@@ -110,6 +112,8 @@
         verb: 'post',
         url: from.urlForRelation(relation),
         action: action,
+        from: from,
+        to: to,
         relation: relation,
         path: true,
         body: false
@@ -135,6 +139,8 @@
         verb: 'delete',
         url: from.urlForRelation(relation),
         action: action,
+        from: from,
+        to: to,
         relation: relation,
         path: true,
         body: false
@@ -193,6 +199,8 @@
         verb: 'post',
         url: from.urlTemplate,
         action: action,
+        from: from,
+        to: to,
         relation: relation,
         path: false,
         body: to
@@ -217,8 +225,9 @@
       constructRoute({
         controller: controller,
         verb: 'get',
-        url: to.urlTemplate,
         action: action,
+        from: from,
+        to: to,
         relation: relation,
         path: true,
         body: false
@@ -249,8 +258,9 @@
       constructRoute({
         controller: controller,
         verb: 'get',
-        url: to.urlTemplate,
         action: action,
+        from: from,
+        to: to,
         relation: relation,
         path: false,
         body: false
@@ -269,9 +279,8 @@
 
       constructRoute({
         controller: controller,
-        verb: to.verb,
-        url: to.urlTemplate,
-        action: to.action,
+        from: from,
+        to: to,
         relation: relation,
         path: false,
         body: to
@@ -286,15 +295,12 @@
     cardinality: 'one',
 
     execute: function (controller, graph, relation, from, to) {
-      var action = wrapServiceAction(to);
-
       from.addLinkViaTransitionTo(relation, to);
 
       constructRoute({
         controller: controller,
-        verb: to.verb,
-        url: to.urlTemplate,
-        action: action,
+        from: from,
+        to: to,
         relation: relation,
         path: false,
         body: false // TODO: is it false?

@@ -3,6 +3,7 @@
   var Foxx = require('org/arangodb/foxx'),
     ConditionNotFulfilled = require('./condition_not_fulfilled').ConditionNotFulfilled,
     VertexNotFound = require('./vertex_not_found').VertexNotFound,
+    wrapServiceAction = require('./wrap_service_action').wrapServiceAction,
     constructBodyParams,
     joi = require('joi'),
     constructRoute;
@@ -14,10 +15,20 @@
   constructRoute = function (opts) {
     var route,
       controller = opts.controller,
-      verb = opts.verb,
-      url = opts.url,
-      action = opts.action,
+      // from = opts.from,
+      to = opts.to,
+      verb,
+      url = opts.url || to.urlTemplate,
+      action,
       relation = opts.relation;
+
+    if (to.type === 'service') {
+      verb = to.verb;
+      action = wrapServiceAction(to);
+    } else {
+      verb = opts.verb;
+      action = opts.action;
+    }
 
     route = controller[verb](url, action)
       .errorResponse(VertexNotFound, 404, 'The vertex could not be found')
