@@ -16,6 +16,7 @@
     var route,
       controller = opts.controller,
       // from = opts.from,
+      // graph = opts.graph,
       to = opts.to,
       verb,
       url = opts.url || to.urlTemplate,
