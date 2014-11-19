@@ -29,8 +29,7 @@
         graph: graph,
         from: from,
         to: to,
-        relation: relation,
-        body: false
+        relation: relation
       });
     }
   });
@@ -85,8 +84,7 @@
         },
         from: from,
         to: to,
-        relation: relation,
-        body: false
+        relation: relation
       });
     }
   });
@@ -111,8 +109,7 @@
         },
         from: from,
         to: to,
-        relation: relation,
-        body: false
+        relation: relation
       });
     }
   });
@@ -137,8 +134,7 @@
         },
         from: from,
         to: to,
-        relation: relation,
-        body: false
+        relation: relation
       });
     }
   });
@@ -147,9 +143,7 @@
     type: 'disconnect',
     from: 'entity',
     to: 'entity',
-    cardinality: 'many',
-
-    execute: function (controller, graph, relation, from, to) {}
+    cardinality: 'many'
   });
 
 
@@ -157,18 +151,14 @@
     type: 'follow',
     from: 'entity',
     to: 'entity',
-    cardinality: 'one',
-
-    execute: function (controller, graph, relation, from, to) {},
+    cardinality: 'one'
   });
 
   FollowToEntityToMany = Strategy.extend({
     type: 'follow',
     from: 'entity',
     to: 'entity',
-    cardinality: 'many',
-
-    execute: function (controller, graph, relation, from, to) {}
+    cardinality: 'many'
   });
 
   AddEntityToRepository = Strategy.extend({
@@ -220,8 +210,7 @@
         },
         from: from,
         to: to,
-        relation: relation,
-        body: false
+        relation: relation
       });
 
       from.addLinkToEntities(relation, to);
@@ -251,8 +240,7 @@
         },
         from: from,
         to: to,
-        relation: relation,
-        body: false
+        relation: relation
       });
     }
   });
@@ -291,8 +279,7 @@
         graph: graph,
         from: from,
         to: to,
-        relation: relation,
-        body: false // TODO: is it false?
+        relation: relation
       });
     }
   });
