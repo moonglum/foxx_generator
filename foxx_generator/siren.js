@@ -26,11 +26,11 @@
     execute: function (controller, graph, relation, from, to) {
       constructRoute({
         controller: controller,
+        graph: graph,
         from: from,
         to: to,
         relation: relation,
-        body: false,
-        path: true
+        body: false
       });
     }
   });
@@ -55,14 +55,14 @@
 
       constructRoute({
         controller: controller,
+        graph: graph,
         verb: 'patch',
         url: from.urlTemplate,
         action: action,
         from: from,
         to: to,
         relation: relation,
-        body: from,
-        path: true
+        body: from
       });
     }
   });
@@ -82,13 +82,13 @@
 
       constructRoute({
         controller: controller,
+        graph: graph,
         verb: 'post',
         url: from.urlForRelation(relation),
         action: action,
         from: from,
         to: to,
         relation: relation,
-        path: true,
         body: false
       });
     }
@@ -109,13 +109,13 @@
 
       constructRoute({
         controller: controller,
+        graph: graph,
         verb: 'post',
         url: from.urlForRelation(relation),
         action: action,
         from: from,
         to: to,
         relation: relation,
-        path: true,
         body: false
       });
     }
@@ -136,13 +136,13 @@
 
       constructRoute({
         controller: controller,
+        graph: graph,
         verb: 'delete',
         url: from.urlForRelation(relation),
         action: action,
         from: from,
         to: to,
         relation: relation,
-        path: true,
         body: false
       });
     }
@@ -196,13 +196,13 @@
 
       constructRoute({
         controller: controller,
+        graph: graph,
         verb: 'post',
         url: from.urlTemplate,
         action: action,
         from: from,
         to: to,
         relation: relation,
-        path: false,
         body: to
       });
     }
@@ -224,12 +224,12 @@
 
       constructRoute({
         controller: controller,
+        graph: graph,
         verb: 'get',
         action: action,
         from: from,
         to: to,
         relation: relation,
-        path: true,
         body: false
       });
 
@@ -257,12 +257,12 @@
 
       constructRoute({
         controller: controller,
+        graph: graph,
         verb: 'get',
         action: action,
         from: from,
         to: to,
         relation: relation,
-        path: false,
         body: false
       });
     }
@@ -279,10 +279,10 @@
 
       constructRoute({
         controller: controller,
+        graph: graph,
         from: from,
         to: to,
         relation: relation,
-        path: false,
         body: to
       });
     }
@@ -299,10 +299,10 @@
 
       constructRoute({
         controller: controller,
+        graph: graph,
         from: from,
         to: to,
         relation: relation,
-        path: false,
         body: false // TODO: is it false?
       });
     }

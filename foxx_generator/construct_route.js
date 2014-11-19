@@ -37,9 +37,7 @@
       .summary(relation.summary)
       .notes(relation.notes);
 
-    require('console').log('Constructing a route for "%s"', url);
-
-    if (opts.path) {
+    if (url.indexOf(':') > 0) {
       route.pathParam('id', joi.string().description('ID of the entity'));
     }
 
