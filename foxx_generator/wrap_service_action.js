@@ -30,6 +30,10 @@
   selectByStateType = function (state) {
     var wrapper;
 
+    if (!state) {
+      return function () { return {}; };
+    }
+
     if (state.type === 'entity') {
       wrapper = wrapEntity;
     } else if (state.type === 'repository') {
